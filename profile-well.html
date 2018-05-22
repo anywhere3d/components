@@ -1,0 +1,44 @@
+ <div class="col-md-6 text-left">
+    <div class="col" id="home-welcome-back" style="display:block;">
+
+        <div class="form-control collapse-btn text-left" id="home-welcome-back-panel" type="button" 
+            data-toggle="collapse" data-target="#panel-welcome-back" aria-expanded="true" aria-controls="panel-welcome-back">
+            Welcome back <strong id="username">{{username}}</strong>&nbsp;<span class="glyphicon glyphicon-triangle-bottom"></span>
+        </div>
+
+        <div class="collapse in" id="panel-welcome-back">
+            <div class="well" style="height:300px;">
+                <div class="col-md-12">
+ 
+                    <div class="col-md-4">
+                        <div class="row thumbnail" id="profile-photo" style="margin:15px 0px;">
+                            <img src="/img/alien-head128x128.png" id="user-photo" class="img-rounded" alt="user picture">
+                            <a class="btn btn-small btn-outline photo-btn pull-right" id="import-photo-btn" title="import profile image"></a>
+                            <a class="btn btn-small btn-outline photo-btn pull-right" id="remove-photo-btn" title="remove profile image"></a>
+                        </div>
+                        <div class="form-group col" style="display:none;">
+                            <input type="file" id="image-input" class="form-control" name="imageInput" hidden>
+                            <span id="help-text" class="help-block small"></span>
+                            <span id="error-text" class="help-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8" style="padding-top:15px;">
+                        <h5 class="small">Member&nbsp;ID:&nbsp;<span id="member-id" class="text-normal"></span></h5>
+                        <h5 class="small">Last Login:&nbsp;<span id="last-login" class="text-normal"></span></h5>
+                        <h5 class="small">Profile&nbsp;Views:&nbsp;<span id="profile-views" class="text-normal"></span></h5>
+                        <h5 class="small">WebSpace&nbsp;Visitors:&nbsp;<span id="webspace-visitors" class="text-normal"></span></h5>
+                        <h5 class="small">Vip&nbsp;expires:&nbsp;<span id="vip-expires" class="text-normal"></span></h5><br>
+                        <p><a id="view-profile" class="btn btn-default form-control" role="button">View your profile</a></p>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <h5 class="small">Profile&nbsp;URL:&nbsp;<a id="profile-url"><span id="profile-url" class="text-normal link"></span></a></h5>
+                    <h5 class="small">WebSpace&nbsp;URL:&nbsp;<a id="webspace-url"><span id="webspace-url" class="text-normal link"></span></a></h5>
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+</div>
