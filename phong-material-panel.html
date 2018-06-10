@@ -37,11 +37,12 @@
 
     .texture-btn { margin-bottom:15px; }
 
-    .action-controls-output { 
-        width:50px; outline:none; /* margin-right:10px; */
+    .panel-controls-output { 
+        width:50px; outline:none;
         color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
         font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
     }
+
 </style>
 
 <!-- MeshPhongMaterial options -->
@@ -94,7 +95,7 @@
     <h4>Bump:</h4>
     <li>
         <label for="bumpMapScale-output" title="Edit material bumpMapScale">Bump Map Scale:</label>
-        <input type="number" id="bumpMapScale-output" class="action-controls-output pull-right" value="1" step="0.01">
+        <input type="number" id="bumpMapScale-output" class="panel-controls-output pull-right" value="1" step="0.01">
     </li>
 
 
@@ -122,11 +123,11 @@
     <h4>Normal:</h4>
     <li>
         <label for="normalMapScaleX-output" title="Edit material normal map scale x">Normal Map Scale x:</label>
-        <input type="number" id="normalMapScaleX-output" class="action-controls-output pull-right" value="1" step="0.01">
+        <input type="number" id="normalMapScaleX-output" class="panel-controls-output pull-right" value="1" step="0.01">
     </li>
     <li>
         <label for="normalMapScaleY-output" title="Edit material normal map scale y">Normal Map Scale y:</label>
-        <input type="number" id="normalMapScaleY-output" class="action-controls-output pull-right" value="1" step="0.01">
+        <input type="number" id="normalMapScaleY-output" class="panel-controls-output pull-right" value="1" step="0.01">
     </li>
 
 
@@ -154,11 +155,11 @@
     <h4>Displacement:</h4>
     <li>
         <label for="displacementScale-output" title="Edit material displacementScale">Displacement Scale:</label>
-        <input type="number" id="displacementScale-output" class="action-controls-output pull-right" value="1" step="0.01">
+        <input type="number" id="displacementScale-output" class="panel-controls-output pull-right" value="1" step="0.01">
     </li>    
     <li>
         <label for="displacementBias-output" title="Edit material displacementBias">Displacement Bias:</label>
-        <input type="number" id="displacementBias-output" class="action-controls-output pull-right" value="0" step="0.01">
+        <input type="number" id="displacementBias-output" class="panel-controls-output pull-right" value="0" step="0.01">
     </li>
 
 
@@ -233,7 +234,7 @@
     <h4>Lightmap:</h4>
     <li>
         <label for="lightMapIntensity-output" title="Edit material lightMapIntensity">Light Map Intensity:</label>
-        <input type="number" id="lightMapIntensity-output" class="action-controls-output pull-right" value="1" step="0.01">
+        <input type="number" id="lightMapIntensity-output" class="panel-controls-output pull-right" value="1" step="0.01">
     </li>
 
 
@@ -263,7 +264,7 @@
 
     <li>
         <label for="aoMapIntensity-output" title="Edit material aoMapIntensity">AO Map Intensity:</label>
-        <input type="number" id="aoMapIntensity-output" class="action-controls-output pull-right" value="1" step="0.01">
+        <input type="number" id="aoMapIntensity-output" class="panel-controls-output pull-right" value="1" step="0.01">
     </li>
 
     <hr>
@@ -289,7 +290,7 @@
 
     <li>
         <label for="emissiveIntensity-output" title="Edit material emissiveIntensity">Emissive Intensity:</label>
-        <input type="number" id="emissiveIntensity-output" class="action-controls-output pull-right" value="1" step="0.01">
+        <input type="number" id="emissiveIntensity-output" class="panel-controls-output pull-right" value="1" step="0.01">
     </li>
 
     <input type="hidden" id="sp-target-emissive">
@@ -341,43 +342,43 @@
     <ul>
         <li>
             <label for="shininess-output" title="Indicate shininess of material">Shininess:</label>
-            <input type="number" id="shininess-output" class="action-controls-output pull-right" value="0" step="1">
+            <input type="number" id="shininess-output" class="panel-controls-output pull-right" value="0" step="1">
         </li>
         <li>
             <label for="refractionRatio-output" title="Set refraction ratio">Refraction Ratio:</label>
-            <input type="number" id="refractionRatio-output" class="action-controls-output pull-right" value="0.98" step="0.01">
+            <input type="number" id="refractionRatio-output" class="panel-controls-output pull-right" value="0.98" step="0.01">
         </li>
         <li>
             <label for="reflectivity-output" title="Set how much the environment map affects the surface">Reflectivity:</label>
-            <input type="number" id="reflectivity-output" class="action-controls-output pull-right" value="1" step="0.01">
+            <input type="number" id="reflectivity-output" class="panel-controls-output pull-right" value="1" step="0.01">
         </li>
         <li>
             <label for="opacity-output" title="Indicate transparent of material.">Opacity:</label>
-            <input type="number" id="opacity-output" class="action-controls-output pull-right" min="0" max="1" value="1" step="0.01">
+            <input type="number" id="opacity-output" class="panel-controls-output pull-right" min="0" max="1" value="1" step="0.01">
         </li>
         <li>
             <label for="transparent-checkbox" title="Defines whether material is transparent.">Transparent:</label>
-            <input type="checkbox" id="transparent-checkbox" class="action-controls-output pull-right">
+            <input type="checkbox" id="transparent-checkbox" class="panel-controls-output pull-right">
         </li>
         <li>
             <label for="skinning-checkbox" title="Material uses skinning">Skinning:</label>
-            <input type="checkbox" id="skinning-checkbox" class="action-controls-output pull-right" checked disabled>
+            <input type="checkbox" id="skinning-checkbox" class="panel-controls-output pull-right" checked disabled>
         </li>
         <li>
             <label for="depthTest-checkbox" title="Whether to have depth test enabled">Depth Test:</label>
-            <input type="checkbox" id="depthTest-checkbox" class="action-controls-output pull-right" checked>
+            <input type="checkbox" id="depthTest-checkbox" class="panel-controls-output pull-right" checked>
         </li>
         <li>
             <label for="depthWrite-checkbox" title="Whether rendering this material has any effect on the depth buffer">Depth Write:</label>
-            <input type="checkbox" id="depthWrite-checkbox" class="action-controls-output pull-right" checked>
+            <input type="checkbox" id="depthWrite-checkbox" class="panel-controls-output pull-right" checked>
         </li>
         <li>
             <label for="visible-checkbox" title="Defines whether this material is visible">Visible:</label>
-            <input type="checkbox" id="visible-checkbox" class="action-controls-output pull-right" checked>
+            <input type="checkbox" id="visible-checkbox" class="panel-controls-output pull-right" checked>
         </li>        
         <li>
             <label for="side-checkbox" title="Defines which of the face sides will be rendered on both sides">Both sides:</label>
-            <input type="checkbox" id="side-checkbox" class="action-controls-output pull-right">
+            <input type="checkbox" id="side-checkbox" class="panel-controls-output pull-right">
         </li>
     </ul>
 
@@ -421,17 +422,17 @@
 
     <li>
         <label for="envMapIntensity-output" title="Edit material envMapIntensity">Environment Intensity:</label>
-        <input type="number" id="envMapIntensity-output" class="action-controls-output pull-right" value="1" step="0.01">
+        <input type="number" id="envMapIntensity-output" class="panel-controls-output pull-right" value="1" step="0.01">
     </li>   
 
     <hr>
 
 </div>
 
-
+<script src="/js/dialogTargetEventListeners.js"></script>
 
 <script>
-
+/*
 //  dialogTargetEventListeners.js
 
     function targetremoveInputEventListener(selector){
@@ -559,7 +560,7 @@
             $(removeSelector).hide();
         }
     }
-
+*/
 </script>
 
     <!-- LOAD SCRIPT FUNCTIONS -->
@@ -999,6 +1000,4 @@
     $OutfitEditorPanel.dialog("open");
 
 </script>
-
-
 

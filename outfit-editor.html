@@ -18,6 +18,7 @@
 <li id="outfit-shoes-button" class="helpers unisex-asset"><a>Shoes</a></li>
 <li id="outfit-coat-button" class="helpers non-ready"><a>Coat</a></li>
 
+<!-- 
 <h4>Accessories:</h4>
 
 <li id="outfit-earings-button" class="helpers non-ready"><a>Earrings</a></li>
@@ -26,9 +27,15 @@
 <li id="outfit-jewelry-button" class="helpers non-ready"><a>Jewelery</a></li>
 <li id="outfit-rings-button" class="helpers non-ready"><a>Rings</a></li>
 
+<h4>Private parts:</h4>
 
+<li id="outfit-penis-button" class="helpers non-ready"><a>Penis</a></li>
+<li id="outfit-vagina-button" class="helpers non-ready"><a>Vagina</a></li>
+ -->
 
 <script>
+
+//  OutfitEditorManager.js
 
     var maleAssetSelector   = ".male-asset";
     var femaleAssetSelector = ".female-asset";
@@ -55,21 +62,212 @@
     var outfitDressButtonSelector = "#outfit-dress-button";
     var outfitShoesButtonSelector = "#outfit-shoes-button";
 
+
+//  1.Show avaliable outfit options.
+
+    $(helpersSelector).on("click", function(){
+        showAvaliableOutfitOptions();
+    });
+
+
+//  2.Reset color and active of all helpers.
+
+    $OutfitEditorPanel.on( "dialogclose", function( event, ui ) {
+        $OutfitEditorPanel.active = false;
+        $(helpersSelector).find("a").css("color", "");
+        for (var i = 0; i < $(helpersSelector).length; i++){
+            $(helpersSelector)[i].active = false;
+        }
+    });
+
+
+//  3.Toggle current helper active and reset others active.
+
+    $(helpersSelector).on("click", function(){
+        for (var i = 0; i < $(helpersSelector).length; i++){
+            if ( $(helpersSelector)[i] == this ) {
+                 this.active = !this.active;
+            } else {
+                $(helpersSelector)[i].active = false;
+            }       
+        }
+    });
+
+
+//  4.Reset all helpers color.
+
+    $(helpersSelector).on("click", function(){
+        $(helpersSelector).find("a").css("color", "");
+    });
+
+
+//  5.Close outfit editor panel.
+
+    $(helpersSelector).on("click", function(){
+        if ( !this.active ) 
+            $OutfitEditorPanel.dialog("close");
+        else 
+            $OutfitEditorPanel.contents().remove();
+    });
+
+
+//  6.Finaly color active helper.
+
+    $(helpersSelector).on("click", function(){
+        if (this.active) $(this).find("a").css("color", "limegreen");
+    });
+
+
+//  7.Show avaliable outfit options.
+
+//    $(helpersSelector).on("click", function(){
+//        showAvaliableOutfitOptions();
+//    });
+
+    function showAvaliableOutfitOptions(){
+    //  version: webspaces-0.1.5-v0.1
+
+        if ( localPlayer.outfit.getGender("male") ){
+
+            $(maleAssetSelector).show();
+            $(femaleAssetSelector).hide();
+            $(unisexAssetSelector).show();
+
+        } else if ( localPlayer.outfit.getGender("female") ){
+
+            $(maleAssetSelector).hide();
+            $(femaleAssetSelector).show();
+            $(unisexAssetSelector).show();
+
+        } else {
+        
+            $(maleAssetSelector).hide();
+            $(femaleAssetSelector).hide();
+            $(unisexAssetSelector).hide();
+        }
+
+    //  Show avaliable buttons.
+        
+        if ( !!localPlayer.outfit.hairs ) 
+             $(avatarHairsButtonSelector).show();
+        else $(avatarHairsButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.bra ) 
+             $(outfitBraButtonSelector).show();
+        else $(outfitBraButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.panties ) 
+             $(outfitPantiesButtonSelector).show();
+        else $(outfitPantiesButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.boxers )
+             $(outfitBoxersButtonSelector).show();
+        else $(outfitBoxersButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.tshirt )
+             $(outfitTshirtButtonSelector).show();
+        else $(outfitTshirtButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.tshirt
+          && !!localPlayer.outfit.tshirt.material 
+          && !!localPlayer.outfit.tshirt.material.materials 
+          && localPlayer.outfit.tshirt.material.materials.length > 1 )
+             $(outfitTshirtStampButtonSelector).show();
+        else $(outfitTshirtStampButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.skirt )
+             $(outfitSkirtButtonSelector).show();
+        else $(outfitSkirtButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.trousers )
+             $(outfitTrousersButtonSelector).show();
+        else $(outfitTrousersButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.dress )
+             $(outfitDressButtonSelector).show();
+        else $(outfitDressButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.shoes )
+             $(outfitShoesButtonSelector).show();
+        else $(outfitShoesButtonSelector).hide();
+
+    }
+
 </script>
 
+<!-- 
+    BE CAREFULL: !!!IMPORTANT!!!
+    Avoid calling the script tag in $.load functions
+    because it calls the scripts synchronously.
+    The async keyword does not work in $.load() functions.
+-->
 
 <!-- OUTFIT EDITOR MANAGER -->
 
-
-<script src= "/js/OutfitEditorManager.js"></script>
-
+<!-- script async src="/js/OutfitEditorManager.js"></script>
 
     <!-- OUTFIT EDITOR -->
+
+<!-- script src="/js/outfit-panel.js"></script>
+<!-- script src="/js/outfit-boxers-panel.js"></script>
+<!-- script src="/js/outfit-bra-panel.js"></script>
+<!-- script src="/js/outfit-dress-panel.js"></script>
+<!-- script src="/js/outfit-panties-panel.js"></script>
+<!-- script src="/js/outfit-shoes-panel.js"></script>
+<!-- script src="/js/outfit-skirt-panel.js"></script>
+<!-- script src="/js/outfit-trousers-panel.js"></script>
+<!-- script src="/js/outfit-tshirt-panel.js"></script>
+<!-- script src="/js/outfit-tshirt-stamp-panel.js"></script -->
 
 
 <script>
 
-//  avatar-outfit-panel.js
+    function loadMaterialPanel(title, size){
+
+        if ( target instanceof THREE.MeshStandardMaterial ) {
+            var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
+            $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
+                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+                if (status == "success") debugMode && console.log("Standard Material Panel:", status);
+                $OutfitEditorPanel.dialog( "option", {title: title + " (standard)"} );
+            //  Settings.
+                textureSize = size || 256;
+            });
+            return;
+        }
+    
+        if ( target instanceof THREE.MeshLambertMaterial ) {
+            var lambertMaterialPanelComponent = componentsFolder + "lambert-material-panel.html";        
+            $OutfitEditorPanel.load(lambertMaterialPanelComponent, function(resoponse, status, xhr){
+                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+                if (status == "success") debugMode && console.log("Lambert Material Panel:", status);
+                $OutfitEditorPanel.dialog( "option", {title:  title + " (lambert)"} );
+            //  Settings.
+                textureSize = size || 256;
+            });
+            return;
+        }
+
+        if ( target instanceof THREE.MeshPhongMaterial ) {
+            var phongMaterialPanelComponent = componentsFolder + "phong-material-panel.html";        
+            $OutfitEditorPanel.load(phongMaterialPanelComponent, function(resoponse, status, xhr){
+                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+                if (status == "success") debugMode && console.log("Phong Material Panel:", status);
+                $OutfitEditorPanel.dialog( "option", {title:  title + " (phong)"} );
+            //  Settings.
+                textureSize = size || 256;
+            });
+            return;
+        }
+
+    }
+
+</script>
+
+
+<script>
+
+//  outfit-panel.js
 
     var avatarOutfitButtonSelector = "#avatar-outfit-button";
 
@@ -96,8 +294,10 @@
         $OutfitEditorPanel.load(outfitEditorPanelComponent, function(resoponse, status, xhr){
             if (status == "error")   console.error( status, xhr.status, xhr.statusText );
             if (status == "success") debugMode && console.log("Outfit Editor Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Avatar Outfit"} );
+            $OutfitEditorPanel.dialog( "option", {title: "Outfit"} );
+            showAvaliableOutfitOptions();  // IMPORTANT //
         });
+
     });
 
 </script>
@@ -133,14 +333,8 @@
             return;
         }
 
-        var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
-        $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Standard Material Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Outfit Bra"} );
-        //  Settings.
-            textureSize = 256;
-        });
+        loadMaterialPanel("Outfit Bra", 256);
+
     });
 
 </script>
@@ -174,14 +368,8 @@
             return;
         }
 
-        var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
-        $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Standard Material Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Outfit Panties"} );
-        //  Settings.
-            textureSize = 256;
-        });
+        loadMaterialPanel("Outfit Panties", 256);
+
     });
 
 </script>
@@ -215,14 +403,8 @@
             return;
         }
 
-        var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
-        $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Standard Material Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Outfit Boxers"} );
-        //  Settings.
-            textureSize = 256;
-        });
+        loadMaterialPanel("Outfit Boxers", 256);
+
     });
 
 </script>
@@ -259,14 +441,8 @@
             return;
         }
 
-        var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
-        $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Standard Material Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Outfit Tshirt"} );
-        //  Settings.
-            textureSize = 512;
-        });
+        loadMaterialPanel("Outfit Tshirt", 512);
+
     });
 
 </script>
@@ -302,14 +478,8 @@
             return;
         }
 
-        var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
-        $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Standard Material Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Outfit Tshirt Stamp"} );
-        //  Settings.
-            textureSize = 256;
-        });
+        loadMaterialPanel("Outfit TshirtStamp", 256);
+
     });
 
 </script>
@@ -343,14 +513,8 @@
             return;
         }
 
-        var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
-        $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Standard Material Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Outfit Skirt"} );
-        //  Settings.
-            textureSize = 256;
-        });
+        loadMaterialPanel("Outfit Skirt", 512);
+
     });
 
 </script>
@@ -384,14 +548,8 @@
             return;
         }
 
-        var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
-        $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Standard Material Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Outfit Dress"} );
-        //  Settings.
-            textureSize = 512;
-        });
+        loadMaterialPanel("Outfit Dress", 512);
+
     });
 
 </script>
@@ -425,14 +583,8 @@
             return;
         }
 
-        var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
-        $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Standard Material Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Outfit Trousers"} );
-        //  Settings.
-            textureSize = 512;
-        });
+        loadMaterialPanel("Outfit Trousers", 512);
+
     });
 
 </script>
@@ -466,14 +618,8 @@
             return;
         }
 
-        var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
-        $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Standard Material Panel:", status);
-            $OutfitEditorPanel.dialog( "option", {title: "Outfit Shoes"} );
-        //  Settings.
-            textureSize = 128;
-        });
+        loadMaterialPanel("Outfit Shoes", 128);
+
     });
 
 </script>
@@ -569,13 +715,6 @@
 */
 //  ------------------- DEPRECATED ------------------ //
 </script>
-
-
-
-
-
-
-
 
 
 

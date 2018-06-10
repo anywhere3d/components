@@ -1,4 +1,4 @@
-<!-- outfit-body-panel-v3.html -->
+<!-- outfit-body-panel-v1.html -->
 
 <style>
 
@@ -6,8 +6,8 @@
         width:100% !important;
         min-width:100% !important;
         max-width:100% !important; 
-        min-height:450px !important;
-        max-height:450px !important; 
+        min-height:550px !important;
+        max-height:550px !important; 
         background-color:#000000;
     }
 
@@ -22,14 +22,12 @@
     .sp-container { width:100%; background-color:#000000; border:none; }
     .sp-input { color:#ffffff; border:none; }
     .sp-picker-container { width:90%; border:none; }
-    .col-pickers { padding:0px; }
-/*
-    .panel-controls-output { 
-        width:50px; outline:none;
+
+    .action-controls-output { 
+        width:50px; outline:none; /* margin-right:10px; */
         color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
         font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
     }
-*/
 </style>
 
 
@@ -50,13 +48,7 @@
 
 </div>
 
-<div id="skintone-buttons-holder" class="col-md-6 col-panel"></div>
-
-<div id="body-colorpickers-holder" class="col-md-12 col-panel col-pickers"></div>
-
-<!-- 
 <div id="outfit-body-male-skin-col" class="col-md-6 col-panel">
-
     <h4>Select male skintone:</h4>
 
     <a id="skin-map-hmSkinLight" name="hmSkinLight" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
@@ -72,11 +64,8 @@
     background-position:50% 50%; background-repeat:no-repeat;" title="Skin: hmSkinDark"></a>
 
 </div>
- -->
- 
-<!-- 
-<div id="outfit-body-import-skin-col" class="col-md-6 col-panel">
 
+<div id="outfit-body-import-skin-col" class="col-md-6 col-panel">
     <h4>Import skin texture:</h4>
 
     <a id="gender-doll" name="fmDoll" class="nav-link btn btn-default btn-white-outline avatar-btn" 
@@ -100,11 +89,8 @@
     background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove skin texture"></a>
 
 </div>
- -->
- 
-<!-- 
-<div id="outfit-body-female-skin-col" class="col-md-6 col-panel" style="height:auto;">
 
+<div id="outfit-body-female-skin-col" class="col-md-6 col-panel" style="height:auto;">
     <h4>Select female skintone:</h4>
 
     <a id="skin-map-fmSkinLight" name="fmSkinLight" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
@@ -120,9 +106,7 @@
     background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinDark"></a>
 
 </div>
- -->
- 
-<!-- 
+
 <div id="outfit-body-diffuse-col" class="col-md-6 col-panel">
     <h4>Skin tone (color):</h4>
     <input type="hidden" id="sp-body-color">
@@ -132,22 +116,11 @@
     <h4>Skin color (emissive):</h4>
     <input type="hidden" id="sp-body-emissive">
 </div>
- -->
+
 
 <script>
 
-//  debugMode && console.log( "target:", target == localPlayer.outfit.body );
-
-    var skintoneButtonsSelector  = "#skintone-buttons-holder";
-    var bodyColorpickersSelector = "#body-colorpickers-holder";
-
-    var maleSkintoneButtonsComponent = componentsFolder + "male-skintone-buttons.html";
-    var femaleSkintoneButtonsComponent = componentsFolder + "female-skintone-buttons.html";
-    var outfitBodyColorPickersComponent = componentsFolder + "outfit-body-colorpickers.html";
-
-</script>
-
-<script>
+    debugMode && console.log( "target:", target == localPlayer.outfit.body );
 
     var genderMaleSelector   = "#gender-male";
     var genderFemaleSelector = "#gender-female";
@@ -155,13 +128,9 @@
     var genderDollSelector   = "#gender-doll";
     
     $(genderMaleSelector).on("click", function(){
-
-        if ( localPlayer.outfit.getGender("male") ) return;
-
         var outfit = localPlayer.outfit;
         outfit.removeFromScene();
         outfit.setGender("male");
-        outfit.direction.scale.set(1.04, 1.04, 1.04);   // IMPORTANT //
 
         outfit.add( 
             {"skeleton": Avatars[ "skeleton" ]},
@@ -171,170 +140,47 @@
             {"trousers": Avatars[ "hmTrousers" ]},
             {"shoes":    Avatars[ "hmSneakers" ]}
         );
+        outfit.direction.scale.set(1.04, 1.04, 1.04); // IMPORTANT //
         outfit.skeleton.visible = false;
 
-        updateBodyColorpickers();                       // IMPORTANT //
-
-        $(skintoneButtonsSelector).contents().remove(); // IMPORTANT //
-
-   //   var maleSkintoneButtonsComponent = componentsFolder + "male-skintone-buttons.html";
-        $(skintoneButtonsSelector).load(maleSkintoneButtonsComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("male skintone buttons:", status);
-        });
+        updateBodyColorpickers();
     });
 
-</script>
-
-
-<script>
-
     $(genderFemaleSelector).on("click", function(){
-
-        if ( localPlayer.outfit.getGender("female") ) return;
-
         var outfit = localPlayer.outfit;
         outfit.removeFromScene();
         outfit.setGender("female");
-        outfit.direction.scale.set(1, 1, 1); // IMPORTANT //
 
         outfit.add( 
             {"skeleton": Avatars[ "skeleton" ]},
-            {"body":  Avatars[ "fmBody" ]},
-            {"hairs": Avatars[ "fmHairs" ]},
-            {"dress": Avatars[ "fmDress" ]},
-            {"shoes": Avatars[ "fmSandal" ]}
+            {"body"    : Avatars[ "fmBody" ]},
+            {"hairs"   : Avatars[ "fmHairs" ]},
+            {"dress"   : Avatars[ "fmDress" ]},
+            {"shoes"   : Avatars[ "fmSandal" ]}
         );
+        outfit.direction.scale.set(1, 1, 1); // IMPORTANT //
         outfit.skeleton.visible = false;
 
-        updateBodyColorpickers();            // IMPORTANT //
-
-        $(skintoneButtonsSelector).contents().remove(); // IMPORTANT //
-
-    //  var femaleSkintoneButtonsComponent = componentsFolder + "female-skintone-buttons.html";
-        $(skintoneButtonsSelector).load(femaleSkintoneButtonsComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("Female skintone buttons:", status);
-        });
+        updateBodyColorpickers();
     });
 
-</script>
-
-
-<script>
-
     $(genderResetSelector).on("click", function(){
-
-        if ( !localPlayer.outfit.getGender() ) return;
-
         var outfit = localPlayer.outfit;
         outfit.removeFromScene();
         outfit.resetGender();
+
+        outfit.add({"skeleton": Avatars["skeleton"]});
         outfit.direction.scale.set(1, 1, 1); // IMPORTANT //
+        outfit.skeleton.visible = true;
 
-        outfit.add({"body": Avatars["skeleton"]});
-//        outfit.add({"skeleton": Avatars["skeleton"]});
-//        outfit.skeleton.visible = true;
-
-        updateBodyColorpickers();            // IMPORTANT //
-
-        $(skintoneButtonsSelector).contents().remove(); // IMPORTANT //
-
+        updateBodyColorpickers();
     });
-
-</script>
-
-<script>
-/*
-//  BE CAREFULL: "dialogopen" must be .one("dialogopen") 
-//  to avoid multiply calls of "load script". // IMPORTANT //
-
-    $OutfitEditorPanel.one( "dialogopen", function( event, ui ) {
-
-        var skintoneButtonsSelector = "#skintone-buttons-holder";
-
-    //  Load male skintone buttons.
-        if ( localPlayer.outfit.getGender("male") ){
-            $(skintoneButtonsSelector).contents().remove();
-            var skintoneButtonsComponent = componentsFolder + "male-skintone-buttons.html";
-            $(skintoneButtonsSelector).load(skintoneButtonsComponent, function(resoponse, status, xhr){
-                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-                if (status == "success") debugMode && console.log("skintone buttons:", status);
-            });
-        }
-
-    //  Load female skintone buttons.
-        else if ( localPlayer.outfit.getGender("female") ){
-            $(skintoneButtonsSelector).contents().remove();
-            var skintoneButtonsComponent = componentsFolder + "female-skintone-buttons.html";
-            $(skintoneButtonsSelector).load(skintoneButtonsComponent, function(resoponse, status, xhr){
-                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-                if (status == "success") debugMode && console.log("skintone buttons:", status);
-            });
-        }
-
-        else if ( !localPlayer.outfit.getGender() ) $(skintoneButtonsSelector).contents().remove(); // IMPORTANT //
-
-    });
-*/
-
-//  Dialog options.
-    $OutfitEditorPanel.dialog( "option", {
-        width: 600,
-        minWidth: 600,
-        maxWidth: 600,
-        height: 500,
-        minHeight: 500,
-        maxHeight: 500
-    });
-
-//  Open dialog.
-    $OutfitEditorPanel.dialog("open");
-
-//  Load body colorpickers.
-    var outfitBodyColorPickersComponent = componentsFolder + "outfit-body-colorpickers.html";
-    $(bodyColorpickersSelector).load(outfitBodyColorPickersComponent, function(resoponse, status, xhr){
-        if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-        if (status == "success") debugMode && console.log("outfit body colorpickers:", status);
-    });
-
-//  Show avaliable outfits.
-    var avatarBtnSelector = ".avatar-btn";
-    $(avatarBtnSelector).on("click", function(){
-        showAvaliableOutfitOptions();
-    });
-
-//  Show Skintone buttons.
-    var skintoneButtonsSelector = "#skintone-buttons-holder";
-
-//  Load male skintone buttons.
-    if ( localPlayer.outfit.getGender("male") ){
-        $(skintoneButtonsSelector).contents().remove();
-        var skintoneButtonsComponent = componentsFolder + "male-skintone-buttons.html";
-        $(skintoneButtonsSelector).load(skintoneButtonsComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("skintone buttons:", status);
-        });
-    }
-
-//  Load female skintone buttons.
-    else if ( localPlayer.outfit.getGender("female") ){
-        $(skintoneButtonsSelector).contents().remove();
-        var skintoneButtonsComponent = componentsFolder + "female-skintone-buttons.html";
-        $(skintoneButtonsSelector).load(skintoneButtonsComponent, function(resoponse, status, xhr){
-            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
-            if (status == "success") debugMode && console.log("skintone buttons:", status);
-        });
-    }
-
-//  Do not load any skintone buttons.
-    else if ( !localPlayer.outfit.getGender() ) $(skintoneButtonsSelector).contents().remove();
 
 </script>
 
 
 <script>
-/*
+
 //  Skin Spectrum Colorpickers.js
 
     var bodySpectrumColorSelector    = "#sp-body-color";
@@ -418,5 +264,22 @@
         $(bodySpectrumColorSelector).spectrum( "set", material.color.getHexString() );
         $(bodySpectrumEmissiveSelector).spectrum( "set", material.emissive.getHexString() );
     }
-*/
+
+</script>
+
+
+<script>
+
+    $OutfitEditorPanel.dialog( "option", {
+        width: 600,
+        minWidth: 600,
+        maxWidth: 600,
+        height: 600,
+        minHeight: 600,
+        maxHeight: 600
+    });
+
+//  Open dialog.
+    $OutfitEditorPanel.dialog("open");
+
 </script>

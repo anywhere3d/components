@@ -38,14 +38,16 @@
     .male-asset { display:none; }
     .unisex-asset  { display:list-item; }
     .non-ready-asset { display:none; }
-
-    .action-controls-output { 
-        width:50px; outline:none; /* margin-right:10px; */
+/*
+    .panel-controls-output { 
+        width:50px; outline:none;
         color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
         font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
     }
+*/
 </style>
 
+<!-- 
 <div id="outfit-gender-left-col" class="col-md-6 col-panel" style="display:none;">
 
     <h4>Select gender:</h4>
@@ -63,6 +65,7 @@
     contain; background-position:50% 50%; background-repeat:no-repeat;" title="Skeleton"></a>
 
 </div>
+ -->
 
 <div id="outfit-add-remove-col" class="col-md-12 col-panel">
 
@@ -151,10 +154,9 @@
 </div>
 
 
-<div id="outfit-assets-right-col" class="col-md-12 col-panel">
+<!-- div id="outfit-assets-right-col" class="col-md-12 col-panel"></div -->
 
-</div>
-
+<!-- 
 <div id="outfit-gender-male-skin-col" class="col-md-6 col-panel" style="display:none;">
     <h4>Select skintone:</h4>
 
@@ -171,7 +173,9 @@
     background-position:50% 50%; background-repeat:no-repeat;" title="Skin: hmSkinDark"></a>
 
 </div>
+ -->
 
+<!-- 
 <div id="outfit-gender-import-skin-col" class="col-md-6 col-panel" style="display:none;">
     <h4>Import skin texture:</h4>
 
@@ -196,7 +200,9 @@
     background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove skin texture"></a>
 
 </div>
+ -->
 
+<!-- 
 <div id="outfit-gender-female-skin-col" class="col-md-6 col-panel"  style="display:none">
     <h4>Select skintone:</h4>
 
@@ -213,7 +219,9 @@
     background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinDark"></a>
 
 </div>
+ -->
 
+<!-- 
 <div id="outfit-gender-diffuse-col" class="col-md-6 col-panel" style="display:none">
     <h4>Edit diffuse color:</h4>
     <input type="hidden" id="sp-skin-color">
@@ -223,9 +231,10 @@
     <h4>Edit emissive color:</h4>
     <input type="hidden" id="sp-skin-emissive">
 </div>
-
+ -->
 
                 <!-- LOGIC -->
+
 
 <script>
 
@@ -239,11 +248,11 @@
 
         if ( target.getGender("female") ){
 
-            target.add( {"hairs": Avatars["fmHairsMedium"]} );
+            target.add( {"hairs": Avatars["fmHairs"]} );
 
         } else if ( target.getGender("male") ){
 
-            target.add( {"hairs": Avatars["hmHairsMedium"]} );
+            target.add( {"hairs": Avatars["hmHairs"]} );
 
         }
     });
@@ -257,15 +266,17 @@
     });
 
 
-    var avatarHairsButtonSelector = "#avatar-hairs-button";
+//    var avatarHairsButtonSelector = "#avatar-hairs-button";
 
-    $(hairsAddSelector).on("click", function(){
-        $(avatarHairsButtonSelector).show();
-    });
+//    $(hairsAddSelector).on("click", function(){
+//        $(avatarHairsButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(hairsRmvSelector).on("click", function(){
-        $(avatarHairsButtonSelector).hide();
-    });
+//    $(hairsRmvSelector).on("click", function(){
+//        $(avatarHairsButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -301,15 +312,17 @@
     });
 
 
-    var outfitBraButtonSelector = "#outfit-bra-button";
+//    var outfitBraButtonSelector = "#outfit-bra-button";
 
-    $(braAddSelector).on("click", function(){
-        $(outfitBraButtonSelector).show();
-    });
+//    $(braAddSelector).on("click", function(){
+//        $(outfitBraButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(braRmvSelector).on("click", function(){
-        $(outfitBraButtonSelector).hide();
-    });
+//    $(braRmvSelector).on("click", function(){
+//        $(outfitBraButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -347,15 +360,17 @@
     });
 
 
-    var outfitPantiesButtonSelector = "#outfit-panties-button";
+//    var outfitPantiesButtonSelector = "#outfit-panties-button";
 
-    $(pantiesAddSelector).on("click", function(){
-        $(outfitPantiesButtonSelector).show();
-    });
+//    $(pantiesAddSelector).on("click", function(){
+//        $(outfitPantiesButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(pantiesRmvSelector).on("click", function(){
-        $(outfitPantiesButtonSelector).hide();
-    });
+//    $(pantiesRmvSelector).on("click", function(){
+//        $(outfitPantiesButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -387,15 +402,17 @@
     });
 
 
-    var outfitBoxersButtonSelector = "#outfit-boxers-button";
+//    var outfitBoxersButtonSelector = "#outfit-boxers-button";
 
-    $(boxersAddSelector).on("click", function(){
-        $(outfitBoxersButtonSelector).show();
-    });
+//    $(boxersAddSelector).on("click", function(){
+//        $(outfitBoxersButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(boxersRmvSelector).on("click", function(){
-        $(outfitBoxersButtonSelector).hide();
-    });
+//    $(boxersRmvSelector).on("click", function(){
+//        $(outfitBoxersButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -445,18 +462,20 @@
     });
 
 
-    var outfitTshirtButtonSelector = "#outfit-tshirt-button";
-    var outfitTshirtStampButtonSelector = "#outfit-tshirt-stamp-button";
+//    var outfitTshirtButtonSelector = "#outfit-tshirt-button";
+//    var outfitTshirtStampButtonSelector = "#outfit-tshirt-stamp-button";
 
-    $(tshirtAddSelector).on("click", function(){
-        $(outfitTshirtButtonSelector).show();
-        $(outfitTshirtStampButtonSelector).show();
-    });
+//    $(tshirtAddSelector).on("click", function(){
+//        $(outfitTshirtButtonSelector).show();
+//        $(outfitTshirtStampButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(tshirtRmvSelector).on("click", function(){
-        $(outfitTshirtButtonSelector).hide();
-        $(outfitTshirtStampButtonSelector).hide();
-    });
+//    $(tshirtRmvSelector).on("click", function(){
+//        $(outfitTshirtButtonSelector).hide();
+//        $(outfitTshirtStampButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -492,15 +511,17 @@
     });
 
 
-    var outfitSkirtButtonSelector = "#outfit-skirt-button";
+//    var outfitSkirtButtonSelector = "#outfit-skirt-button";
 
-    $(skirtAddSelector).on("click", function(){
-        $(outfitSkirtButtonSelector).show();
-    });
+//    $(skirtAddSelector).on("click", function(){
+//        $(outfitSkirtButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(skirtRmvSelector).on("click", function(){
-        $(outfitSkirtButtonSelector).hide();
-    });
+//    $(skirtRmvSelector).on("click", function(){
+//        $(outfitSkirtButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -549,15 +570,17 @@
     });
 
 
-    var outfitTrousersButtonSelector = "#outfit-trousers-button";
+//    var outfitTrousersButtonSelector = "#outfit-trousers-button";
 
-    $(trousersAddSelector).on("click", function(){
-        $(outfitTrousersButtonSelector).show();
-    });
+//    $(trousersAddSelector).on("click", function(){
+//        $(outfitTrousersButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(trousersRmvSelector).on("click", function(){
-        $(outfitTrousersButtonSelector).hide();
-    });
+//    $(trousersRmvSelector).on("click", function(){
+//        $(outfitTrousersButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -589,15 +612,17 @@
     });
 
 
-    var outfitDressButtonSelector = "#outfit-dress-button";
+//    var outfitDressButtonSelector = "#outfit-dress-button";
 
-    $(dressAddSelector).on("click", function(){
-        $(outfitDressButtonSelector).show();
-    });
+//    $(dressAddSelector).on("click", function(){
+//        $(outfitDressButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(dressRmvSelector).on("click", function(){
-        $(outfitDressButtonSelector).hide();
-    });
+//    $(dressRmvSelector).on("click", function(){
+//        $(outfitDressButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -628,15 +653,17 @@
         target.remove("dress");
     });
 
-    var outfitDressButtonSelector = "#outfit-dress-button";
+//    var outfitDressButtonSelector = "#outfit-dress-button";
 
-    $(tailDressAddSelector).on("click", function(){
-        $(outfitDressButtonSelector).show();
-    });
+//    $(tailDressAddSelector).on("click", function(){
+//        $(outfitDressButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(tailDressRmvSelector).on("click", function(){
-        $(outfitDressButtonSelector).hide();
-    });
+//    $(tailDressRmvSelector).on("click", function(){
+//        $(outfitDressButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -651,7 +678,7 @@
         if ( !target.getGender() ) return;
 
         if ( target.getGender("female") ){
-            target.add({"shoes": Avatars["fmSandal"]});
+            target.add({"shoes": Avatars["fmSandal"]});  // "fmSneakers"
         } 
         
         if ( target.getGender("male") ){
@@ -669,15 +696,17 @@
     });
 
 
-    var outfitShoesButtonSelector = "#outfit-shoes-button";
+//    var outfitShoesButtonSelector = "#outfit-shoes-button";
 
-    $(shoesAddSelector).on("click", function(){
-        $(outfitShoesButtonSelector).show();
-    });
+//    $(shoesAddSelector).on("click", function(){
+//        $(outfitShoesButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
 
-    $(shoesRmvSelector).on("click", function(){
-        $(outfitShoesButtonSelector).hide();
-    });
+//    $(shoesRmvSelector).on("click", function(){
+//        $(outfitShoesButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
 
 </script>
 
@@ -721,6 +750,41 @@
 
 <script>
 
+    $OutfitEditorPanel.dialog( "option", {
+        width: 335,
+        minWidth: 335,
+        maxWidth: 335,
+        height: 600,
+        minHeight: 600,
+        maxHeight: 600
+    });
+
+//  Open dialog.
+    $OutfitEditorPanel.dialog("open");
+
+</script>
+
+
+<script>
+
+    var addbtnSelector = ".btn-add";
+    var rmvbtnSelector = ".btn-rmv";
+
+    $(addbtnSelector).on("click", function(){
+        showAvaliableOutfitOptions();
+    });
+
+    $(rmvbtnSelector).on("click", function(){
+        showAvaliableOutfitOptions();
+    });
+
+</script>
+
+
+
+
+<script>
+/*
     var genderMaleSelector   = "#gender-male";
     var genderFemaleSelector = "#gender-female";
     var genderResetSelector  = "#gender-reset";
@@ -733,7 +797,7 @@
 
         outfit.add( 
             {"body":     Avatars[ "hmBody" ]},
-            {"hairs":    Avatars[ "hmHairsMedium" ]},
+            {"hairs":    Avatars[ "hmHairs" ]},
             {"tshirt":   Avatars[ "hmTshirt" ]},
             {"trousers": Avatars[ "hmTrousers" ]},
             {"shoes":    Avatars[ "hmSneakers" ]}
@@ -750,7 +814,7 @@
 
         outfit.add( 
             {"body":  Avatars[ "fmBody" ]},
-            {"hairs": Avatars[ "fmHairsMedium" ]},
+            {"hairs": Avatars[ "fmHairs" ]},
             {"dress": Avatars[ "fmDress" ]},
             {"shoes": Avatars[ "fmSandal" ]}
         );
@@ -768,11 +832,11 @@
         
         updateSkinColorpickers();
     });
-
+*/
 </script>
 
 <script>
-
+/*
     $(genderMaleSelector).on("click", function(){
         $(maleAssetSelector).show();
         $(femaleAssetSelector).hide();
@@ -790,11 +854,11 @@
         $(femaleAssetSelector).hide();
         $(unisexAssetSelector).hide();
     });
-
+*/
 </script>
 
 <script>
-
+/*
 //  Skin Spectrum Colorpickers.js
 
     var skinSpectrumColorSelector    = "#sp-skin-color";
@@ -874,23 +938,7 @@
         $(skinSpectrumColorSelector).spectrum( "set", colorHex );
         $(skinSpectrumEmissiveSelector).spectrum( "set", emissiveHex );
     }
-
+*/
 </script>
 
 
-
-<script>
-
-    $OutfitEditorPanel.dialog( "option", {
-        width: 335,
-        minWidth: 335,
-        maxWidth: 335,
-        height: 600,
-        minHeight: 600,
-        maxHeight: 600
-    });
-
-//  Open dialog.
-    $OutfitEditorPanel.dialog("open");
-
-</script>

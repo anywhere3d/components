@@ -11,6 +11,9 @@
 <li id="axis-helper" class="helpers">
     <a>Hide axis helper</a>
 </li>
+<li id="player-helper" class="helpers">
+    <a>Hide Player helpers</a>
+</li>
 <li id="label-helper" class="helpers">
     <a>Pick up a nickname</a>
 </li>
@@ -20,9 +23,10 @@
 <li id="connect-helper" class="helpers">
     <a>Disconnect</a>
 </li>
-<li id="player-helper" class="helpers">
-    <a>Hide Player helpers</a>
+<li id="store-helper" class="helpers">
+    <a>Clear Storage</a>
 </li>
+
 
 <hr/>
 
@@ -31,7 +35,9 @@
     var groundHelperSelector = "#ground-helper a";
     var originHelperSelector = "#origin-helper a";
     var axisHelperSelector   = "#axis-helper a";
-    var labelHelperSelector  = "#label-helper a";
+
+    var labelHolderSelector = "#label-helper";
+    var labelHelperSelector = "#label-helper a";
 
     var joysticksHelperSelector  = "#joysticks-helper a";
     var joystickControlsSelector = ".joystick-controls";
@@ -42,6 +48,7 @@
     var playerHelperHolder = "#player-helper";
     var playerHelperSelector = "#player-helper a";
 
+    var storeHelperSelector = "#store-helper a";
 
 
                     //  Initialize.
@@ -73,6 +80,15 @@
             $(playerHelperSelector).text("Hide player helper");
         } else {
             $(playerHelperSelector).text("Show player helper");
+        }
+
+        if ( !!localPlayer.label ){
+            if (localPlayer.label.visible) 
+                $(labelHelperSelector).text("Hide nicknames");
+            else 
+                $(labelHelperSelector).text("Show nicknames");
+        } else {
+            $(labelHolderSelector).slideUp();
         }
 
     })();
@@ -110,6 +126,23 @@
             $(playerHelperSelector).text("Show player helper");
     });
 
+    $(storeHelperSelector).on("click", function(){
+        var result = confirm("Are you sure to clear cache?");
+        if (result) store.clear();
+    });
+
+    $(labelHelperSelector).on("click", function(){
+        localPlayer.label.visible = !localPlayer.label.visible;
+        for (var id in RemotePlayersManager){
+            var remotePlayer = RemotePlayersManager[id];
+            remotePlayer.label.visible = localPlayer.label.visible;
+        }
+        if (localPlayer.label.visible) 
+            $(labelHelperSelector).text("Hide nicknames");
+        else 
+            $(labelHelperSelector).text("Show nicknames");
+    });
+/*
     $(labelHelperSelector).one("click", function(){
         if ( localPlayer.label ) return;
 
@@ -159,7 +192,7 @@
         });
 
     });
-
+*/
                 //  Joysticks Helper.
 
 //  Initialize.
@@ -191,31 +224,32 @@
         if (!socket || (!!socket && socket.state != "open") )
             $(connectHelperSelector).text("Connect to server");
         else 
-            $(connectHelperSelector).text("Disonnect from server");
+            $(connectHelperSelector).text("Disconnect from server");
     })();
 
 //  SocketCluster connection.
     $(connectHelperSelector).on("click", function(){
 
         if ( !localPlayer.label ) {
-            console.error("You must pick up a nickname to connect to server.");
-            return;
+        //  console.error("You must pick up a nickname to connect to server.");
+        //  return;
         }
 
         if (!socket) {
-            socketclusterConnect(); 
-            return;
+        //  socketclusterConnect(); 
+        //  return;
         }
 
         if (socket.state == "open" ) {
             socket.disconnect();
+            $(connectHelperSelector).text("Connect to server");
         } else {
             socket.connect();
+            $(connectHelperSelector).text("Disconnect from server");
         }
+
+
 
     });
 
 </script>
-
-
-

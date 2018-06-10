@@ -1,4 +1,4 @@
-<!-- tweet-snapshot.html (v3) -->
+<!-- snippet tweet-snapshot.html (v2) -->
 
 <style>
 /* spinner.css */
@@ -208,7 +208,7 @@
                 debugMode && console.log( "Modal closed from (x) button.", 
                     "dialogAnimationFrameRequestID canceled at:", dialogAnimationFrameRequestID 
                 );
-
+                
                 dialog.controls.dispose(); // IMPORTANT //
 
             //  DEVELOPER NOTE: You can keep the same renderer for different scenes. The renderer does not care   //
@@ -259,13 +259,7 @@
                     message: '<img src="' + data + '" id="snp-preview" class="img-thumbnail">',
                     buttons: {
 
-                        pinterest: {
-                            label: 'Pin',
-                            className: 'btn-danger',
-                        //  callback: function(){},
-                        },
-
-                        imgur: {
+                        upload: {
                             label: 'Imgur',
                             className: 'btn-warning',
                             callback: uploadSnapshot,
@@ -282,13 +276,12 @@
                             className: 'btn-success',
                             callback: saveToDesktop,
                         },
-                    /*
+
                         cancel: {
                             label: 'Cancel',
                             className: 'btn-default',
                             callback: function(){},
                         }
-                    */
 
                     }
                 });
@@ -302,27 +295,10 @@
                     //  this.find(".bootbox-body").height(270);
                     });
             
-                    var $snapshot_dialog_body   = snapshot_dialog.find(".modal-body");
-                    var $databbhandlerSave      = snapshot_dialog.find("[data-bb-handler=save]");
-                    var $databbhandlerTweet     = snapshot_dialog.find("[data-bb-handler=tweet]");
-                    var $databbhandlerUpload    = snapshot_dialog.find("[data-bb-handler=imgur]");
-                    var $databbhandlerPinterest = snapshot_dialog.find("[data-bb-handler=pinterest]");
-
-                //  sharer.js
-                    
-                //  var url = window.URL.createObjectURL( dataURLtoBlob(data) );
-
-                //  $databbhandlerTweet.attr("data-sharer", "twitter");
-                //  $databbhandlerTweet.attr("data-title", "Checkout anywhere3d.com");
-                //  $databbhandlerTweet.attr("data-hashtags", "3D,snapshots,webspaces,anywhere3d,threejs");
-                //  $databbhandlerTweet.attr("data-url", data.replace(/data:image\/jpeg;base64,/, "") );
-
-                //  $databbhandlerPinterest.attr("data-sharer", "pinterest");
-                //  $databbhandlerPinterest.attr("data-image", "https://anywhere3d.com/img/logo.png");
-                //  $databbhandlerPinterest.attr("data-url", "https://anywhere3d.com");
-                //  $databbhandlerPinterest.attr("data-description", "pin direct from anywhere3d.com");
-                
-                    window.Sharer.init();
+                    var $snapshot_dialog_body = snapshot_dialog.find(".modal-body");
+                    var $databbhandlerSave    = snapshot_dialog.find("[data-bb-handler=save]");
+                    var $databbhandlerTweet   = snapshot_dialog.find("[data-bb-handler=tweet]");
+                    var $databbhandlerUpload  = snapshot_dialog.find("[data-bb-handler=upload]");
 
                 }); // end snapshot_dialog.init().
 
@@ -339,16 +315,17 @@
 
                     dialog.find(".modal-body").append( spinner );
 
+
                 //  Upload to server (ajax).
 
                 //  IMPORTANT: First must remove 'data:image/jpeg;base64,' from dataURL. //  IMPORTANT //
                     var base64String = data.replace(/data:image\/jpeg;base64,/, ""); // VERY IMPORTANT //
 
-                    $.post("/tweet/media", {image:base64String}, function(data, status, xhr){
+                    $.post("/tweet/media", {image:base64String}, function(data, textStatus, jqXHR){
 
                     //  bootboxSuccessAlert("Success!");
-                        debugMode && console.log(status);
-
+                        debugMode && console.log(textStatus);
+                        
                     }).then(function( data, status, xhr ){
 
                         debugMode && console.log("twitter response:", data);
@@ -592,6 +569,9 @@
 */
 
 </script>
+
+
+
 
 
 
