@@ -170,10 +170,12 @@
         //  keyInputControls.Off();
 
         //  Snapshot dialog init.
+            var width  = 600;  // 420 (golden ratio)
+            var height = 600;  // 680 (golden ratio)
             $dialog_body.html("");
-            $dialog_body.width(600);  // 420
-            $dialog_body.height(600); // 570
-            $dialog_modal.width(617);
+            $dialog_body.width(width);   // 420 (golden ratio)
+            $dialog_body.height(height); // 680 (golden ratio)
+            $dialog_modal.width(width + 32);
             $dialog_body.css("overflow", "hidden");
             $dialog_body.find( "[data-bb-handler]" ).css( "margin-bottom", 0 );
 
