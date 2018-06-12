@@ -9,7 +9,7 @@
 
 <!-- ALIGN IMAGE HORIZONTAL:CENTER AND VERTICAL:MIDDLE (SPINNER)
     <div id="snapshot-spin" class="spinner">
-        <span class="img-helper"></span><img class="spin-img" src="/img/load.gif" />
+        <span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />
     </div>
  -->
 
@@ -138,7 +138,7 @@
                     };
 
                     wm.setPicture( snapshotdata );                  // Base picture: Url or data-url.
-                    wm.addWatermark('/img/anywhere3d-watermark.png', wmOptions);  // Url or data-url.
+                    wm.addWatermark("https://i.imgur.com/MrEaeSc.png", wmOptions);  // Url or data-url.
 
                 //  Do something when watermarking ends.            
                     wm.render( function(){
@@ -339,7 +339,7 @@
 
                     var spinner = [
                         '<div id="splash-spin" class="spinner spinner-loading">',
-                            '<span class="img-helper"></span><img class="spin-img" src="/img/load.gif" />',
+                            '<span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />',
                         '</div>'
                     ].join("");
 
@@ -364,8 +364,8 @@
 
                     }).fail(function( err ){
 
-                        debugMode && console.error(err);
-                        bootboxErrorAlert( "<b>Error: Failed</b><br>" + err );
+                        debugMode && console.error("Share Tweet Error:", err);
+                        bootboxErrorAlert( "<b>Share_Tweet: Failed</b><br>" + err );
 
                     }).always(function(){
 
@@ -405,7 +405,7 @@
 
                     var spinner = [
                         '<div id="splash-spin" class="spinner spinner-loading">',
-                            '<span class="img-helper"></span><img class="spin-img" src="/img/load.gif" />',
+                            '<span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />',
                         '</div>'
                     ].join("");
 
