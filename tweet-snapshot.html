@@ -1,4 +1,4 @@
-<!-- tweet-snapshot.html (v3) -->
+<!-- tweet-snapshot.html (v3.1) -->
 
 <style>
 /* spinner.css */
@@ -34,6 +34,8 @@
 <script>
 
 //  snapshot.js
+
+    var debugMode;
 
     var snapshotHelperSelector = "#snapshot a";
     $(snapshotHelperSelector).on("click", function(){
@@ -124,29 +126,32 @@
                 // center center -> [0.5, 0.5]
                 // center bottom -> [0.5, 1]
             //  Default is [0.5, 0.5]: center center.
-            
-            //  Create new object instance.
-                var wm = new Watermark();
 
-                var wmOptions = {
-                    position: [1,1], // right bottom  
-                    scale: 0.8,      // Default is 1.0
-                    opacity: 1.0,    // Default is 1.0
-                };
+                try {
+                //  Create new object instance.
+                    var wm = new Watermark();
 
-                wm.setPicture( snapshotdata );                  // Base picture: Url or data-url.
-                wm.addWatermark('/img/anywhere3d-watermark.png', wmOptions);  // Url or data-url.
+                    var wmOptions = {
+                        position: [1,1], // right bottom  
+                        scale: 0.8,      // Default is 1.0
+                        opacity: 1.0,    // Default is 1.0
+                    };
 
-            //  Do something when watermarking ends.            
-                wm.render( function(){
-                    debugMode && console.log( "watermark.getImgs:", wm.getImgs( 'image/jpeg', 0.9 ) );
-                    saveSnapshotDialog( wm.getDataUrls( 'image/jpeg', 0.9 )[0] );
-                });
+                    wm.setPicture( snapshotdata );                  // Base picture: Url or data-url.
+                    wm.addWatermark('/img/anywhere3d-watermark.png', wmOptions);  // Url or data-url.
 
-            //  Open a new boobox confirm dialog with 
-            //  the snapshot preview to save or cancel.
-            //  saveSnapshotDialog( snapshotdata );
-    
+                //  Do something when watermarking ends.            
+                    wm.render( function(){
+                        debugMode && console.log( "watermark.getImgs:", wm.getImgs( 'image/jpeg', 0.9 ) );
+                        saveSnapshotDialog( wm.getDataUrls( 'image/jpeg', 0.9 )[0] );
+                    });
+
+                } catch(err) {
+                //  Open a new boobox confirm dialog with 
+                //  the snapshot preview to save or cancel.
+                    saveSnapshotDialog( snapshotdata );
+                }
+
             //  shot button: "return false", 
             //  prevents dialog modal to close.
                 return false; 
@@ -165,8 +170,8 @@
 
         //  Snapshot dialog init.
             $dialog_body.html("");
-            $dialog_body.width(420);
-            $dialog_body.height(570);
+            $dialog_body.width(480);  // 420
+            $dialog_body.height(640); // 570
             $dialog_body.css("overflow", "hidden");
             $dialog_body.find( "[data-bb-handler]" ).css( "margin-bottom", 0 );
 
@@ -282,6 +287,7 @@
                             className: 'btn-success',
                             callback: saveToDesktop,
                         },
+
                     /*
                         cancel: {
                             label: 'Cancel',
@@ -368,7 +374,6 @@
                     });
 
                 }
-
 
                 function saveToDesktop(){
                 //  Save image to desktop.
