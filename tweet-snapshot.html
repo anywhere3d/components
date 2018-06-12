@@ -328,7 +328,7 @@
                 //  $databbhandlerPinterest.attr("data-url", "https://anywhere3d.com");
                 //  $databbhandlerPinterest.attr("data-description", "pin direct from anywhere3d.com");
                 
-                    window.Sharer.init();
+                    try { window.Sharer.init(); } catch(err){;}
 
                 }); // end snapshot_dialog.init().
 
@@ -590,7 +590,6 @@
 
 /*
     var menuBtnSnapshotSelector = "#menu-btn-snapshot";
-
     $(menuBtnSnapshotSelector).on("click", function(){
         snapshotBootbox();
     });
