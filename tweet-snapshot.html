@@ -369,7 +369,7 @@
                     }).fail(function( err ){
 
                         debugMode && console.error("Share Tweet Error:", err);
-                        bootboxErrorAlert( "<b>Share_Tweet: Failed</b><br>" + err );
+                        bootboxErrorAlert( "<b>Share_Tweet: Failed</b><br>" + err.statusText );
 
                     }).always(function(){
 
