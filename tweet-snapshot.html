@@ -74,6 +74,7 @@
             dialog.find(".modal-dialog").width(450);
 
             var $dialog_body = dialog.find(".modal-body");
+            var $dialog_modal = dialog.find(".modal-dialog");
             var $databbhandlerShot = dialog.find("[data-bb-handler=shot]");
 
         //  Ensure that dialogAnimate() will stop when the dialog
@@ -170,6 +171,7 @@
 
         //  Snapshot dialog init.
             $dialog_body.html("");
+            $dialog_modal.width(512);
             $dialog_body.width(480);  // 420
             $dialog_body.height(640); // 570
             $dialog_body.css("overflow", "hidden");
