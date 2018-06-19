@@ -1,0 +1,115 @@
+<!-- avatar-gender-buttons.html -->
+
+<h4>Gender:</h4>
+
+<a id="gender-male" name="male" class="nav-link btn btn-default btn-white-outline avatar-btn" 
+style="width:79px; height:79px; background-image: url('/img/hmHead.png'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Male"></a>
+
+<a id="gender-female" name="female" class="nav-link btn btn-default btn-white-outline avatar-btn" 
+style="width:79px; height:79px; background-image: url('/img/fmHead.png'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Female"></a>
+
+<a id="gender-reset" class="nav-link btn btn-default btn-white-outline avatar-btn" 
+style="width:79px; height:79px; background-image: url('/img/skull-head.png'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Reset"></a>
+
+
+<script>
+
+    var componentsFolder        = "/components/";
+    var genderMaleSelector      = "#gender-male";
+    var genderFemaleSelector    = "#gender-female";
+    var genderResetSelector     = "#gender-reset";
+    var skintoneButtonsSelector = "#skintone-buttons"
+
+
+    $(genderMaleSelector).on("click", function(){
+
+    //  var outfit = localPlayer.outfit;
+        if ( localPlayer.outfit.getGender("male") ) return;
+
+        localPlayer.outfit.removeFromScene();
+        localPlayer.outfit.setGender("male");
+
+        localPlayer.outfit.direction.scale.set(1.04, 1.04, 1.04); // IMPORTANT //
+
+        localPlayer.outfit.add( 
+            {"body":     Avatars[ "hmBody" ]},
+            {"hairs":    Avatars[ "hmHairs" ]},
+            {"tshirt":   Avatars[ "hmTshirt" ]},
+            {"trousers": Avatars[ "hmTrousers" ]},
+            {"shoes":    Avatars[ "hmSneakers" ]},
+        );
+
+        //$(skintoneButtonsSelector).contents().remove(); // IMPORTANT //
+
+        var maleSkintoneButtonsComponent = componentsFolder + "male-skintone-buttons.html";
+        $(skintoneButtonsSelector).load(maleSkintoneButtonsComponent, function(resoponse, status, xhr){
+            if (status == "error") console.error( status, xhr.status, xhr.statusText );
+        });
+
+        $AvatarEditorPanel.dialog("close");
+    });
+
+
+    $(genderFemaleSelector).on("click", function(){
+
+    //  var outfit = localPlayer.outfit;
+        if ( localPlayer.outfit.getGender("female") ) return;
+
+        localPlayer.outfit.removeFromScene();
+        localPlayer.outfit.setGender("female");
+
+        localPlayer.outfit.direction.scale.set(1, 1, 1); // IMPORTANT //
+
+        localPlayer.outfit.add( 
+            {"body":     Avatars[ "fmBody" ]},
+            {"hairs":    Avatars[ "fmHairs" ]},
+            {"dress":    Avatars[ "fmDress" ]},
+            {"shoes":    Avatars[ "fmSandal" ]},
+        );
+
+        //$(skintoneButtonsSelector).contents().remove(); // IMPORTANT //
+
+        var femaleSkintoneButtonsComponent = componentsFolder + "female-skintone-buttons.html";
+        $(skintoneButtonsSelector).load(femaleSkintoneButtonsComponent, function(resoponse, status, xhr){
+            if (status == "error") console.error( status, xhr.status, xhr.statusText );
+        });
+
+        $AvatarEditorPanel.dialog("close");
+    });
+
+
+    $(genderResetSelector).on("click", function(){
+
+    //  var outfit = localPlayer.outfit;
+        if ( !localPlayer.outfit.getGender() ) return;
+
+        localPlayer.outfit.removeFromScene();
+        localPlayer.outfit.resetGender();
+
+        localPlayer.outfit.direction.scale.set(1, 1, 1); // IMPORTANT //
+
+        localPlayer.outfit.add({"body": Avatars["skeleton"]});
+
+        $(skintoneButtonsSelector).contents().remove();  // IMPORTANT //
+
+    /*
+        var skeletonSkintoneButtonsComponent = componentsFolder + "skeleton-skintone-buttons.html";
+        $(skintoneButtonsSelector).load(skeletonSkintoneButtonsComponent, function(resoponse, status, xhr){
+            if (status == "error") console.error( status, xhr.status, xhr.statusText );
+        });
+    */
+
+        $AvatarEditorPanel.dialog("close");
+    });
+
+</script>
+
+
+
+
+
+
+
