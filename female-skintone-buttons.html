@@ -8,16 +8,16 @@
 <h4>Select female skintone:</h4>
 
 <a id="skin-map-fmSkinLight" name="fmSkinLight" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
-style="width:79px; height:79px; background-image: url('/img/fmSkinLight.png'); background-size: contain; 
-background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinLight"></a>
+style="width:79px; height:79px; background-image: url('https://i.imgur.com/ave16Ar.png'); background-size: contain; 
+background-position:50% 50%; background-repeat:no-repeat;" title="Light"></a>
 
 <a id="skin-map-fmSkinMedium" name="fmSkinMedium" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
-style="width:79px; height:79px; background-image: url('/img/fmSkinMedium.png'); background-size: contain; 
-background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinMedium"></a>
+style="width:79px; height:79px; background-image: url('https://i.imgur.com/ZCDSoYd.png'); background-size: contain; 
+background-position:50% 50%; background-repeat:no-repeat;" title="Medium"></a>
 
 <a id="skin-map-fmSkinDark" name="fmSkinDark" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
-style="width:79px; height:79px; background-image: url('/img/fmSkinDark.png'); background-size: contain; 
-background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinDark"></a>
+style="width:79px; height:79px; background-image: url('https://i.imgur.com/ave16Ar.png'); background-size: contain; 
+background-position:50% 50%; background-repeat:no-repeat;" title="Dark"></a>
 
 <!-- /div -->
 
@@ -59,7 +59,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinDa
             map   : "emissiveMap",
             name  : "FM_Skin_Light",
             index : 0,
-            asset : Avatars[ "fmBody" ],
+            target: Avatars[ "fmBody" ],
             callback: function(){
                 $(".spin").remove();
                 $(self).one("click", oneClickfmSkinLight);
@@ -82,7 +82,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinDa
             map   : "emissiveMap",
             name  : "FM_Skin_Mid",
             index : 0,
-            asset : Avatars[ "fmBody" ],
+            target: Avatars[ "fmBody" ],
             callback: function(){
                 $(".spin").remove();
                 $(self).one("click", oneClickfmSkinMedium);
@@ -105,7 +105,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinDa
             map   : "emissiveMap",
             name  : "FM_Skin_Dark",
             index : 0,
-            asset : Avatars[ "fmBody" ],
+            target: Avatars[ "fmBody" ],
             callback: function(){
                 $(".spin").remove();
                 $(self).one("click", oneClickfmSkinDark);
@@ -122,7 +122,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinDa
         var map   = options.map;
         var name  = options.name;
         var index = options.index;
-        var asset = options.asset;
+        var asset = options.target;
 
         var img = new Image();
         img.crossOrigin = "anonymous";
@@ -175,6 +175,3 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinDa
     });
 */
 </script>
-
-
-
