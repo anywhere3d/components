@@ -16,17 +16,17 @@
 </div>
 
 <div class="slider-row" style="width:90%; margin-bottom:10px;">
-    <div class="btn btn-danger btn-white-outline anim-btn" id="idle">idle</div>
-    <div class="btn btn-success btn-white-outline anim-btn" id="walk">walk</div>
-    <div class="btn btn-success btn-white-outline anim-btn" id="run">run</div>
-    <div class="btn btn-info btn-white-outline anim-btn" id="jump">jump</div>
+    <div class="btn btn-danger btn-white-outline anim-btn animation-control" id="idle">idle</div>
+    <div class="btn btn-success btn-white-outline anim-btn animation-control" id="walk">walk</div>
+    <div class="btn btn-success btn-white-outline anim-btn animation-control" id="run">run</div>
+    <div class="btn btn-info btn-white-outline anim-btn animation-control" id="jump">jump</div>
 </div>
 
 <div class="slider-row" style="width:90%; margin-bottom:10px;">
-    <div class="btn btn-primary btn-white-outline anim-btn" id="left-view-btn">left</div>
-    <div class="btn btn-primary btn-white-outline anim-btn" id="front-view-btn">front</div>
-    <div class="btn btn-primary btn-white-outline anim-btn" id="back-view-btn">back</div>
-    <div class="btn btn-primary btn-white-outline anim-btn" id="right-view-btn">right</div>
+    <div class="btn btn-primary btn-white-outline anim-btn direction-control" id="left-view-btn">left</div>
+    <div class="btn btn-primary btn-white-outline anim-btn direction-control" id="front-view-btn">front</div>
+    <div class="btn btn-primary btn-white-outline anim-btn direction-control" id="back-view-btn">back</div>
+    <div class="btn btn-primary btn-white-outline anim-btn direction-control" id="right-view-btn">right</div>
 </div>
 
 <div class="slider-row" style="width:90%; margin-bottom:10px; display:inline-block">
@@ -109,6 +109,34 @@
             }
 
         },
+        
+        toIdle: function( player ){
+            
+            var player = player || localPlayer;
+        //  Update player controller direction.
+            player.outfit.AnimationsHandler.stop();
+            player.controller.isRunning = false;
+            player.controller.isWalking = false;
+            player.controller.isIdling  = true;
+            player.controller.movementSpeed = 0;
+            player.outfit.AnimationsHandler.play("idle");
+        //  player.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+            player.controller.dispatchEvent({type:"startIdling"});
+
+        },
+        
+        publish: function( action ){
+            if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
+                var data = { 
+                    playerid : socket.id,
+                    direction: localPlayer.outfit.direction.rotation.y,
+                    position : localPlayer.outfit.direction.position.toArray(),
+                };
+                if ( !!action ) data.action = action;
+                controlsChannel.publish( data );
+            }
+        },
+
     };
 
 //  Example: How to insert a value in a input element by coding.
@@ -161,7 +189,7 @@
         $(turnCtrlOutputSelector)[0].step = this.value;
     });
 
-//  Avatar direction buttons.
+//  Direction control buttons.
 
     $(frontViewBtnSelector).on("click", function(){
         var frontAngle = Math.PI - cameraControls.getFrontAngle();
@@ -211,7 +239,7 @@
         });
     });
 
-//  Animation action buttons.
+//  Animation control buttons.
 
     $(idleButtonSelector).on("click", function onMoveOff(){
 
@@ -240,6 +268,10 @@
                 action   : "idle",
             });
         }
+
+        $(runButtonSelector)[0].active = false;
+        $(walkButtonSelector)[0].active = false;
+
     });
 
     $(walkButtonSelector).on("click", function onMoveOn(){
@@ -250,23 +282,39 @@
             return;
         }
 
-    //  Update player controller direction.
-        localPlayer.outfit.AnimationsHandler.stop();
-        localPlayer.controller.isRunning = true; 
-        localPlayer.controller.isWalking = true;
-        localPlayer.controller.movementSpeed = 28;
-        localPlayer.outfit.AnimationsHandler.play("walk");
-    //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+        this.active = !this.active;
 
-    //  Send move player mesasge to server.
-        if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
-            controlsChannel.publish({ 
-                playerid : socket.id,
-                direction: localPlayer.outfit.direction.rotation.y,
-                position : localPlayer.outfit.direction.position.toArray(),
-                action   : "walk",
-            });
+        if (this.active){
+
+        //  Update player controller direction.
+            localPlayer.outfit.AnimationsHandler.stop();
+            localPlayer.controller.isRunning = true; 
+            localPlayer.controller.isWalking = true;
+            localPlayer.controller.movementSpeed = 28;
+            localPlayer.outfit.AnimationsHandler.play("walk");
+        //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+    
+        //  Send move player mesasge to server.
+            if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
+                controlsChannel.publish({ 
+                    playerid : socket.id,
+                    direction: localPlayer.outfit.direction.rotation.y,
+                    position : localPlayer.outfit.direction.position.toArray(),
+                    action   : "walk",
+                });
+            }
         }
+
+        if (!this.active){
+
+            AnimationPanelControls.toIdle( localPlayer );
+        //  Send move player mesasge to server.
+            AnimationPanelControls.publish( "idle" );
+
+        }
+
+        $(runButtonSelector)[0].active = false;
+
     });
 
     $(runButtonSelector).on("click", function onMoveOn(){
@@ -277,23 +325,38 @@
             return;
         }
 
-    //  Update player controller direction.
-        localPlayer.outfit.AnimationsHandler.stop();
-        localPlayer.controller.isRunning = true; 
-        localPlayer.controller.isWalking = true;
-        localPlayer.controller.movementSpeed = 28;
-        localPlayer.outfit.AnimationsHandler.play("run");
-    //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+        this.active = !this.active;
 
-    //  Send move player mesasge to server.
-        if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
-            controlsChannel.publish({
-                playerid : socket.id,
-                direction: localPlayer.outfit.direction.rotation.y,
-                position : localPlayer.outfit.direction.position.toArray(),
-                action   : "run",
-            });
+        if (this.active){
+
+        //  Update player controller direction.
+            localPlayer.outfit.AnimationsHandler.stop();
+            localPlayer.controller.isRunning = true; 
+            localPlayer.controller.isWalking = true;
+            localPlayer.controller.movementSpeed = 28;
+            localPlayer.outfit.AnimationsHandler.play("run");
+        //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+    
+        //  Send move player mesasge to server.
+            if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
+                controlsChannel.publish({
+                    playerid : socket.id,
+                    direction: localPlayer.outfit.direction.rotation.y,
+                    position : localPlayer.outfit.direction.position.toArray(),
+                    action   : "run",
+                });
+            }
         }
+
+        if (!this.active){
+
+            AnimationPanelControls.toIdle( localPlayer );
+        //  Send move player mesasge to server.
+            AnimationPanelControls.publish( "idle" );
+
+        }
+
+        $(walkButtonSelector)[0].active = false;
 
     });
 
@@ -337,12 +400,10 @@
     $(updatesSelector).append('<input type="hidden" id="AnimationPanelControls">');
     var AnimationPanelControlsSelector = "#AnimationPanelControls";
     var $actionsPanelUpdater = $(AnimationPanelControlsSelector)[0];
-    $actionsPanelUpdater.update = function(delta){ AnimationPanelControls.update(); };
     $(AnimationPanelControlsSelector).toggleClass("update");
+    $actionsPanelUpdater.update = function(delta){ AnimationPanelControls.update(); };
 
 </script>
-
-
 
 
 
