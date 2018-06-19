@@ -1,0 +1,36 @@
+<!-- avatar-save-button.html -->
+
+<h4>Save Avatar:</h4>
+<div id="avatar-save-button" class="form-control btn btn-success btn-white-outline">Save Avatar</div>
+
+
+<script>
+
+    var avatarSaveButtonSelector = "#avatar-save-button";
+    $(avatarSaveButtonSelector).on("click", function(){
+        var path = "/user/outfits/json/current";
+        var json = localPlayer.outfit.toJSON();
+        var oldvalue = store.set( path, json );
+        var newvalue = store.get( path );
+        debugMode && console.log( newvalue );
+        if ( !!newvalue ){
+            var msg = "Avatar saved<br>successfully!";
+            bootboxSuccessAlert( msg );
+        } else {
+            var msg = "Error: Something is wrong.";
+            bootboxErrorAlert( msg );
+        }
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
