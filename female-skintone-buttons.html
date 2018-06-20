@@ -59,7 +59,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Dark"></a>
             map   : "emissiveMap",
             name  : "FM_Skin_Light",
             index : 0,
-            target: Avatars[ "fmBody" ],
+            target: localPlayer.outfit.body,
             callback: function(){
                 $(".spin").remove();
                 $(self).one("click", oneClickfmSkinLight);
@@ -82,7 +82,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Dark"></a>
             map   : "emissiveMap",
             name  : "FM_Skin_Mid",
             index : 0,
-            target: Avatars[ "fmBody" ],
+            target: localPlayer.outfit.body,
             callback: function(){
                 $(".spin").remove();
                 $(self).one("click", oneClickfmSkinMedium);
@@ -105,7 +105,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Dark"></a>
             map   : "emissiveMap",
             name  : "FM_Skin_Dark",
             index : 0,
-            target: Avatars[ "fmBody" ],
+            target: localPlayer.outfit.body,
             callback: function(){
                 $(".spin").remove();
                 $(self).one("click", oneClickfmSkinDark);

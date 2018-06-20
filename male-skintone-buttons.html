@@ -57,7 +57,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Dark"></a>
             map   : "emissiveMap",
             name  : "HM_Skin_Light",
             index : 0,
-            target: Avatars[ "hmBody" ],
+            target: localPlayer.outfit.body,
             callback: function(){
                 $(".spin").remove();
                 $(self).one("click", oneClickhmSkinLight);
@@ -80,7 +80,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Dark"></a>
             map   : "emissiveMap",
             name  : "HM_Skin_Mid",
             index : 0,
-            target: Avatars[ "hmBody" ],
+            target: localPlayer.outfit.body,
             callback: function(){
                 $(".spin").remove();
                 $(self).one("click", oneClickhmSkinMedium);
@@ -103,7 +103,7 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Dark"></a>
             map   : "emissiveMap",
             name  : "HM_Skin_Dark",
             index : 0,
-            target: Avatars[ "hmBody" ],
+            target: localPlayer.outfit.body,
             callback: function(){
                 $(".spin").remove();
                 $(self).one("click", oneClickhmSkinDark);
@@ -137,7 +137,6 @@ background-position:50% 50%; background-repeat:no-repeat;" title="Dark"></a>
     }
 
 </script>
-
 
 
 
