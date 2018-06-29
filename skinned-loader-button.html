@@ -1,0 +1,56 @@
+<!-- skinned-loader-button.html -->
+
+
+<h4>Avatar Loader:</h4>
+<div id="load-skinned-button" class="form-control btn btn-default btn-white-outline">Load Skinned Mesh</div>
+<input type="file" class="hidden" id="load-skinned-input">
+
+
+<script>
+
+    var loadSkinnedButtonSelector = "#load-skinned-button";
+    var loadSkinnedInputSelector = "#load-skinned-input";
+
+    $(loadSkinnedButtonSelector).on("click", function(){
+        $(loadSkinnedInputSelector).val("");
+        $(loadSkinnedInputSelector).click();
+    });
+
+    $(loadSkinnedInputSelector).on("change", function(e){
+        if ( !e.target.files.length ) return;
+
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        $(reader).on("load", function(event){
+
+            var json = JSON.parse( reader.result );
+            debugMode && console.log( "json:", json );
+
+            var skinned = initSkinnedAsset( json );
+            debugMode && console.log( "skinned:", skinned );
+
+            var name = json.name; // TODO: change name //
+            Avatars[ name ] = skinned;
+
+        //  This add the imported skinned mesh to .outfit.body slot.
+            localPlayer.outfit.add({"body": Avatars[ name ]});
+
+            if ( $EditorPanel.active ){
+
+            //  Create new options list from skeleton bones.
+                initBonesDroplist( localPlayer.outfit.body );
+
+            //  Define bone target.
+                target = defineBoneTarget( "body" );
+
+            //  Initialize output values.
+                initBoneOutputValues();
+
+            }
+
+        });
+        reader.readAsText(file);
+
+    });
+
+</script>
