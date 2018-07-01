@@ -35,7 +35,7 @@
     }
 
 /* spinner.css */
-    .spinner { position:absolute; left:0px; top:0px; width:100%; height:100%; text-align:center; }
+    .snapshot-spinner { position:absolute; left:0px; top:0px; width:100%; height:100%; text-align:center; }
     .img-helper { display:inline-block; height:100%; vertical-align:middle; }
     .spin-img { height:128px; vertical-align:middle; }
 
@@ -70,8 +70,8 @@
         '</div>'
     ].join("");
 
-    var spinner = [
-        '<div class="spinner spinner-loading">',
+    var snapshotSpinner = [
+        '<div class="snapshot-spinner spinner-loading">',
             '<span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />',
         '</div>'
     ].join("");
@@ -313,7 +313,7 @@
 
     $(snapshotTakeButtonSelector).on( "click", function(){
 
-        $SnapshotPanel.append( spinner );
+        $SnapshotPanel.append( snapshotSpinner );
 
     //  Take snapshot.
         var snapshotdata = snapshot.renderer.domElement.toDataURL("image/jpeg");
@@ -353,7 +353,7 @@
 
     function saveSnapshotDialog( data ){
 
-        $(".spinner").remove();
+        $(".snapshot-spinner").remove();
 
         var snapshot_dialog = bootbox.dialog({
 
@@ -425,7 +425,7 @@
 
         function upload(){
 
-            $SnapshotPanel.append( spinner );
+            $SnapshotPanel.append( snapshotSpinner );
 
             var id = Date.now().toString(36);
             var blob = dataURLtoBlob( data );
@@ -476,7 +476,7 @@
                     GalleryStorage.setItem("/snapshot/" + id, data).then(function( result ){
                         debugMode && console.log( "gallery result:", result );
                         successCallback( result.link );
-                        $(".spinner").remove();
+                        $(".snapshot-spinner").remove();
                     });
                 }).catch(function (err) {
                     console.error("Gallery Storage Error:", err); 
