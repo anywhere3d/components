@@ -1,10 +1,8 @@
 <!-- skinned-loader-button.html -->
 
-
 <h4>Avatar Loader:</h4>
-<div id="load-skinned-button" class="form-control btn btn-default btn-white-outline">Load Skinned Mesh</div>
+<div id="load-skinned-button" class="form-control btn btn-default btn-white-outline">Load avatar from file</div>
 <input type="file" class="hidden" id="load-skinned-input">
-
 
 <script>
 
@@ -19,12 +17,18 @@
     $(loadSkinnedInputSelector).on("change", function(e){
         if ( !e.target.files.length ) return;
 
-        var file = e.target.files[0];
-        var reader = new FileReader();
-        $(reader).on("load", function(event){
+        new Promise( function(resolve, reject ){
 
-            var json = JSON.parse( reader.result );
-            debugMode && console.log( "json:", json );
+            var file = e.target.files[0];
+            var reader = new FileReader();
+            $(reader).on("load", function(){
+                var json = JSON.parse( reader.result );
+                debugMode && console.log( "json:", json );
+                resolve( json );
+            });
+            reader.readAsText(file);
+
+        }).then(function( json ){
 
             var skinned = initSkinnedAsset( json );
             debugMode && console.log( "skinned:", skinned );
@@ -32,8 +36,10 @@
             var name = json.name; // TODO: change name //
             Avatars[ name ] = skinned;
 
-        //  This add the imported skinned mesh to .outfit.body slot.
+        //  Add the imported skinned mesh to .outfit.body slot.
             localPlayer.outfit.add({"body": Avatars[ name ]});
+
+        }).then(function(){
 
             if ( $EditorPanel.active ){
 
@@ -49,7 +55,6 @@
             }
 
         });
-        reader.readAsText(file);
 
     });
 
