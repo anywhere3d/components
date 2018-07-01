@@ -1,624 +1,771 @@
-<!-- snapshot-button.html (v3.2) -->
+<!-- snapshot-button.html (v4.0) -->
 
 <style>
+
+   .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+    }
+
+    .ui-widget-content a {
+        color: #eaf9fb;
+    }
+    
+    #snapshot-cancel-button {
+        color:#222222;
+    }
+
+    #snapshot-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:570px !important;
+        max-height:570px !important;
+        padding: 0px; !important;
+        background-color:#000000;
+    }
+
+    #ui-dialog-footer {
+        height:50px;
+        padding:10px;
+    }
+    
+    a.btn.pull-right + a.btn.pull-right {
+        margin-right:10px;
+    }
+
 /* spinner.css */
     .spinner { position:absolute; left:0px; top:0px; width:100%; height:100%; text-align:center; }
     .img-helper { display:inline-block; height:100%; vertical-align:middle; }
     .spin-img { height:128px; vertical-align:middle; }
+
+
+    .modal-dialog {
+        width:460px;
+    }
+
 </style>
 
 <h4>Snapshots:</h4>
 <div id="snapshot-open-button" class="form-control btn btn-primary btn-white-outline">Open snapshot panel</div>
 
-
-<!-- ALIGN IMAGE HORIZONTAL:CENTER AND VERTICAL:MIDDLE (SPINNER)
-    <div id="snapshot-spin" class="spinner">
-        <span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />
-    </div>
- -->
-
-<!-- 
-    <h4>Snapshots:</h4>
-    <li id="snapshot" class="helpers">
-        <a class="snapshot-btn">Open Snapshot</a>
-    </li>
- -->
-
-
 <script>
-/*
-    var scriptsFolder = "/scripts/";
-    var alertsScript = scriptsFolder + "alerts.js";
-    $.getScript(alertsScript, function(script, status, xhr){
-        if (status == "error") console.error( status, xhr.status, xhr.statusText );
-        if (status == "success") debugMode && console.log( "alerts:", status );
+
+//  snapshot-panel.js
+
+//  var snapshot;
+    var debugMode;
+    var dialogAnimationFrameRequestID;
+    var componentsFolder = "/components/";
+
+    var snapshotOpenButtonSelector   = "#snapshot-open-button";
+    var snapshotTakeButtonSelector   = "#snapshot-take-button";
+    var snapshotDialogFooterSelector = "#ui-dialog-footer";
+    var snapshotCancelButtonSelector = "#snapshot-cancel-button";
+
+    var snapshotFooterHtml = [
+        '<div id="ui-dialog-footer">',
+            '<a id="snapshot-take-button" class="btn btn-primary pull-right">Take snapshot</a>',
+            '<a id="snapshot-cancel-button" class="btn btn-default">Close</a>',
+        '</div>'
+    ].join("");
+
+    var spinner = [
+        '<div class="spinner spinner-loading">',
+            '<span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />',
+        '</div>'
+    ].join("");
+
+    var snapshotPanelHtml = '<div id="snapshot-panel" title="Snapshot Panel">';
+
+//  Create snapshot dialog.
+    var $SnapshotPanel = $(snapshotPanelHtml).dialog({ 
+        autoOpen: false, 
+        show: { effect: 'fade', duration: 500 },
+        hide: { effect: 'fade', duration: 500 },
     });
-*/
+
+    $SnapshotPanel.parent().append( snapshotFooterHtml );
+
+//  Dialog load component function.
+    $SnapshotPanel.loadComponent = function(component, option){
+        var snapshotComponent = componentsFolder + component; 
+        $SnapshotPanel.load(snapshotComponent, function(resoponse, status, xhr){
+            debugMode && console.log("snapshot component:", status);
+            if ( !!option ) $SnapshotPanel.dialog( "option", option );
+        });
+    }
+
+//  Dialog options.
+    $(snapshotOpenButtonSelector).on("click", function (){
+
+        var option = {
+            width    : 428,
+            minWidth : 428,
+            maxWidth : 428,
+            height   : 670,
+            minHeight: 670,
+            maxHeight: 670,
+            title    : "Snapshot Panel"
+        };
+
+        if ( !$SnapshotPanel.active ){
+            $SnapshotPanel.dialog( "option", option );
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(snapshotOpenButtonSelector).on("click", function (){
+        if ( !$SnapshotPanel.active ) {
+            $SnapshotPanel.dialog("open");
+        } else {
+            $SnapshotPanel.dialog("close");
+        }
+    });
+
 </script>
 
 
 <script>
 
-    var snapshotHelperSelector = "#snapshot a";
-    $(snapshotHelperSelector).on("click", function(){
-        snapshotBootbox();
+//  On dialog open.
+
+//  Define snapshot.
+    $SnapshotPanel.on( "dialogopen", function( event, ui ) {
+
+        snapshot = {};
+
+    //  Snapshot dialog animate().
+        snapshot.animate = function(){
+            dialogAnimationFrameRequestID = requestAnimationFrame( snapshot.animate );
+            update(); // is the same with animate() update.
+            snapshot.renderer.render( scene, snapshot.camera );
+        };
+
+        $SnapshotPanel.active = true;
+        debugMode && console.log( "snapshot dialog opened:", $SnapshotPanel.active );
+        debugMode && console.log( "snapshot:", snapshot );
+
     });
 
-</script>
 
+//  Event listeners.
+    $SnapshotPanel.on( "dialogopen", function( event, ui ) {
 
-<script>
-
-    var snapshotOpenButtonSelector = "#snapshot-open-button";
-    $(snapshotOpenButtonSelector).on("click", function(){
-        snapshotBootbox();
-    });
-
-</script>
-
-
-<script>
-
-//  snapshotBootbox.js
-
-    function snapshotBootbox(){
-
-    //  Initialize bootbox dialog (always first).
-        var dialog = bootbox.dialog({  
-
-            title: '<b>Take a snapshot</b>',
-            message: "dialog.renderer.domElement (canvas)",
-
-            buttons: {
-
-                shot: {
-                    label: "Take snapshot",
-                    className: 'btn-success',
-                    callback: function(){}
-                },
-
-                close: {
-                    label: "Close",
-                    className: 'btn-default',
-                    callback: function(){}
-                },
+    //  Snapshot dialog on resize.
+        $SnapshotPanel.on( "resize", function () {
+            debugMode && console.log( "aspect:", snapshot.camera.aspect );
+            snapshot.camera.aspect = $(this).width() / $(this).height();
+            snapshot.camera.updateProjectionMatrix(); 
+            snapshot.renderer.setSize( $(this).width(), $(this).height() );
+        });
+    
+    //  Snapshot dialog control switches.
+        $SnapshotPanel.on("mouseenter", function(e){
+            if ( !!snapshot.controls && snapshot.controls instanceof THREE.EditorControls )  {
+                snapshot.controls.enabled = true;
+            }
+        });
+    
+        $SnapshotPanel.on("mouseleave", function(e){
+            if ( !!snapshot.controls && snapshot.controls instanceof THREE.EditorControls ) {
+                snapshot.controls.enabled = false;
             }
         });
 
-    //  Modal dialog on hide. (BUG: When dialog closed from 
-    // (x) button, we have dublicated "hide.bs.modal" events.
+    });
 
-        dialog.init(function(){
 
-       //  dialog.find(".modal-dialog").width(450);
+//  Pause main window renderer.
+    $SnapshotPanel.on( "dialogopen", function( event, ui ) {
+//        window.cancelAnimationFrame( windowAnimationFrameRequestID );
+//        debugMode && console.warn( 
+//            "Main window animate has been paused while snapshot dialog is open.", 
+//            "cancelAnimationFrameRequestID paused at:", windowAnimationFrameRequestID 
+//        );
+    });
 
-            var $dialog_body = dialog.find(".modal-body");
-            var $dialog_modal = dialog.find(".modal-dialog");
-            var $databbhandlerShot = dialog.find("[data-bb-handler=shot]");
 
-        //  Ensure that dialogAnimate() will stop when the dialog
-        //  is about to be hidden. This always trigged at the end.
-            dialog.one("hide.bs.modal", cancelDialogAnimationFrameRequest );
+//  Snapshot dialog init.
+    $SnapshotPanel.on( "dialogopen", function( event, ui ) {
 
-        //  Closed with (x) button (on modal header).
-        //  dialog.find(".bootbox-close-button").one( "click", cancelDialogAnimationFrameRequest );
-        
-        //  Closed with "Close" button (on modal footer).
-        //  dialog.find("[data-bb-handler=close]").one( "click", cancelDialogAnimationFrameRequest ); 
+    //  keyInputControls.Off();
 
-        //  Modal body on resize.
-            $dialog_body.on( "resize", function () {
-                debugMode && console.log( "aspect:", dialog.camera.aspect );
-                dialog.camera.aspect = $(this).width() / $(this).height();
-                dialog.camera.updateProjectionMatrix(); 
-                dialog.renderer.setSize( $(this).width(), $(this).height() );
-            });
+    //  Dialog camera and controls. We create independent camera for the snapshots.
+        snapshot.camera = new FpsCamera(50, 1, 10000);
+        snapshot.camera.aspect = $SnapshotPanel.width() / $SnapshotPanel.height();
+        snapshot.camera.updateProjectionMatrix();
+        snapshot.controls = new THREE.EditorControls( snapshot.camera );
 
-        //  Snapshot dialog control switches.
-            $dialog_body.on("mouseenter", function(e){
-                if ( !!dialog.controls && dialog.controls instanceof THREE.EditorControls ) 
-                    dialog.controls.enabled = true;
-            });
+    //  Dialog renderer init.
+        snapshot.renderer = new THREE.WebGLRenderer({
+            antialias: true, preserveDrawingBuffer: true,
+        });
 
-            $dialog_body.on("mouseleave", function(e){
-                if ( !!dialog.controls && dialog.controls instanceof THREE.EditorControls ) 
-                    dialog.controls.enabled = false;
-            });
+        snapshot.renderer.shadowMap.enabled = true;
+        snapshot.renderer.setPixelRatio( window.devicePixelRatio );
+        snapshot.renderer.setSize( $SnapshotPanel.width(), $SnapshotPanel.height() );
 
-        //  Below buttons: DO NOT close the dialog and DO NOT     //
-        //  cancelAnimationFrame(dialogAnimationFrameRequestID).  //
+        $SnapshotPanel.append( snapshot.renderer.domElement );
 
-        //  Snapshot button.
-            $databbhandlerShot.on( "click", function(e){
+        snapshot.camera.position.copy( camera.position );              // IMPORTANT  //
+        if ( !!localPlayer.outfit.body ) {
+            snapshot.controls.focus( localPlayer.outfit.body, true );  // IMPORTANT  //
+        }
+        snapshot.camera.lookAt( snapshot.controls.center );              // IMPORTANT  //
 
-            //  Take snapshot.
-                var snapshotdata = dialog.renderer.domElement.toDataURL("image/jpeg");
+    //  Dialog animate.
+        snapshot.animate(); 
 
-            //  watermark.js
-            //  Positions:
-                // left top      -> [0, 0]
-                // left center   -> [0, 0.5]
-                // left bottom   -> [0, 1]
-                // right top     -> [1, 0]
-                // right center  -> [1, 0.5]
-                // right bottom  -> [1, 1]
-                // center top    -> [0.5, 0]
-                // center center -> [0.5, 0.5]
-                // center bottom -> [0.5, 1]
-            //  Default is [0.5, 0.5]: center center.
+        debugMode && console.log( 
+            "dialogAnimationFrameRequestID starts at:", dialogAnimationFrameRequestID 
+        );
 
-                try {
-                //  Create new object instance.
-                    var wm = new Watermark();
+    });
 
-                    var wmOptions = {
-                        position: [1,1], // right bottom  
-                        scale: 0.8,      // Default is 1.0
-                        opacity: 1.0,    // Default is 1.0
-                    };
+</script>
 
-                    wm.setPicture( snapshotdata );                  // Base picture: Url or data-url.
-                    wm.addWatermark("https://i.imgur.com/MrEaeSc.png", wmOptions);  // Url or data-url.
 
-                //  Do something when watermarking ends.            
-                    wm.render( function(){
-                        debugMode && console.log( "watermark.getImgs:", wm.getImgs( 'image/jpeg', 0.9 ) );
-                        saveSnapshotDialog( wm.getDataUrls( 'image/jpeg', 0.9 )[0] );
-                    });
+<script>
 
-                } catch(err) {
-                //  Open a new boobox confirm dialog with 
-                //  the snapshot preview to save or cancel.
-                    saveSnapshotDialog( snapshotdata );
-                }
+//  On dialog close.
 
-            //  shot button: "return false", 
-            //  prevents dialog modal to close.
-                return false; 
+    $(snapshotCancelButtonSelector).on( "click", function(){
 
-            });
+        $SnapshotPanel.dialog("close");
 
-        //  Pause main window renderer.
-            window.cancelAnimationFrame( windowAnimationFrameRequestID );
-            debugMode && console.warn( "on snapshot dialog.init:", 
-                "Main window animate has been paused while snapshot dialog is open.", 
-                "cancelAnimationFrameRequestID paused at:", windowAnimationFrameRequestID 
-            );
+    });
 
-        //  Disable keyInput controls.
-        //  keyInputControls.Off();
+    $SnapshotPanel.on( "dialogclose", function( event, ui ) {
 
-        //  Snapshot dialog init.
-            var width  = 600;  // 420 (golden ratio)
-            var height = 600;  // 680 (golden ratio)
-            $dialog_body.html("");
-            $dialog_body.width(width);   // 420 (golden ratio)
-            $dialog_body.height(height); // 680 (golden ratio)
-            $dialog_modal.width(width + 32);
-            $dialog_body.css("overflow", "hidden");
-            $dialog_body.find( "[data-bb-handler]" ).css( "margin-bottom", 0 );
+    //  Pause dialog panel renderer.
+        window.cancelAnimationFrame( dialogAnimationFrameRequestID );
+        debugMode && console.log(  
+            "dialogAnimationFrameRequestID canceled at:", dialogAnimationFrameRequestID 
+        );
 
-        //  Dialog camera and controls. We create independent camera for the snapshots.
-            dialog.camera = new FpsCamera(50, 1, 10000);
-            dialog.camera.aspect = $dialog_body.width() / $dialog_body.height();
-            dialog.camera.updateProjectionMatrix();
-            dialog.controls = new THREE.EditorControls( dialog.camera );
+        if ( !!snapshot && !!snapshot.controls ) snapshot.controls.dispose(); // IMPORTANT //
 
-        //  Dialog renderer init.
-            dialog.renderer = new THREE.WebGLRenderer({
-                antialias: true, preserveDrawingBuffer: true,
-            });
+    //  DEVELOPER NOTE: You can keep the same renderer for different scenes. The renderer does not care   //
+    //  what scene it will render. You can supply a different Scene everytime you call render() if you like. //
 
-            dialog.renderer.shadowMap.enabled = true;
-            dialog.renderer.setPixelRatio( window.devicePixelRatio );
-            dialog.renderer.setSize( $dialog_body.width(), $dialog_body.height() );
-        //  $(dialog.renderer.domElement).css("position", "relative");
-            $(dialog.renderer.domElement).css("zIndex", 1);
-            $dialog_body.append( dialog.renderer.domElement );
+    //  Deallocate renderer to avoid memory leaks. // VERY IMPORTANT //
+        if ( !!snapshot && !!snapshot.renderer ) deallocateRendererContext( snapshot.renderer );
 
-            dialog.camera.position.copy( camera.position );        // IMPORTANT  //
-            dialog.controls.focus(localPlayer.outfit.body, true);  // IMPORTANT  //
-            dialog.camera.lookAt( dialog.controls.center );        // IMPORTANT  //
+    //  Remove event listeners.
+        $SnapshotPanel.off( "resize" );
+        $SnapshotPanel.off( "mouseenter" );
+        $SnapshotPanel.off( "mouseleave" );
 
-        //  Dialog animate.
-            dialogAnimate();  debugMode && console.log( "dialogAnimationFrameRequestID starts at:", dialogAnimationFrameRequestID );
+    //  Continue window requestAnimationFrame animate.
+    //  animate();
+        debugMode && console.log( 
+            "windowAnimationFrameRequestID continue from:", windowAnimationFrameRequestID 
+        );
 
-        //  Snapshot dialog animate().
-            function dialogAnimate(){
-                dialogAnimationFrameRequestID = requestAnimationFrame( dialogAnimate );
-                update(); // is the same with animate() update.
-                dialog.renderer.render( scene, dialog.camera );
+    //  Restore window keyInput controls.
+        keyInputControls.Off();
+
+    //  Reset snapshot.
+        snapshot = undefined;
+
+    //  Remove contents ???.
+        $SnapshotPanel.active = false;
+        $SnapshotPanel.contents().remove();
+        debugMode && console.log( "snapshot dialog closed:", !$SnapshotPanel.active );        
+        debugMode && console.log( "snapshot:", snapshot );
+
+    });
+
+
+    function deallocateRendererContext( renderer ){
+    //  sources: "https://stackoverflow.com/questions/21548247/clean-up-threejs-webgl-contexts",
+    //  "https://github.com/mrdoob/three.js/blob/r78/src/renderers/WebGLRenderer.js#L308".
+        renderer.forceContextLoss();
+    //  Removes the "webglcontextlost" event listener.
+        renderer.dispose();          
+        renderer.context = null;
+        renderer.domElement = null;
+        renderer = null;
+    }
+
+</script>
+
+
+<script>
+
+    //  watermark.js
+    //  Positions:
+        // left top      -> [0, 0]
+        // left center   -> [0, 0.5]
+        // left bottom   -> [0, 1]
+        // right top     -> [1, 0]
+        // right center  -> [1, 0.5]
+        // right bottom  -> [1, 1]
+        // center top    -> [0.5, 0]
+        // center center -> [0.5, 0.5]
+        // center bottom -> [0.5, 1]
+    //  Default is [0.5, 0.5]: center center.
+
+//  Snapshot-take-button.js
+
+    $(snapshotTakeButtonSelector).on( "click", function(){
+
+        $SnapshotPanel.append( spinner );
+
+    //  Take snapshot.
+        var snapshotdata = snapshot.renderer.domElement.toDataURL("image/jpeg");
+
+        try {
+
+        //  Create new object instance.
+            var wm = new Watermark();
+
+            var wmOptions = {
+                position: [1,1], // right bottom  
+                scale: 0.8,      // Default is 1.0
+                opacity: 1.0,    // Default is 1.0
             };
 
-            function cancelDialogAnimationFrameRequest(){ 
+            wm.setPicture( snapshotdata );                  // Base picture: Url or data-url.
+            wm.addWatermark("https://i.imgur.com/MrEaeSc.png", wmOptions);  // Url or data-url.
 
-                window.cancelAnimationFrame( dialogAnimationFrameRequestID );
-                debugMode && console.log( "Modal closed from (x) button.", 
-                    "dialogAnimationFrameRequestID canceled at:", dialogAnimationFrameRequestID 
-                );
+        //  Do something when watermarking ends.            
+            wm.render( function(){
+                debugMode && console.log( "watermark.getImgs:", wm.getImgs( 'image/jpeg', 0.9 ) );
+                saveSnapshotDialog( wm.getDataUrls( 'image/jpeg', 0.9 )[0] );
+            });
 
-                dialog.controls.dispose(); // IMPORTANT //
+        } catch(err) {
+        //  Open a new boobox confirm dialog with 
+        //  the snapshot preview to save or cancel.
+            saveSnapshotDialog( snapshotdata );
+        }
 
-            //  DEVELOPER NOTE: You can keep the same renderer for different scenes. The renderer does not care   //
-            //  what scene it will render. You can supply a different Scene everytime you call render() if you like. //
+    //  shot button: "return false", 
+    //  prevents dialog modal to close.
+        return false; 
 
-                deallocateRendererContext( dialog.renderer );
+    });
 
-            //  Remove event listeners.
-                $dialog_body.off( "resize" );
-                $dialog_body.off( "mouseenter" );
-                $dialog_body.off( "mouseleave" );
-                $databbhandlerShot.off( "click" );
-            //  $databbhandlerHelp.off( "click" );
 
-            //  Continue window requestAnimationFrame animate.
-                animate();
+    function saveSnapshotDialog( data ){
 
-                debugMode && console.log( 
-                    "windowAnimationFrameRequestID continue from:", windowAnimationFrameRequestID 
-                );
+        $(".spinner").remove();
 
-            //  Restore window keyInput controls.
-                keyInputControls.On();
+        var snapshot_dialog = bootbox.dialog({
 
+        //  size: "small",
+            message: '<img src="' + data + '" id="snapshot-preview" class="img-thumbnail">',
+            buttons: {
+
+                cancel: {
+                    label: 'Cancel',
+                    className: 'btn-default',
+                    callback: function(){},
+                },
+            /*
+                pinterest: {
+                    label: 'Pin',
+                    className: 'btn-danger',
+                //  callback: function(){},
+                },
+            */
+                imgur: {
+                    label: 'Imgur',
+                    className: 'btn-warning',
+                    callback: upload,
+                },
+            /*
+                tweet: {
+                    label: 'Tweet',
+                    className: 'btn-info',
+                //  callback: shareInTwitter,
+                },
+            */
+                save: {
+                    label: 'Save',
+                    className: 'btn-success',
+                    callback: saveToDesktop,
+                }
             }
 
-        //  Deallocate renderer to avoid memory leaks. // VERY IMPORTANT //
-        
-            function deallocateRendererContext( renderer ){
-        
-            //  sources: "https://stackoverflow.com/questions/21548247/clean-up-threejs-webgl-contexts",
-            //  "https://github.com/mrdoob/three.js/blob/r78/src/renderers/WebGLRenderer.js#L308".
-        
-                renderer.forceContextLoss();
-        
-            //  Removes the "webglcontextlost" event listener.
-                renderer.dispose();          
-                renderer.context = null;
-                renderer.domElement = null;
-                renderer = null;
+        });
+
+
+        function saveToDesktop(){
+        //  Save image to desktop.
+            data.replace("image/jpeg", "image/octet-stream");
+            var a = document.createElement("a");
+            $(a).one("click", function(){ 
+                $(this).remove();
+            });
+            a.download = ["snapshot", Date.now().toString(36)].join("-") + ".jpg";
+            a.href = data;
+            a.click();
+        }
+
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
             }
 
-            function saveSnapshotDialog( data ){
+            return new Blob([u8arr], {type:mime});
+        }
 
-                var snapshot_dialog = bootbox.dialog({
 
-                    size: "small",
-                    message: '<img src="' + data + '" id="snp-preview" class="img-thumbnail">',
-                    buttons: {
+        function upload(){
 
-                        pinterest: {
-                            label: 'Pin',
-                            className: 'btn-danger',
-                        //  callback: function(){},
-                        },
+            $SnapshotPanel.append( spinner );
 
-                        imgur: {
-                            label: 'Imgur',
-                            className: 'btn-warning',
-                            callback: uploadSnapshot,
-                        },
+            var id = Date.now().toString(36);
+            var blob = dataURLtoBlob( data );
+            var size = blob.size;
+            var mimeType = blob.type;
+            var filename = id + ".jpg";
+            var file = new File([blob], filename, { type: mimeType });
 
-                        tweet: {
-                            label: 'Tweet',
-                            className: 'btn-info',
-                            callback: shareInTwitter,
-                        },
+        //  imgurUpload.js
 
-                        save: {
-                            label: 'Save',
-                            className: 'btn-success',
-                            callback: saveToDesktop,
-                        },
+            new Promise( function(resolve, reject){
 
-                    /*
-                        cancel: {
-                            label: 'Cancel',
-                            className: 'btn-default',
-                            callback: function(){},
+                var clientid = "95e1ecaf14ca5e6";
+                var endpoint = "https://api.imgur.com/3/image";
+
+                var formdata = new FormData();
+                formdata.append("image", file);
+                formdata.append("name",  filename);
+                formdata.append("title", "anywhere3d snapshot");
+                formdata.append("description", "Avatar editor snapshot direct from http://anywhere3d.com");
+                formdata.append("tags", "anywhere3d" );
+
+                var xhttp = new XMLHttpRequest();
+                xhttp.open('POST', endpoint, true);
+                xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState === 4) {
+                        var response = "";
+                        if (this.status >= 200 && this.status < 300) {
+                            response = JSON.parse(this.responseText);
+                            resolve( response );
+                        } else {
+                            var error = this.responseText;
+                            throw Error( error );
                         }
-                    */
-
                     }
+                };
+                xhttp.send(formdata);
+                xhttp = null;
+
+            }).then( function( response ){
+                debugMode && console.log("imgur response:", response.data);
+
+                var data = response.data;
+
+            //  Store in gallery storage.
+                GalleryStorage.ready().then(function() {
+                    GalleryStorage.setItem("/snapshot/" + id, data).then(function( result ){
+                        debugMode && console.log( "gallery result:", result );
+                        successCallback( result.link );
+                        $(".spinner").remove();
+                    });
+                }).catch(function (err) {
+                    console.error("Gallery Storage Error:", err); 
                 });
 
-                snapshot_dialog.init(function(){
-        
-                    snapshot_dialog.on("show.bs.modal", function(){
-                    //  this.find(".modal-body").width(300);
-                    //  this.find(".modal-body").height(300);
-                    //  this.find(".bootbox-body").width(270);
-                    //  this.find(".bootbox-body").height(270);
-                    });
-            
-                    var $snapshot_dialog_body   = snapshot_dialog.find(".modal-body");
-                    var $databbhandlerSave      = snapshot_dialog.find("[data-bb-handler=save]");
-                    var $databbhandlerTweet     = snapshot_dialog.find("[data-bb-handler=tweet]");
-                    var $databbhandlerUpload    = snapshot_dialog.find("[data-bb-handler=imgur]");
-                    var $databbhandlerPinterest = snapshot_dialog.find("[data-bb-handler=pinterest]");
+            }).catch(function (err) {
+                console.error("Snapshot Uploader Error:", err); 
+            });
 
-                //  sharer.js
+        } // end upload;
+
+
+        function successCallback( url ){
+            bootbox.confirm({
+                size: "small",
+                title: '<div class="alert-icon icon-success"></div><b>Snapshot uploaded successfully.</b>',
+                message: [
+                    ['<b>url: </b><span><a href="', url, '"'].join(""), 
+                    ['target="_blank">', url, '</a></span>'].join(""), 
+                ].join(" "),
+
+                buttons: {
+
+                    cancel: {
+                        label: 'Close',
+                        className: 'btn-default',
+                    },
                     
-                //  var url = window.URL.createObjectURL( dataURLtoBlob(data) );
-
-                //  $databbhandlerTweet.attr("data-sharer", "twitter");
-                //  $databbhandlerTweet.attr("data-title", "Checkout anywhere3d.com");
-                //  $databbhandlerTweet.attr("data-hashtags", "3D,snapshots,webspaces,anywhere3d,threejs");
-                //  $databbhandlerTweet.attr("data-url", data.replace(/data:image\/jpeg;base64,/, "") );
-
-                //  $databbhandlerPinterest.attr("data-sharer", "pinterest");
-                //  $databbhandlerPinterest.attr("data-image", "https://anywhere3d.com/img/logo.png");
-                //  $databbhandlerPinterest.attr("data-url", "https://anywhere3d.com");
-                //  $databbhandlerPinterest.attr("data-description", "pin direct from anywhere3d.com");
-                
-                    try { window.Sharer.init(); } catch(err){;}
-
-                }); // end snapshot_dialog.init().
-
-
-                function shareInTwitter(){
-
-                //  Add spinner.
-
-                    var spinner = [
-                        '<div id="splash-spin" class="spinner spinner-loading">',
-                            '<span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />',
-                        '</div>'
-                    ].join("");
-
-                    dialog.find(".modal-body").append( spinner );
-
-                //  Upload to server (ajax).
-
-                //  IMPORTANT: First must remove 'data:image/jpeg;base64,' from dataURL. //  IMPORTANT //
-                    var base64String = data.replace(/data:image\/jpeg;base64,/, ""); // VERY IMPORTANT //
-
-                    $.post("/tweet/media", {image:base64String}, function(data, status, xhr){
-
-                    //  bootboxSuccessAlert("Success!");
-                        debugMode && console.log(status);
-
-                    }).then(function( data, status, xhr ){
-
-                        debugMode && console.log("twitter response:", data);
-                        var url = data.entities.media[0].url;
-                        var src = data.entities.media[0].media_url;
-                        snapshotSuccess( url );
-
-                    }).fail(function( err ){
-
-                        debugMode && console.error("Share Tweet Error:", err);
-                        bootboxErrorAlert( "<b>Share_Tweet: Failed</b><br>" + err.statusText );
-
-                    }).always(function(){
-
-                        $(".spinner").remove();
-
-                    });
-
-                }
-
-                function saveToDesktop(){
-                //  Save image to desktop.
-                    data.replace("image/jpeg", "image/octet-stream");
-                    var link = document.createElement("a");
-                    $(link).on("click", function(){ this.remove(); });
-                    link.download = ["anywhere3d", "snapshot", Date.now().toString()].join("-") + ".jpg";
-                    link.href = data;  //  debugMode && console.log("a.href:", a.href);
-                    snapshot_dialog.find(".modal-footer").append( link ); 
-                    link.click();
-                }
-
-                function dataURLtoBlob(dataurl) {
-                    var arr = dataurl.split(','), 
-                        mime = arr[0].match(/:(.*?);/)[1],
-                        bstr = atob(arr[1]), 
-                        n = bstr.length, 
-                        u8arr = new Uint8Array(n);
-                        
-                    while(n--){
-                        u8arr[n] = bstr.charCodeAt(n);
+                    confirm: {
+                        label: 'Open image',
+                        className: 'btn-primary',
                     }
-        
-                    return new Blob([u8arr], {type:mime});
+                },
+
+                callback: function ( result ) {
+                    if ( result ) window.open( url );
                 }
 
+            });
 
-                function uploadSnapshot(){
+        } // end successCallback;
 
-                    var spinner = [
-                        '<div id="splash-spin" class="spinner spinner-loading">',
-                            '<span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />',
-                        '</div>'
-                    ].join("");
+    } // end saveSnapshotDialog;
 
-                    dialog.find(".modal-body").append( spinner );
+</script>
 
-                    var blob = dataURLtoBlob( data );
-                    debugMode && console.log("snapshot blob:", blob);
-                    var name = Date.now().toString(36);
-                    var filename =  name + ".jpg";
-                    var size = blob.size;
-                    var mimeType = blob.type;
-                    var file = new File([blob], filename, { type: mimeType });
-                    debugMode && console.log("snapshot file:", file);
 
-                    uploadToImgur(file, function(res){
-                        debugMode && console.log("imgur response:", res.data);
-
-                        var data = res.data;
-
-                    //  Create entry from data.
-                        var entry = {};
-                        entry.title = "snapshot untitled";
-                        entry.datetime = data.datetime;
-                        entry.deletehash = data.deletehash;
-                        entry.width = data.width;
-                        entry.height = data.height;
-                        entry.imgID = data.id;
-                        entry.link = data.link;
-                        entry.size = data.size;
-                        entry.mime = data.type;
-                        entry.tags = data.tags;
-                        entry.views = data.views;
-
-                        entry.name = name;
-                        entry.ext = "jpg";
-                        entry.type = "snapshot";
-                        entry.icon = "https://i.imgur.com/" + data.id + "s" + ".jpg";
-                        entry.preview = "https://i.imgur.com/" + data.id + "t" + ".jpg";
-                        entry.url = "https://i.imgur.com/" + data.id + ".jpg";
-                        entry.proxy_src = "/snapshot/" + name + ".jpg";
-                        entry.watermark = "/icons/anywhere3d_watermark.png";
-                        //entry.mask = null;
-                        entry.permissions = "public";
-                        entry._imgur = data;
-                        debugMode && console.log("entry:", entry);
-
-                    //  Inset to database.
-
-                        var jqxhr = $.ajax({
-                
-                            type: "POST",
-                            url: "/snapshots/insert/" + filename,
-                            data: entry,
-                            dataType: "json",
-                            jsonp: false,
-                        //  username: "anonymous",
-                        //  password: "anonymous",
-                        
-                        }).then(
-        
-                      //  Success.
-                            function( results, textStatus, jqXHR ){
-                            //  debugMode && console.log("jqXHR:", jqXHR);
-                                $(".spinner").remove();
-                                debugMode && console.log("success:", results);
-                                var url = results.ops[0].url;
-                                snapshotSuccess( url );
-                            },
-        
-                        //  Error.
-                            function( jqXHR, textStatus, errorThrown ){
-                            //  debugMode && console.log("jqXHR:", jqXHR);
-                                $(".spinner").remove();
-                                debugMode && console.error(
-                                    "error:", errorThrown + ":", 
-                                    $(jqXHR.responseText).text()
-                                );
-                            }
-        
-                        ).then( function(){
-        
-                            $(".spinner").remove();
-        
-                        });
-
-                    });
-
-                }
-
-                function snapshotSuccess(url){
-                    bootbox.confirm({
-                        title: '<div class="alert-icon icon-success"></div><b>Snapshot uploaded successfully.</b>',
-                        message: [
-                            '<b>url:', '</b><span><a href="' + url + '"', 
-                            'target="_blank">' + url + '</a></span>',
-                        ].join(" "),
-                        size: 'small',
-                        
-                        buttons: {
-                        
-                            cancel: {
-                                label: 'Close',
-                                className: 'btn-default',
-                            },
-                            
-                            confirm: {
-                                label: 'Open image',
-                                className: 'btn-primary',
-                            }
-                        },
-
-                        callback: function (result) {
-                            debugMode && console.log("results:", result);
-                            if ( result ) {
-                                window.open( url );
-                            }
-                        }
-
-                    });
-
-                }
-
-                function uploadToImgur(file, callback) {
-            
-                    var clientid = "95e1ecaf14ca5e6";
-                    var endpoint = "https://api.imgur.com/3/image";
-            
-                    var formdata = new FormData();
-                    formdata.append("image", file);
-            
-                    var xhttp = new XMLHttpRequest();
-            
-                    xhttp.open('POST', endpoint, true);
-                    xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
-                    xhttp.onreadystatechange = function () {
-                        if (this.readyState === 4) {
-            
-                            var response = "";
-        
-                            if (this.status >= 200 && this.status < 300) {
-            
-                                try {
-                                    response = JSON.parse(this.responseText);
-                                } catch (err) {
-                                    response = this.responseText;
-                                }
-            
-                                callback.call(window, response);
-            
-                            } else {
-        
-                                try {
-                                    response = JSON.parse(this.responseText);
-                                    debugMode && console.log( "Error response:", response );
-                                    var error = response.data.error;
-                                    var code = error.code || response.status;
-                                    var message = error.message || error;
-                                    bootboxErrorAlert( "<b>Error code: " + code + "</b><br>" + message );
-                                    debugMode && console.error( "Error status:", this.status, "- error.code:", error.code, "- error:", error );
-                                } catch (err) {
-                                    var error = this.responseText;
-                                    debugMode && console.error( "Error:" + this.status, error );
-                                }
-        
-                            //  $("#spin").remove();
-        
-                            }
-
-                        }
-                    };
-
-                    xhttp.send(formdata);
-                    xhttp = null;
-
-                } // end uploadToImgur()
-
-            } // end saveSnapshotDialog()
-
-        }); // end dialog.init()
-
-    } // end snapshotBootbox()
+<script>
 
 /*
-    var menuBtnSnapshotSelector = "#menu-btn-snapshot";
-    $(menuBtnSnapshotSelector).on("click", function(){
-        snapshotBootbox();
-    });
+    function uploadSnapshot(){
+
+        $SnapshotPanel.append( spinner );
+
+        var blob = dataURLtoBlob( data );
+        //  debugMode && console.log("snapshot blob:", blob);
+        var name = Date.now().toString(36);
+        var filename = ["anywhere3d", "snapshot", name + ".jpg"].join("-");
+        var size = blob.size;
+        var mimeType = blob.type;
+        var file = new File([blob], filename, { type: mimeType });
+        debugMode && console.log("snapshot file:", file);
+
+        uploadToImgur(file).then( function( response ){
+            debugMode && console.log("imgur response:", response.data);
+
+            var data = response.data;
+        
+        //  Store in gallery storage.
+            GalleryStorage.ready().then(function() {
+                GalleryStorage.setItem("/snapshot/" + name, data).then(function( result ){
+                    debugMode && console.log( "gallery result:", result );
+                    snapshotSuccess( result.link );
+                    $(".spinner").remove();
+                });
+            }).catch(function (err) {
+                console.error("GalleryStorage Error:", err); 
+            });
+
+        //  Store in server db.
+
+        });
+
+    }
+*/
+
+/*
+    function uploadToImgur(file, callback){
+        return new Promise( function(resolve, reject){
+            var clientid = "95e1ecaf14ca5e6";
+            var endpoint = "https://api.imgur.com/3/image";
+            var formdata = new FormData();
+            formdata.append("image", file);
+            var xhttp = new XMLHttpRequest();
+            xhttp.open('POST', endpoint, true);
+            xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4) {
+                    var response = "";
+                    if (this.status >= 200 && this.status < 300) {
+                        response = JSON.parse(this.responseText);
+                        if (!!callback) callback.call(window, response);
+                        resolve( response );
+                    } else {
+                        var error = this.responseText;
+                        throw Error( error );
+                    }
+                }
+            };
+            xhttp.send(formdata);
+            xhttp = null;
+        });
+    }
+*/
+
+/*
+    function snapshotSuccess(url){
+        bootbox.confirm({
+            title: '<div class="alert-icon icon-success"></div><b>Snapshot uploaded successfully.</b>',
+            message: [
+                ['<b>url: </b><span><a href="', url, '"'].join(""), 
+                ['target="_blank">', url, '</a></span>'].join(""), 
+            ].join(" "),
+            size: 'small',
+            
+            buttons: {
+            
+                cancel: {
+                    label: 'Close',
+                    className: 'btn-default',
+                },
+                
+                confirm: {
+                    label: 'Open image',
+                    className: 'btn-primary',
+                }
+            },
+
+            callback: function (result) {
+                debugMode && console.log("confirm:", result);
+                if ( result ) {
+                    window.open( url );
+                }
+            }
+
+        });
+
+    }
+*/
+
+/*
+    function uploadToImgurXHR(file, callback) {
+
+        var clientid = "95e1ecaf14ca5e6";
+        var endpoint = "https://api.imgur.com/3/image";
+
+        var formdata = new FormData();
+        formdata.append("image", file);
+
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.open('POST', endpoint, true);
+        xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+
+                var response = "";
+
+                if (this.status >= 200 && this.status < 300) {
+
+                    try {
+                        response = JSON.parse(this.responseText);
+                    } catch (err) {
+                        response = this.responseText;
+                    }
+
+                    callback.call(window, response);
+
+                } else {
+
+                    try {
+
+                        response = JSON.parse(this.responseText);
+                        debugMode && console.log( "Error response:", response );
+                        var error = response.data.error;
+                        var code = error.code || response.status;
+                        var message = error.message || error;
+                        debugMode && console.error( "Error status:", this.status, "- error.code:", error.code, "- error:", error );
+
+                        bootboxErrorAlert( "<b>Error code: " + code + "</b><br>" + message );
+
+                    } catch (err) {
+                        var error = this.responseText;
+                        debugMode && console.error( "Error:" + this.status, error );
+                    }
+
+                //  $(".spinner").remove();
+
+                }
+
+            }
+        };
+
+        xhttp.send(formdata);
+        xhttp = null;
+
+    }
+*/
+
+/*
+    function _entry(data){
+
+    //  Create entry from data.
+        var entry = {};
+        entry.title = "snapshot untitled";
+        entry.datetime = data.datetime;
+        entry.deletehash = data.deletehash;
+        entry.width = data.width;
+        entry.height = data.height;
+        entry.imgID = data.id;
+        entry.link = data.link;
+        entry.size = data.size;
+        entry.mime = data.type;
+        entry.tags = data.tags;
+        entry.views = data.views;
+
+        entry.name = name;
+        entry.ext = "jpg";
+        entry.type = "snapshot";
+        entry.icon = "https://i.imgur.com/" + data.id + "s" + ".jpg";
+        entry.preview = "https://i.imgur.com/" + data.id + "t" + ".jpg";
+        entry.url = "https://i.imgur.com/" + data.id + ".jpg";
+        entry.proxy_src = "/snapshot/" + name + ".jpg";
+        entry.watermark = "/icons/anywhere3d_watermark.png";
+        //entry.mask = null;
+        entry.permissions = "public";
+        entry._imgur = data;
+        debugMode && console.log("entry:", entry);
+
+    //  Inset to database.
+
+        var jqxhr = $.ajax({
+
+            type: "POST",
+            url: "/snapshots/insert/" + filename,
+            data: entry,
+            dataType: "json",
+            jsonp: false,
+        //  username: "anonymous",
+        //  password: "anonymous",
+        
+        }).then(
+
+      //  Success.
+            function( result, textStatus, jqXHR ){
+            //  debugMode && console.log("jqXHR:", jqXHR);
+                $(".spinner").remove();
+                debugMode && console.log("success:", result);
+                var url = result.ops[0].url;
+                snapshotSuccess( url );
+            },
+
+        //  Error.
+            function( jqXHR, textStatus, errorThrown ){
+            //  debugMode && console.log("jqXHR:", jqXHR);
+                $(".spinner").remove();
+                debugMode && console.error(
+                    "error:", errorThrown + ":", 
+                    $(jqXHR.responseText).text()
+                );
+            }
+
+        ).then( function(){
+
+            $(".spinner").remove();
+
+        });
+
+    }
 */
 
 </script>
+
+
+
+
+
+
+
 
 
 
