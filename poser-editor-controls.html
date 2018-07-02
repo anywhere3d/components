@@ -137,8 +137,7 @@
     </div>
     
     <div class="reset-container">
-        <a><span id="reset-pose">Reset T-Pose</span></a>
-        <a><span id="reset-position" class="hidden">Reset bones position</span></a>
+        <a><span id="reset-position">Reset pose</span></a>
     </div>
 </div>
 
@@ -205,7 +204,7 @@
     </div>
     
     <div class="reset-container">
-        <!-- a><span id="reset-pose">Reset T-Pose</span></a -->
+        <a><span id="reset-pose">Reset T-Pose</span></a>
     </div>
 </div>
 
@@ -921,6 +920,11 @@
 
 //  Resets.
 
+//  male pose.
+    var hm_pose = "vVa7bhwxDPwX1zqB70d+xXCVNoCDOF2Qf89IewkuhY1b2PBts9KJ5HA4pPbx18P355eHL48XmoSf5OCawspjb3Dn03j48fwTR2ish7F++foNax54nn6Pvy7+ecCLO2keLoj6bhc83VprXGQau8fyYMxyv4eVh4xLIgdXHVgKVdiJJPQwb4tY5pasccKcuyyXoZtLD5lS8PSZJF54mr6fxX4Hi5d30rjsyXVbllbX5rGIP5hH8IKtFAkBPlXK5XZ2N3drk6njxd/kybSwCRsXWXjRMl1+impuX0ohlMjH4TPl/lTX/2eICXBriMfktZXK3DfhJimS6a4INt7sjNc2SahNsOMV4sZSm77C4ZTgcPZ4u1eV1MZSbNKaOQa7usUiUdVSHsYdtBXBpN5CgjCBIKQbCUMfUtgmLUI1eyMxoEILkEng7AdxKBPxqwEbNNiWd+V/o3KCoSqOWjoCLpeFMUQsALrZFj+2TcPCvJhLzQp+cDA9mlwoNUGkvQ7bJiO73aAUtloNneqpJ/SnM7o29RQOpEgqFaSfEjB0ABQ0rreI6Qk5unek7L6TIDTPZ0U+VfI1S8NDjpprXYtOt0NxUjkmBq4wyA5FDd6wEotsFJSUM3NRjb4o46yoSMuyVXPD1IBclhJKNwuvIDmKXteia+Queoven/tlVz1340QA6qo6+uks91D0Ltz6UvBTksHdyHZMW/RE2qm74XTkpz8=";
+//  female pose.
+    var fm_pose = "vVXLbtwwDPyXPcsC34/+SrCnXAukaHor+u8l5U3aHFLYDbLWxbKlITkzoh5+Xr49PV++PGwwoR7ygTkNGfL1sbH+Yfp1XL4//ajVMHpgzZ8fv9YcR43rr/GC9gpWL6rAvkMA5GEInCrJMTaagqorCUGk4whdEo3NJ6Eyj5oShMmJInjfnmLW28WR7c/2WSQBWqawS4rLwoOZiqCmaFRvyvqPAJgh3tAqSjloUlSse9K84RT+OM/5AZ63Tye6I4Dywg6OjMV0AN6V6SaWoz7OTCXqZOpMZegpCExto0AppGPHdDpeR/8/U7UVcVLxiulYRkXM4+HWEWRgGW0zByzaJJ3ikxKmqUmRFY3IZFkp/E3jmlDRAy0wy/VASq2kEYkFW6JkpSdrq4mJBmKwSBROLXS1BCVwdi472ruJyERRXYcBTNrWdSrU+YTYPC1jMQamlWkV5Ux2nLq9pVNlAePW3oVPaK+a5rROGhmUU+8V+ZTk3bdMjXbNOW6iw98NqEVnVgc3BSvpbsJ0D+hew0hBLZFpmTXMmA3rEowlORJrLat6gO19ybdd87hpzuZL86zIx4tZojsv0a3s16JTxlnqq7SlW1/besoxdQ1hXUlLdDGX45fR/0S+/gY=";
+
     $(resetPoseSelector).on("click", function(){
         localPlayer.outfit.outfits.forEach( function( name ){
             if ( !!localPlayer.outfit[ name ]){
@@ -931,39 +935,107 @@
     });
 
     $(resetScaleSelector).on("click", function(){
-        localPlayer.outfit.outfits.forEach( function( name ){
-            if ( !!localPlayer.outfit[ name ]){
-                var length = localPlayer.outfit[ name ].skeleton.bones.length;
-                for ( var i=0; i < length; i++ ){
-                	localPlayer.outfit[ name ].skeleton.bones[i].scale.set(1,1,1);
+
+        var pose;
+
+        if ( !!localPlayer.outfit.getGender() ) {
+
+            if ( localPlayer.outfit.getGender("male") ) pose = JSON.parse( decode( hm_pose ) );
+            if ( localPlayer.outfit.getGender("female") ) pose = JSON.parse( decode( fm_pose ) );
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ] ) {
+                    pose.forEach(function ( key, i ) {
+                    //  localPlayer.outfit[ name ].skeleton.bones[i].position.fromArray( pose[i].pos );
+                    //  localPlayer.outfit[ name ].skeleton.bones[i].quaternion.fromArray( pose[i].rot );
+                        localPlayer.outfit[ name ].skeleton.bones[i].scale.fromArray( pose[i].scl );
+                    });
                 }
-            }
-        });
+            });
+
+        } else {
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ]){
+                    var length = localPlayer.outfit[ name ].skeleton.bones.length;
+                    for ( var i = 0; i < length; i++ ){
+                    	localPlayer.outfit[ name ].skeleton.bones[i].scale.set(1,1,1);
+                    }
+                }
+            });
+        }
+
         initBoneOutputValues();
     });
 
     $(resetRotationSelector).on("click", function(){
-        localPlayer.outfit.outfits.forEach( function( name ){
-            if ( !!localPlayer.outfit[ name ]){
-                var length = localPlayer.outfit[ name ].skeleton.bones.length;
-                for ( var i=0; i < length; i++ ){
-               	    localPlayer.outfit[ name ].skeleton.bones[i].quaternion.set(0,0,0,1); // or //
-           	    //  localPlayer.outfit[ name ].skeleton.bones[i].rotation.set(0,0,0);     // or //
-                //  localPlayer.outfit[ name ].skeleton.bones[i].quaternion.setFromArray(
-                //      localPlayer.outfit[ name ].geometry.bones[i].rotq
-                //  );
+
+        var pose;
+
+        if ( !!localPlayer.outfit.getGender() ) {
+
+            if ( localPlayer.outfit.getGender("male") ) pose = JSON.parse( decode( hm_pose ) );
+            if ( localPlayer.outfit.getGender("female") ) pose = JSON.parse( decode( fm_pose ) );
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ] ) {
+                    pose.forEach(function ( key, i ) {
+                    //  localPlayer.outfit[ name ].skeleton.bones[i].position.fromArray( pose[i].pos );
+                        localPlayer.outfit[ name ].skeleton.bones[i].quaternion.fromArray( pose[i].rot );
+                    //  localPlayer.outfit[ name ].skeleton.bones[i].scale.fromArray( pose[i].scl );
+                    });
                 }
-            }
-        });
+            });
+
+        } else {
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ]){
+                    var length = localPlayer.outfit[ name ].skeleton.bones.length;
+                    for ( var i=0; i < length; i++ ){
+                   	    localPlayer.outfit[ name ].skeleton.bones[i].quaternion.set(0,0,0,1);
+                    }
+                }
+            });
+        }
+
         initBoneOutputValues();
     });
 
+    //  localPlayer.outfit[ name ].skeleton.bones[i].rotation.set(0,0,0);     // or //
+    //  localPlayer.outfit[ name ].skeleton.bones[i].quaternion.setFromArray(
+    //      localPlayer.outfit[ name ].geometry.bones[i].rotq
+    //  );
+
     $(resetPositionSelector).on("click", function(){
-        localPlayer.outfit.outfits.forEach( function( name ){
-            if ( !!localPlayer.outfit[ name ]){
-                localPlayer.outfit[ name ].skeleton.pose(); // TODO //
-            }
-        });
+
+        var pose;
+
+        if ( !!localPlayer.outfit.getGender() ) {
+
+            if ( localPlayer.outfit.getGender("male") ) pose = JSON.parse( decode( hm_pose ) );
+            if ( localPlayer.outfit.getGender("female") ) pose = JSON.parse( decode( fm_pose ) );
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ] ) {
+                    pose.forEach(function ( key, i ) {
+                        localPlayer.outfit[ name ].skeleton.bones[i].position.fromArray( pose[i].pos );
+                        localPlayer.outfit[ name ].skeleton.bones[i].quaternion.fromArray( pose[i].rot );
+                        localPlayer.outfit[ name ].skeleton.bones[i].scale.fromArray( pose[i].scl );
+                    });
+                }
+            });
+
+        } else {
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ]){
+                    localPlayer.outfit[ name ].skeleton.pose();
+                }
+            });
+
+        }
+
         initBoneOutputValues();
     });
 
@@ -1069,7 +1141,6 @@
 	}
 */
 </script>
-
 
 
 
