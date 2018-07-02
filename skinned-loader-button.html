@@ -41,7 +41,7 @@
 
         }).then(function(){
 
-            if ( $EditorPanel.active ){
+            if ( !!target && target instanceof THREE.Bone ){
 
             //  Create new options list from skeleton bones.
                 initBonesDroplist( localPlayer.outfit.body );
