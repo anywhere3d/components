@@ -1,0 +1,633 @@
+<!-- outfit-texture-upload-form.html (v1.3)-->
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+    }
+
+    #form-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .form-header {
+        margin-top:10px;
+        height:auto;
+        color: #ffffff;
+    }
+
+    .form-body {
+        padding:20px;
+        height:220px;
+        color: #ffffff;
+    }
+
+    #item-description {
+        min-width:100%;
+        max-width:100%;
+        min-height:40px;
+        max-height:75px;
+        color:#000000;
+    }
+
+    .form-footer {
+        padding:20px;
+        height:70px;
+        color: #ffffff;
+    }
+
+    .modal-dialog {
+        width:fit-content;
+    }
+
+</style>
+
+<h4>Upload outfit texture:</h4>
+
+<div class="form-body">
+    <div>Title:</div>
+    <input type="text" id="item-title" class="form-control">
+    <div class="label">Description (optional):</div>
+    <textarea id="item-description" cols="33" rows="3" maxlength="600" class="form-control"></textarea>
+    <div class="label">Tags (optional - comma, delimiter):</div>
+    <input type="text" id="item-tags" class="form-control">
+</div>
+
+<div id="form-snapshots-holder">
+    <script>
+        var formSnapshotsHolderSelector = "#form-snapshots-holder";
+        var formSnapshotsComponents = componentsFolder + "form-snapshots.html";
+        $(formSnapshotsHolderSelector).load(formSnapshotsComponents, function(response, status, xhr){
+            debugMode && console.log("form-snapshots:", status);
+        });
+    </script>
+</div>
+
+<div class="form-footer">
+    <input type=button id="form-upload-button" class="btn btn-success btn-white-outline pull-right" value="Upload texture">
+    <div id="form-cancel-button" class="btn btn-default btn-white-outline">Cancel</div>
+</div>
+
+<script>
+
+//  Form Panel on dialog open.
+
+//  IMPORTANT: form_target must be canvas element explicitly.
+    if ( !(form_target instanceof HTMLCanvasElement) ) {
+        console.warn( "Form target must be HTMLCanvasElement explicitly." );
+        var msg = "Open " + formOptions.editor + " editor panel and import a new diffuse map texture<br>for this outfit first.";
+        bootboxErrorAlert( msg, function(){
+            $FormPanel.dialog("close");
+        });
+    }
+
+</script>
+
+<script>
+
+//  Form Cancel button.
+
+    var formCancelButtonSelector = "#form-cancel-button";
+    $(formCancelButtonSelector).on("click", function(){
+        $FormPanel.dialog("close");
+    });
+
+</script>
+
+<script>
+
+//  Form Upload button.
+
+    var itemTitleSelector         = "#item-title";
+    var outfitSnapshotsSelector   = "#outfit-snapshots";
+    var itemSnapshotSelector      = ".item-snapshot";
+    var snapshotContainerSelector = ".snapshot-container";
+    var snapshotImageSelector     = ".snapshot-image";
+    var formSpinnerSelector       = ".form-spinner";
+    var itemDescriptionSelector   = "#item-description";
+    var itemTagsSelector          = "#item-tags";
+    var formUploadButtonSelector  = "#form-upload-button";
+
+
+    $(formUploadButtonSelector).on("click", function(){
+
+        var button = this;
+        this.disabled = true;
+
+    //  Validate title.
+        if ( $(itemTitleSelector).val().length < 4 ){
+            var msg = "You must type a title for this outfit.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+
+    //  Validate snapshots.
+        if ( $(outfitSnapshotsSelector).find(snapshotImageSelector).toArray().length == 0 ){
+            var msg = "You must add one snapshot at least.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+
+
+    //  Collect form data.
+        var entry = {};
+        var snapshots = [];
+        var asset = localPlayer.outfit[ formOptions.name ];           // form options variable.
+        var material = asset.material.materials[ formOptions.index ]; // form options variable.
+        var texture  = material[ formOptions.maps[0] ];               // form options variable.
+        var geometry = asset.geometry;
+        var gender   = localPlayer.outfit.getGender();
+        var title    = $(itemTitleSelector).val();
+        var description = $(itemDescriptionSelector).val();
+        var tags = $(itemTagsSelector).val().split(",");
+
+
+    //  Collect form snapshots.
+        var formSnapshots = $(outfitSnapshotsSelector).find(".snapshot-container").toArray();
+        debugMode && console.log( "formSnapshots:", formSnapshots );
+
+        var deferreds = [];
+
+    //  Upload form snapshots.
+        formSnapshots.forEach(function( snapshotContainer, index ){
+            debugMode && console.log( "snapshotContainer:", snapshotContainer );
+            var image = $(snapshotContainer).find(snapshotImageSelector)[0];
+        //  debugMode && console.log( "image:", image );
+
+            var spinner = [ 
+                '<div class="form-spinner" style="position:relative; top:-162px; height:100%;',
+                'background-size:25%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"><div>' 
+            ].join(" ");
+
+            deferreds.push(
+            //  uploadToImgur.js  //
+                new Promise( function(resolve, reject){
+                    $(snapshotContainer).append( spinner );
+
+                    var data = image.src;
+                    var blob = dataURLtoBlob( data );
+                    var size = blob.size;
+                    var name = Date.now().toString(36);
+                    var mimeType = blob.type;
+
+                    var extension;
+                    switch (mimeType){
+                        case "image/jpeg": { extension = "jpg"; break; }
+                        case "image/png":  { extension = "png"; break; }
+                    }
+                    var filename = name + "." + extension;
+                    var file = new File([blob], filename, { type: mimeType });
+
+                //  imgurUpload.js
+
+                    var formdata = new FormData();
+                    formdata.append("image", file);
+                    formdata.append("name",  filename);
+                    formdata.append("title", title);
+                    formdata.append("description", description);
+
+                    var clientid = formOptions.clientid || "95e1ecaf14ca5e6";                // form options variable.
+                    var endpoint = formOptions.endpoint || "https://api.imgur.com/3/image";  // form options variable.
+
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open('POST', endpoint, true);
+                    xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState === 4) {
+                            var response = "";
+                            if (this.status >= 200 && this.status < 300) {
+                                response = JSON.parse(this.responseText);
+                                resolve( response ); // resolve Promise.
+                            } else {
+                                var error = JSON.parse(this.responseText).data.error;
+                                console.error( "error:", error );
+                                bootboxErrorAlert(error.message, bootboxErrorAlertCallback);
+                                throw Error( this.responseText );
+                            }
+                        }
+                    };
+                    xhttp.send(formdata);
+                    xhttp = null;
+
+
+                }).then( function( response ){
+
+                    var data = response.data;
+                    debugMode && console.log("imgur data:", data);
+
+                    snapshots.push(data.id); // IMPORTANT //
+
+                //  mongodb.
+
+                    var json = JSON.stringify( data );
+                    var endpoint = formOptions.snapshotEndpoint || "/snapshots/insert";  // form options variable.
+
+                    var jqxhr = $.post(endpoint, {data:json}, function(result, status, xhr){
+                        debugMode && console.log("post %s: %s", endpoint, status);
+                    }).then( function(result, status, xhr){
+
+                        if (!!result.error) {
+                            throw result.error;
+                        }
+
+                        if (!!result.success) {
+                            debugMode && console.log("mongodb result:", result);
+                            return result.success;
+                        }
+
+                    });
+
+                //  zargodb.
+
+                    jqxhr.done(function ( results ) {
+
+                        data._id = results.insertedIds[0];
+                        db.open(function(err, database){
+                            if (err) console.error( err );
+                            debugMode && console.log( "%s opened!", db.name )
+                        }).then( function(){
+                            var collection = db.collection("snapshots");
+                            collection.insert( data, function(err){
+                                if (err) throw err;
+                            }).then(function(){
+                                $(snapshotContainer).remove();
+                            }).catch(function (err) {
+                                console.error("IndexedDB InsertError:", err);
+                                throw err;
+                            });
+                        }).catch(function (err) {
+                        //  IMPORTANT: zargodb does not throw  
+                        //  an error if you explictly not catch it.
+                            console.error("IndexedDB Error:", err);
+                            throw err;
+                        });
+
+                    });
+
+                //  mongodb errors.
+
+                    jqxhr.fail(function (err) {
+                        console.error("Snapshot InsertError:", err);
+                        throw err;
+                    });
+
+                    return data; // IMPORTANT //
+
+            //  Catch errors until here.
+                }).catch(function (err) {
+                    $(snapshotContainer).find(".form-spinner").remove();
+                    console.error("Snapshot UploadError:", err); 
+                    throw err;
+                }) // end promise. 
+
+            ); // end push.
+
+        }); // end forEach.
+
+        debugMode && console.log( "deferreds:", deferreds );
+
+    //  Upload texture.
+
+        Promise.all(deferreds).then( function(results){
+            debugMode && console.log( "deferreds results:", results );
+            debugMode && console.log( "snapshots:", snapshots );
+
+            var spinner = [ 
+                '<div class="form-spinner"', 
+                'style="position:absolute; left:0px; top:0px; height:600px; width:100%;',
+                'background-size:10%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"></div>' 
+            ].join(" ");
+
+        //  Upload texture to imgUr.
+            new Promise( function(resolve, reject){
+                $("#form-panel").append( spinner );
+
+            //  Upload texture.
+
+            //  IMPORTANT: form_target must be canvas.
+                form_target.toBlob( function(blob){
+
+                    var size = blob.size;
+                    var mime = blob.type;
+                    switch (mime){
+                        case "image/jpeg": { ext = "jpg"; break; }
+                        case "image/png":  { ext = "png"; break; }
+                    }
+
+                    var name;
+                    var map = formOptions.maps[0] || "map"; //  form options variable.
+                    if ( !!material[ map ].name && material[ map ].name != "" ) {  
+                        name = material[ map ].name;        //  form options variable.
+                    } else { 
+                        name = Date.now().toString(36);
+                    }
+
+                    var filename = [ name, ".", ext ].join("");
+                    var file = new File([blob], filename, { type: mime });
+                    debugMode && console.log( "texture file:", file );
+
+                //  imgurUpload.js
+
+                    var formdata = new FormData();
+                    formdata.append("image", file);
+                    formdata.append("name",  filename);
+                    formdata.append("title", title);
+                    formdata.append("description", description);
+
+                    var clientid = formOptions.clientid || "95e1ecaf14ca5e6";                // form options variable.
+                    var endpoint = formOptions.endpoint || "https://api.imgur.com/3/image";  // form options variable.
+
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open('POST', endpoint, true);
+                    xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState === 4) {
+                            var response = "";
+                            if (this.status >= 200 && this.status < 300) {
+                                response = JSON.parse(this.responseText);
+                                resolve( response );
+                            } else {
+                                var error = JSON.parse(this.responseText).data.error;
+                                console.error( "error:", error );
+                                bootboxErrorAlert(error.message, bootboxErrorAlertCallback);
+                                throw Error( this.responseText );
+                            }
+                        }
+                    };
+                    xhttp.send(formdata);
+                    xhttp = null;
+
+                });
+
+            }).then( function( response ){
+                debugMode && console.log("imgur response:", response);
+
+            //  Replace textures.
+
+                var data = response.data;
+
+                var ext; // IMPORTANT //
+                switch (data.type){
+                    case "image/jpeg": { ext = "jpg"; break; }
+                    case "image/png":  { ext = "png"; break; }
+                }
+
+                var src = [ "https://i.imgur.com/", data.id, ".", ext ].join(""); // IMPORTANT //
+
+                if ( formOptions.scrOnly ) {
+
+                //  Replace textures sourceFile (the fast and dirty way).
+                    debugMode && console.warn("Replacing only texture sourceFiles: (fast and dirty)." );
+                    formOptions.maps.forEach( function( map, i ){
+                        material[ formOptions.maps[i] ].sourceFile = src;    // form options variable.
+                        debugMode && console.log("%s sourceFile replaced:", formOptions.maps[i], src);
+                    });
+                    debugMode && console.log("Textures sourceFiles replaced successfully!");
+
+                } else {
+
+                //  DealocateTextures without delete/update them.
+                    formOptions.maps.forEach( function( map, i ){
+                        deallocateTextures( material[ formOptions.maps[i] ] );                    // form options variable.
+                        debugMode && console.log("%s texture dealocated.", formOptions.maps[i]);  // form options variable.
+                    });
+
+                //  Replace textures sourceFile.
+                    formOptions.maps.forEach( function( map, i ){
+                        material[ formOptions.maps[i] ].sourceFile = src;    // form options variable.
+                        debugMode && console.log("%s sourceFile replaced:", formOptions.maps[i], src);
+                    });
+                    debugMode && console.log("Textures sourceFiles replaced successfully!");
+
+                //  Replace material textures (the long and safe way).
+                    var img = new Image();
+                    img.crossOrigin = "anonymous";
+                    $(img).on("load", onImageLoad);
+                    img.src = src;
+
+                    function onImageLoad(){
+                        var texture = new THREE.Texture( img ); // or canvas //
+                        texture.name = data.title;
+                        texture.sourceFile = img.src;
+                        formOptions.maps.forEach( function( map, i ){
+                            material[ formOptions.maps[i] ] = texture;            // form options variable.
+                            material[ formOptions.maps[i] ].needsUpdate = true;   // form options variable.
+                            debugMode && console.log("%s texture replaced:", formOptions.maps[i], img.src);  // form options variable.
+                        });
+                        material.needsUpdate = true;
+                        debugMode && console.log("Textures replaced successfully!");
+                        $(img).remove();
+                    }
+
+                }
+
+                return data;
+
+            }).then( function( data ){
+                debugMode && console.log("imgur data:", data);
+
+            //  Create texture entry.
+
+                var ext;                   // IMPORTANT //
+                switch (data.type){
+                    case "image/jpeg": { ext = "jpg"; break; }
+                    case "image/png":  { ext = "png"; break; }
+                }
+
+            //  Collect entry data.
+                entry.kind = formOptions.kind || "texture";       // form options variable.
+                entry.type = formOptions.type || "map";           // form options variable.
+                entry.outfit = formOptions.outfit;                // form options variable.
+                entry.category = formOptions.category;            // form options variable.
+                entry.material_index = formOptions.index;         // form options variable.
+                entry.gender = formOptions.gender || [ gender ];  // form options variable.
+                entry.geometry_name = geometry.name;
+                entry.geometry_file = geometry.sourceFile;
+                entry.title = title;
+                entry.description = description;
+                entry.tags = formOptions.tags;
+                entry.snapshots = snapshots;
+                entry.master_snapshot = snapshots[0]; // TODO: user to select master_snapshot.
+                entry.ext = ext;           // IMPORTANT // 
+                entry.mimeType = data.type;
+                entry.id = data.id;
+                entry.size = data.size;
+                entry.width = data.width;
+                entry.height = data.height;
+
+                debugMode && console.log( "entry:", entry );
+                
+                return JSON.stringify( entry );
+
+            }).then( function( data ){
+                debugMode && console.log( "data:", data );
+
+            //  mongodb.
+
+            //  Insert entry to mongodb.
+                var endpoint = formOptions.texturesEndpoint || "/textures/insert";  // form options variable.
+                var jqxhr = $.post(endpoint, {data:data}, function(result, status, xhr){
+                    debugMode && console.log("post %s: %s", endpoint, status);
+                    debugMode && console.log("insert result:", result);
+                }).then( function(result, status, xhr){
+
+                //  Error.
+                    if (!!result.error) {
+                        console.log("Error:", result.error);
+                        throw result.error;
+                    }
+
+                //  Success.
+                    if (!!result.success) {
+                        var msg = "Success: %s texture uploaded successfully!";
+                        console.log( msg, formOptions.editor );   // form options variable.
+                        return result.success.insertedIds;
+                    }
+
+                });
+
+            //  zargodb.
+
+                jqxhr.done( function( insertedIds ){
+
+                //  Insert entry to zargodb.
+                    entry._id = insertedIds[0];
+                    db.open(function(err, database){
+                        if (err) console.error( err );
+                        debugMode && console.log( "%s opened!", db.name )
+                    }).then( function(){
+
+                        var collection = db.collection("textures");
+                        collection.insert( entry, function(err){
+                            if (err) throw err;
+                        }).then(function(){
+
+                        //  Success.
+                            $(".form-spinner").remove();
+                            console.log("Success: %s texture saved successfully!", formOptions.editor);     // form options variable.
+                            var msg = "Success: " + formOptions.editor + " texture uploaded successfully."; // form options variable.
+                            bootboxSuccessAlert( msg, function(){
+                                $FormPanel.dialog("close");
+                            });
+
+                        }).catch( function(err){
+                            console.error("IndexedDB InsertError:", err); 
+                            bootboxErrorAlert(err);
+                            throw err;
+                        }); // end collection.insert.
+
+
+                    }).catch(function (err) {
+                    //  IMPORTANT: zargodb does not throw  
+                    //  an error if you explictly not catch it.
+                        console.error("IndexedDB Error:", err);
+                        bootboxErrorAlert(err);
+                        throw err;
+                    });
+
+                });
+
+            //  mongodb errors.
+
+                jqxhr.fail(function (err) {
+                    console.error("Texture InsertError:", err);
+                    bootboxErrorAlert(err);
+                    throw err;
+                });
+
+                jqxhr.always(function () {
+                    $(".form-spinner").remove();
+                });
+
+        //  Catch errors of new Promise.
+            }).catch(function (err) {
+                console.error("Texture UploadError:", err); 
+                bootboxErrorAlert(err);
+                throw err;
+            }); 
+        
+        //  end new Promise.
+
+        }).catch(function (err) {
+            $(".form-spinner").remove();
+            console.error("Form Error:", err); 
+            bootboxErrorAlert(err);
+        }); 
+
+    //  end Promise.all.
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+    
+            return new Blob([u8arr], {type:mime});
+        }
+
+        function bootboxErrorAlertCallback(){
+            $(".form-spinner").remove();
+            button.disabled = false;
+        }
+
+    });
+
+</script>
+
+
+<script>
+
+//  formOptions example:
+/*
+    var formOptions = {
+
+    //  outfit.
+        name: "tshirt",  // outfit asset name.
+        editor: "stamp", // outfit editor name.
+
+    //  material.
+        index: 0, // material index.
+        maps: ["map", "emissiveMap"],
+
+    //  entry.
+        kind: "texture",
+        type: "map",
+        outfit: "tshirt",
+        category: "tshirt",
+        tags: ["tshirt"],
+        gender: ["male", "female"],
+
+    //  imgur.
+        clientid: "95e1ecaf14ca5e6",
+        endpoint: "https://api.imgur.com/3/image",
+
+    //  mongodb.
+        method: "POST",
+        snapshotEndpoint: "/snapshots/insert", // post url.
+        texturesEndpoint: "/textures/insert",  // post url.
+
+    //  zargodb.
+        collection: "textures",
+
+    //  Replace sourceFiles only.
+        scrOnly: false,
+    };
+*/
+
+</script>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <meta name="description" contents="Dress Outfit Insert Form from aw3d-v1.0 boilerplate.">
+    <link rel="manifest" href="/manifest.json">
+    <title>Components insert demo (v0.1)</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootbox-dialoges.css">
+    <link rel="stylesheet" href="/css/side-panels.css">
+    <link rel="stylesheet" href="/css/messg.css" >
+    <link rel="stylesheet" href="/css/spectrum.css">
+    <link rel="stylesheet" href="/css/colorpicker.css">
+    <link rel="stylesheet" href="/css/spinner.css">
+    <link rel="stylesheet" href="/css/jquery-ui.css">
+    <link rel="stylesheet" href="/css/alerts.css">
+    <link rel="stylesheet" href="/css/panel-ui.css">
+    <link rel="stylesheet" href="/css/anywhere3d.css">
+    <link rel="stylesheet" href="/css/joystick.css">
+    <link rel="stylesheet" href="/css/uppy.css">
+</head>
+
+<body>
+
+<style>
+    .navbar-nav > li > a.menu-item,
+    .navbar-nav > li > div > a.menu-item {font-weight:normal;}
+    .navbar-nav > li > a.menu-item:hover,
+    .navbar-nav > li > div > a.menu-item:hover {color:aquamarine;}
+    .navbar-nav > li > div > a.menu-item { text-decoration:none }
+    #nav-btn-login { margin-left:10px; }
+    #nav-btn-login > a { color:#fff; font-weight:bold; font-size:14px; text-decoration:none; }
+    #nav-btn-snapshot > a { color:#38c0ee; }
+</style>
+
+<nav class="navbar navbar-default navbar-fixed-top">
+
+    <div class="container">
+
+        <div class="navbar-header">
+            <div class="navbar-brand">
+                <a href="https://anywhere3d.org" class="navbar-caption" title="anywhere3d.org">anywhere3d</a>
+            </div>
+            <a class="navbar-logo pull-left"><img src="https://i.imgur.com/09bC4Q0.png" alt="anywhere3d logo"></a>
+            <ul class="nav navbar-nav navbar-right pull-left">
+                
+                <li class="first menu-item"></li>
+
+                <li id="nav-item-over" style="display:none;"><a class="menu-item">Overview</a></li>
+                <li id="nav-item-home" style="display:none;"><a class="menu-item">Home</a></li>
+                <li id="nav-item-dash" style="display:none;"><a class="menu-item">Dashboard</a></li>
+                <li id="nav-item-exam" style="display:none;"><a class="menu-item">Examples</a></li>
+
+            </ul>
+        </div>
+
+        <ul class="nav navbar-nav navbar-right">
+
+            <li class="pull-right">
+                <div class="navbar-btn btn btn-primary btn-white-outline" id="nav-btn-login" style="display:none;">
+                    <a class="menu-item">Login</a>
+                </div>
+            </li>
+
+        </ul>
+
+    </div>
+
+</nav>
+
+<style>
+    body { margin:0px; height:100vh; overflow:hidden; font-family: Arial, sans-serif; }
+    canvas { display:block !important; }
+    #body-section { 
+        height:100%; padding-top:0px; padding-bottom:0px; 
+        background-color:rgba(0,0,0,1); overflow:hidden; 
+    }
+    #render-container { 
+        width:100%; height:100%; 
+        opacity:1; background-color:rgb(0,0,0); 
+    }
+    #splash-holder,
+    #auth-holder { 
+        position:absolute; left:0px; top:0px; width:100%; height:100%;
+        text-align:center; background-color:rgba(255,255,255,0); z-index:1; 
+    }
+    .twitter-holder { text-align:center; margin:10px 0px; }    
+    .patreon-holder { display:none; text-align:center; }
+    #joystick1, #joystick2, #jumpButton  { z-index:0 !important; }
+    .menu-helpers a,
+    .editor-helpers a,
+    .mode-helpers a,
+    .updater-helpers a,
+    .helpers a { font:bold 16px Arial; cursor:pointer; text-decoration:none; }
+    .mode-helper a { color:fuchsia; }
+    .ui-dialog { opacity:1 !important; }
+    .non-ready { display:none; }
+    .updater   { cursor:pointer; }
+    
+    .side-holder { width:84%; margin-bottom:10px; }
+    .text-field { margin-bottom:10px; }
+    #background-insert-button { margin-bottom:20px; }
+    #form-holder { margin-bottom:20px; }
+
+</style>
+
+<section class="mbr-section mbr-after-navbar" id="body-section">
+
+    <div id="render-container" class="mbr-overlay"></div>
+
+    <div class="side-panel" id="right-side">
+        <div id="right-side-pinbtn" title="click this to pin/unpin panel"></div>
+
+        <div id="right-side-content">
+
+            <div id="script-load-holder" class="side-holder">
+                <div id="script-load-button" class="form-control btn btn-default btn-white-outline">Load script</div>
+                <input type="file" class="hidden" id="script-load-input" multiple>
+            </div>
+
+            <div id="component-append-holder" class="side-holder">
+                <div id="component-append-button" class="form-control btn btn-default btn-white-outline">Append component</div>
+                <input type="file" class="hidden" id="component-load-input">
+            </div>
+
+            <div id="scripts-holder" class="side-holder"></div>
+            <div id="components-holder" class="side-holder"></div>
+
+
+        </div>
+    </div>
+
+</section>
+
+            <!-- JQUERY -->
+
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.lazy.js"></script>
+<script src="/js/jquery.lazy.plugins.js"></script>
+<script src="/js/jquery-ui.js"></script>
+<script src="/js/validator.min.js"></script>
+
+<script>
+    debugMode = true;
+    var jsFolder = "/js/";
+    var scriptsFolder = "/scripts/";
+    var componentsFolder = "/components/";
+    $.ajaxSetup({ cache: false });
+</script>
+
+<script src="/js/store2.js"></script>
+<script src="/js/store.on.js"></script>
+<script src="/js/store.array.js"></script>
+
+<script async src="/js/rawinflate.js"></script>
+<script async src="/js/rawdeflate.js"></script>
+
+<script>
+
+    function encode( string ) {
+        return window.btoa( RawDeflate.deflate( string ) );
+    }
+
+    function decode( string ) {
+        return RawDeflate.inflate( window.atob( string ) );
+    }
+
+//  Samples:
+
+    function getDecodedItemFromLocalStorage( key ){
+        return JSON.parse( RawDeflate.inflate( window.atob( localStorage.getItem( key ) ) ) );
+    }
+
+    function setEncodedItemToLocalStorage(key, data){
+        localStorage.setItem(key, window.btoa( RawDeflate.deflate( JSON.stringify( data ) ) ) );
+    }
+
+</script>
+
+<script async src="/js/alerts.js"></script>
+<script async src="/js/bootbox.min.js"></script>
+<script async src="/js/bootstrap.min.js"></script>
+<script async src="/js/DeviceDetector.js"></script>
+<script async src="/js/MathDecimalAdjustment.js"></script>
+<script async src="/js/html2canvas.js"></script>
+<script async src="/js/spectrum.js"></script>
+<script async src="/js/watermark.js"></script>
+<script async src="/js/sharer.js"></script>
+<script async src="/js/side-panels.js"></script>
+
+<script>
+
+    var scriptsHolderSelector = "#scripts-holder";
+    var scriptLoadButtonSelector = "#script-load-button";
+    var scriptLoadInputSelector = "#script-load-input";
+
+    $(scriptLoadButtonSelector).on("click", function(){
+        $(scriptLoadInputSelector).val("");
+        $(scriptLoadInputSelector).click();
+    });
+    
+    $(scriptLoadInputSelector).on("change", function(e){
+        if ( !e.target.files.length ) return;
+
+        for (var i=0; i<e.target.files.length; i++){
+            var file = e.target.files[i];
+            appendScript( file );
+        }
+        
+        function appendScript( file ){
+            var reader = new FileReader();
+            reader.onload = function(event){
+                script = reader.result;
+                $(scriptsHolderSelector).append( "<script>" + script + "<\/script>" );
+            };
+            reader.readAsText(file);
+        }
+
+    });
+
+</script>
+
+<script>
+
+    var componentsHolderSelector = "#components-holder";
+    var componentAppendButtonSelector = "#component-append-button";
+    var componentLoadInputSelector = "#component-load-input";
+
+    $(componentAppendButtonSelector).on("click", function(){
+        $(componentLoadInputSelector).val("");
+        $(componentLoadInputSelector).click();
+    });
+    
+    $(componentLoadInputSelector).on("change", function(e){
+        if ( !e.target.files.length ) return;
+
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function(event){
+            component = reader.result;
+            $(componentsHolderSelector).append( component );
+        };
+        reader.readAsText(file);
+
+    });
+
+</script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

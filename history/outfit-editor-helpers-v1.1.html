@@ -1,0 +1,157 @@
+<!-- outfit-editor-helpers-v1.1.html -->
+
+<div id="outfit-editor-male-holder">
+    <h4>Male Outfit helpers:</h4>
+    <li class="helpers" data-outfit="boxers"   data-asset="hmBoxers"      data-gender="male" data-remove="trousers,boxers"><a></a></li>
+    <li class="helpers" data-outfit="tshirt"   data-asset="hmTshirt"      data-gender="male"><a></a></li>
+    <li class="helpers" data-outfit="tshirt"   data-asset="hmTshirtStamp" data-gender="male"><a></a></li>
+    <li class="helpers" data-outfit="trousers" data-asset="hmTrousers"    data-gender="male" data-remove="boxers" data-nudity="boxers"><a></a></li>
+    <li class="helpers" data-outfit="shoes"    data-asset="hmSneakers"    data-gender="male"><a></a></li>
+    <li class="helpers" data-outfit="hairs"    data-asset="hmHairs"       data-gender="male"><a></a></li>
+    <li class="helpers" data-outfit="body"     data-asset="hmBody"        data-gender="male" data-remove="boxers" data-nudity="boxers"><a></a></li>
+</div>
+<hr/>
+<div id="outfit-editor-female-holder">
+    <h4>Female Outfit helpers:</h4>
+    <li class="helpers" data-outfit="bra"      data-asset="fmBra"         data-gender="female" data-remove="tshirt,dress"                      data-nudity="bra"><a></a></li>
+    <li class="helpers" data-outfit="panties"  data-asset="fmPanties"     data-gender="female" data-remove="trousers,skirt,dress"              data-nudity="panties"><a></a></li>
+    <li class="helpers" data-outfit="tshirt"   data-asset="fmTshirt"      data-gender="female" data-remove="bra,dress"                         data-nudity="bra"><a></a></li>
+    <li class="helpers" data-outfit="tshirt"   data-asset="fmTshirtStamp" data-gender="female" data-remove="bra,dress"                         data-nudity="bra"><a></a></li>
+    <li class="helpers" data-outfit="skirt"    data-asset="fmSkirt"       data-gender="female" data-remove="panties,trousers,dress"            data-nudity="panties"><a></a></li>
+    <li class="helpers" data-outfit="trousers" data-asset="fmTrousers"    data-gender="female" data-remove="panties,skirt,dress"               data-nudity="panties"><a></a></li>
+    <li class="helpers" data-outfit="dress"    data-asset="fmDress"       data-gender="female" data-remove="panties,trousers,skirt,bra,tshirt" data-nudity="bra,panties"><a></a></li>
+    <li class="helpers" data-outfit="shoes"    data-asset="fmSandal"      data-gender="female"><a></a></li>
+    <li class="helpers" data-outfit="hairs"    data-asset="fmHairs"       data-gender="female"><a></a></li>
+    <li class="helpers" data-outfit="body"     data-asset="fmBody"        data-gender="female" data-remove="bra,panties"                       data-nudity="bra,panties"><a></a></li>
+</div>
+
+
+<script>
+
+//  Get parent.
+//  source: "https://stackoverflow.com/questions/1789892/access-parent-object-in-javascript"
+
+//  Initialize helpers.
+    $("[data-gender]").toArray().forEach( function( item, i ){
+        var gender = $(item).data("gender");
+        var name = $(item).data("outfit");
+        if ( !!localPlayer.outfit[ name ] ) {
+            $(item).find("a").text(["Remove", gender, name].join(" "));
+        } else {
+            $(item).find("a").text(["Add", gender, name].join(" "));
+        }
+    });
+
+    scene.add( localPlayer.outfit.direction );
+    console.log("direction added.");
+
+    $("[data-outfit]").on("click", outfitHelperClickHandler);
+
+    function outfitHelperClickHandler(){
+
+        var self = this;
+
+        var gender = $(self).data("gender");  // IMORTANT //
+        var asset  = $(self).data("asset");
+        var outfit = $(self).data("outfit");
+
+        var remove = $(self).data("remove");
+    //  debugMode && console.log( "remove:", remove );
+        if ( !!remove ) {
+            remove = remove.split(",");
+            debugMode && console.log( "remove:", remove );
+        }
+
+        var nudity = $(self).data("nudity");
+    //  debugMode && console.log( "nudity:", nudity );
+        if ( !!nudity ) {
+            nudity = nudity.split(",");
+            debugMode && console.log( "nudity:", nudity );
+        }
+
+        var string = "gender: %s, outfit: %s, asset: %s, remove: %o nudity: %o";
+        debugMode && console.log( string, gender, outfit, asset, remove, nudity );
+
+    //  Set gender.
+        if ( !localPlayer.outfit.getGender(gender) ){
+            localPlayer.outfit.removeAll();
+            localPlayer.outfit.setGender(gender);
+        }
+
+    //  Removed items.
+        if ( !!remove && remove.length > 0 ) {
+            remove.forEach( function( name, i ){
+                if ( !!localPlayer.outfit[ name ]) {
+                    localPlayer.outfit.remove( name );
+                }
+            });
+        }
+
+    //  Add/Remove outfit item.
+        if ( !localPlayer.outfit[ outfit ] ) {
+
+        //  Add outfit item.
+            localPlayer.outfit.add( {[ outfit ]: Avatars[ asset ]} );
+        //  $(self).find("a").text("Remove outfit " + outfit);
+
+        //  Define as target material.
+            target = localPlayer.outfit[ outfit ].material.materials[0];
+
+        } else {
+
+        //  Remove outfit item.        
+            localPlayer.outfit.remove( outfit );
+
+        //  Nudity nudity.
+            if ( !!localPlayer.outfit.body ) {
+                if ( !!nudity && nudity.length > 0 ) {
+                    nudity.forEach( function( outfit, i ){
+                        var selector = [ "[", "data-outfit", "=", "'", outfit, "'", "]" ].join("");
+                        var element = $(selector).toArray()[0];
+                    //  debugMode && console.log( "addon element:", element );
+                        var asset = $(element).data("asset");
+                        localPlayer.outfit.add( {[ outfit ]: Avatars[ asset ]} );
+                    });
+                }
+            }
+
+        //  Undefine target.
+        //  target = undefined;
+
+        }
+
+        debugMode && console.log( "target:", !!target );
+
+    //  Update helpers text.
+        if ( $(self).data("gender") == "male" ){
+            $("[data-gender=male]").toArray().forEach( function( item, i ){
+                var name = $(item).data("outfit");
+                if ( !!localPlayer.outfit[ name ] ) {
+                    $(item).find("a").text(["Remove", gender, name].join(" "));
+                } else {
+                    $(item).find("a").text(["Add", gender, name].join(" "));
+                }
+            });
+            $("[data-gender=female]").toArray().forEach( function( item, i ){
+                var name = $(item).data("outfit");
+                $(item).find("a").text(["Add", "female", name].join(" "));
+            });
+        }
+
+        if ( $(self).data("gender") == "female" ){
+            $("[data-gender=female]").toArray().forEach( function( item, i ){
+                var name = $(item).data("outfit");
+                if ( !!localPlayer.outfit[ name ] ) {
+                    $(item).find("a").text(["Remove", gender, name].join(" "));
+                } else {
+                    $(item).find("a").text(["Add", gender, name].join(" "));
+                }
+            });
+            $("[data-gender=male]").toArray().forEach( function( item, i ){
+                var name = $(item).data("outfit");
+                $(item).find("a").text(["Add", "male", name].join(" "));
+            });
+        }
+    }
+
+</script>

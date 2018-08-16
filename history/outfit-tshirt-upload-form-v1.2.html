@@ -1,0 +1,567 @@
+<!-- outfit-tshirt-upload-form.html (v1.2)-->
+
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+    }
+
+    #form-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .form-header {
+        margin-top:10px;
+        height:auto;
+        color: #ffffff;
+    }
+
+    .form-body {
+        padding:20px;
+        height:220px;
+        color: #ffffff;
+    }
+
+    #item-description {
+        min-width:100%;
+        max-width:100%;
+        min-height:40px;
+        max-height:75px;
+        color:#000000;
+    }
+
+    .form-footer {
+        padding:20px;
+        height:70px;
+        color: #ffffff;
+    }
+
+    .modal-dialog {
+        width:fit-content;
+    }
+
+</style>
+
+<h4>Upload tshirt texture:</h4>
+
+<div class="form-body">
+    <div>Title:</div>
+    <input type="text" id="item-title" class="form-control">
+    <div class="label">Description (optional):</div>
+    <textarea id="item-description" cols="33" rows="3" maxlength="600" class="form-control"></textarea>
+    <div class="label">Tags (optional - comma, delimiter):</div>
+    <input type="text" id="item-tags" class="form-control">
+</div>
+
+<div id="form-snapshots-holder">
+    <script>
+        var formSnapshotsHolderSelector = "#form-snapshots-holder";
+        var formSnapshotsComponents = componentsFolder + "form-snapshots.html";
+        $(formSnapshotsHolderSelector).load(formSnapshotsComponents, function(response, status, xhr){
+            debugMode && console.log("form-snapshots:", status);
+        });
+    </script>
+</div>
+
+<div class="form-footer">
+    <input type=button id="form-upload-button" class="btn btn-success btn-white-outline pull-right" value="Upload tshirt">
+    <div id="form-cancel-button" class="btn btn-default btn-white-outline">Cancel</div>
+</div>
+
+<script>
+
+//  IMPORTANT: form_target must be canvas element explicitly.
+    if ( !(form_target instanceof HTMLCanvasElement) ) {
+        console.warn( "Form target must be HTMLCanvasElement explicitly." );
+        var msg = "Open tshirt editor panel and import a new diffuse map texture<br>for this outfit first.";
+        bootboxErrorAlert( msg, function(){
+            $FormPanel.dialog("close");
+        });
+    }
+
+</script>
+
+<script>
+
+//  Form Upload button.
+
+    var itemTitleSelector         = "#item-title";
+    var outfitSnapshotsSelector   = "#outfit-snapshots";
+    var itemSnapshotSelector      = ".item-snapshot";
+    var snapshotContainerSelector = ".snapshot-container";
+    var snapshotImageSelector     = ".snapshot-image";
+    var formSpinnerSelector       = ".form-spinner";
+    var itemDescriptionSelector   = "#item-description";
+    var itemTagsSelector          = "#item-tags";
+    var formUploadButtonSelector  = "#form-upload-button";
+
+    var uploadButtonHandlerOptions = {
+
+    //  outfit.
+        name: "tshirt",  // outfit asset name.
+
+    //  material.
+        mtl_index: 0,    // material index.
+        mtl_maps: [
+            "map", 
+            "emissiveMap",
+        ],
+
+    //  entry.
+        kind: "texture",
+        type: "map",
+        gender: "male",
+        outfit: "tshirt",
+        category: "tshirt",
+        tags: ["tshirt"],
+
+    //  mongodb.
+        method: "POST",
+        url: "/textures/insert", // post url.
+
+    //  zargodb.
+        collection: "textures",
+
+    };
+
+
+    $(formUploadButtonSelector).on("click", function(){
+
+        var button = this;
+        this.disabled = true;
+
+    //  Validate title.
+        if ( $(itemTitleSelector).val().length < 4 ){
+            var msg = "You must type a title for this outfit.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+    
+    //  Validate snapshots.
+        if ( $(outfitSnapshotsSelector).find(snapshotImageSelector).toArray().length == 0 ){
+            var msg = "You must add one snapshot at least.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+
+    //  Collect form data.
+        var entry = {};
+        var snapshots = [];
+        var asset = localPlayer.outfit["tshirt"];
+        var geometry = asset.geometry;
+        var material = asset.material.materials[0];
+        var texture  = material["map"];
+        var title = $(itemTitleSelector).val();
+        var description = $(itemDescriptionSelector).val();
+        var tags = $(itemTagsSelector).val().split(",");
+
+    //  Collect snapshot images.
+        var formSnapshots = $(outfitSnapshotsSelector).find(".snapshot-container").toArray();
+        debugMode && console.log( "formSnapshots:", formSnapshots );
+
+
+    //  Upload snapshots.
+
+        var deferreds = [];
+
+        formSnapshots.forEach(function( snapshotContainer, index ){
+            debugMode && console.log( "snapshotContainer:", snapshotContainer );
+            var image = $(snapshotContainer).find(snapshotImageSelector)[0];
+        //  debugMode && console.log( "image:", image );
+
+            var spinner = [ 
+                '<div class="form-spinner" style="position:relative; top:-162px; height:100%;',
+                'background-size:25%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"><div>' 
+            ].join(" ");
+
+            deferreds.push(
+            //  uploadToImgur.js  //
+                new Promise( function(resolve, reject){
+                    $(snapshotContainer).append( spinner );
+
+                    var data = image.src;
+                    var blob = dataURLtoBlob( data );
+                    var size = blob.size;
+                    var name = Date.now().toString(36);
+                    var mimeType = blob.type;
+
+                    var extension;
+                    switch (mimeType){
+                        case "image/jpeg": { extension = "jpg"; break; }
+                        case "image/png":  { extension = "png"; break; }
+                    }
+                    var filename = name + "." + extension;
+                    var file = new File([blob], filename, { type: mimeType });
+
+                //  imgurUpload.js
+
+                    var formdata = new FormData();
+                    formdata.append("image", file);
+                    formdata.append("name",  filename);
+                    formdata.append("title", title);
+                    formdata.append("description", description);
+
+                    var clientid = "95e1ecaf14ca5e6";
+                    var endpoint = "https://api.imgur.com/3/image";
+
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open('POST', endpoint, true);
+                    xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState === 4) {
+                            var response = "";
+                            if (this.status >= 200 && this.status < 300) {
+                                response = JSON.parse(this.responseText);
+                                resolve( response ); // resolve Promise.
+                            } else {
+                                var error = JSON.parse(this.responseText).data.error;
+                                console.error( "error:", error );
+                                bootboxErrorAlert(error.message, bootboxErrorAlertCallback);
+                                throw Error( this.responseText );
+                            }
+                        }
+                    };
+                    xhttp.send(formdata);
+                    xhttp = null;
+
+
+                }).then( function( response ){
+                    debugMode && console.log("imgur response data:", response.data);
+
+                    var data = response.data;
+                    snapshots.push(data.id);
+
+                    return response;
+
+                }).then( function( response ){
+
+                //  mongodb.
+                    var url = "/snapshots/insert";
+                    var data = response.data;
+
+                    $.post(url, {data:data}, function(result, status, xhr){
+
+                        debugMode && console.log("post %s: %s", url, status);
+                        debugMode && console.log("mongodb result:", result);
+
+                    }).then( function(result, status, xhr){
+
+                        if (!!result.error) throw result.error;
+
+                        if (!!result.success) {
+
+                        //  zargodb.
+                            data._id = result.success.insertedIds[0];
+                            db.open(function(err, database){
+                                if (err) console.error( err );
+                                debugMode && console.log( "%s opened!", db.name )
+                            }).then( function(){
+                                var collection = db.collection("snapshots");
+                                collection.insert( data, function(err){
+                                    if (err) throw err;
+                                }).then(function(){
+                                    $(snapshotContainer).remove();
+                                }).catch(function (err) {
+                                    console.error("IndexedDB InsertError:", err);
+                                    throw Error(err);
+                                });
+                        //  IMPORTANT: zargodb does not throw  
+                        //  an error if you explictly not catch it.
+                            }).catch(function (err) {
+                                console.error("IndexedDB Error:", err);
+                                throw Error(err);
+                            });
+
+                        }
+
+                    }).fail(function (err) {
+                        console.error("Snapshot InsertError:", err);
+                        throw Error(err);
+                    });
+
+                    return data; // IMPORTANT //
+
+            //  Catch errors until here.
+                }).catch(function (err) {
+                    $(snapshotContainer).find(".form-spinner").remove();
+                    console.error("Snapshot UploadError:", err); 
+                    throw Error(err);
+                }) // end promise. 
+
+            ); // end push.
+
+        }); // end forEach.
+
+        debugMode && console.log( "deferreds:", deferreds );
+
+
+    //  Upload texture.
+
+        Promise.all(deferreds).then( function(results){
+            debugMode && console.log( "deferreds results:", results );
+            debugMode && console.log( "snapshots:", snapshots );
+
+            var spinner = [ 
+                '<div class="form-spinner"', 
+                'style="position:absolute; left:0px; top:0px; height:600px; width:100%;',
+                'background-size:10%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"></div>' 
+            ].join(" ");
+
+        //  Upload texture to imgUr.
+            new Promise( function(resolve, reject){
+                $("#form-panel").append( spinner );
+
+            //  Upload texture.
+
+            //  IMPORTANT: form_target must be canvas.
+                form_target.toBlob( function(blob){
+
+                    var size = blob.size;
+                    var mime = blob.type;
+                    switch (mime){
+                        case "image/jpeg": { ext = "jpg"; break; }
+                        case "image/png":  { ext = "png"; break; }
+                    }
+
+                    var name;
+                    if ( !!material["map"].name && material["map"].name != "" ) {
+                        name = material["map"].name;
+                    } else { 
+                        name = Date.now().toString(36);
+                    }
+
+                    var filename = [ name, ".", ext ].join("");
+                    var file = new File([blob], filename, { type: mime });
+                    debugMode && console.log( "texture file:", file );
+
+                //  imgurUpload.js
+
+                    var formdata = new FormData();
+                    formdata.append("image", file);
+                    formdata.append("name",  filename);
+                    formdata.append("title", title);
+                    formdata.append("description", description);
+
+                    var clientid = "95e1ecaf14ca5e6";
+                    var endpoint = "https://api.imgur.com/3/image";
+
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open('POST', endpoint, true);
+                    xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState === 4) {
+                            var response = "";
+                            if (this.status >= 200 && this.status < 300) {
+                                response = JSON.parse(this.responseText);
+                                resolve( response );
+                            } else {
+                                var error = JSON.parse(this.responseText).data.error;
+                                console.error( "error:", error );
+                                bootboxErrorAlert(error.message, bootboxErrorAlertCallback);
+                                throw Error( this.responseText );
+                            }
+                        }
+                    };
+                    xhttp.send(formdata);
+                    xhttp = null;
+
+                });
+
+            }).then( function( response ){
+                debugMode && console.log("imgur response:", response);
+
+                var data = response.data;
+
+            //  Replace material textures.
+
+            //  Extension.
+                var ext; // IMPORTANT //
+                switch (data.type){
+                    case "image/jpeg": { ext = "jpg"; break; }
+                    case "image/png":  { ext = "png"; break; }
+                }
+
+                var src = [ "https://i.imgur.com/", data.id, ".", ext ].join(""); // IMPORTANT //
+
+            //  Replace sourceFiles.
+                material["map"].sourceFile = src;
+                material["emissiveMap"].sourceFile = src;
+
+            //  Replace Textures.
+                var img = new Image();
+                img.crossOrigin = "anonymous";
+                $(img).on("load", function (){
+                    var texture = new THREE.Texture( img ); // or canvas //
+                    texture.name = data.title;
+                    texture.sourceFile = img.src;
+                    material["map"] = texture;
+                    material["emissiveMap"] = texture;
+                    material["map"].needsUpdate = true;
+                    material["emissiveMap"].needsUpdate = true;
+                    material.needsUpdate = true;
+                    $(img).remove();
+                });
+                img.src = src;
+
+                return data;
+
+            }).then( function( data ){
+                debugMode && console.log("imgur data:", data);
+
+            //  Create texture entry.
+
+            //  Extension.
+                var ext; // IMPORTANT //
+                switch (data.type){
+                    case "image/jpeg": { ext = "jpg"; break; }
+                    case "image/png":  { ext = "png"; break; }
+                }
+
+            //  Collect entry data.
+                entry.kind = "texture";
+                entry.type = "map";
+                entry.gender = "male";
+                entry.outfit = "tshirt";
+                entry.category = "tshirt";
+                entry.geometry_name = geometry.name;
+                entry.geometry_file = geometry.sourceFile;
+                entry.title = title;
+                entry.description = description;
+                entry.tags = ["tshirt"];
+                entry.snapshots = snapshots;
+                entry.master_snapshot = snapshots[0]; // snapshots[] index.
+                entry.ext = ext;           // IMPORTANT // 
+                entry.mimeType = data.type;
+                entry.id = data.id;
+                entry.size = data.size;
+                entry.width = data.width;
+                entry.height = data.height;
+            //  entry.data = data;
+            //  debugMode && console.log( "entry:", entry );
+
+            }).then( function(){
+                debugMode && console.log( "entry:", entry );
+
+            //  Insert entry to mongodb.
+
+            //  mongodb.
+                var url = "/textures/insert";
+                $.post(url, {data:entry}, function(result, status, xhr){
+                    debugMode && console.log("post %s: %s", url, status);
+                    debugMode && console.log("mongodb result:", result);
+                }).then( function(result, status, xhr){
+
+                //  Error.
+                    if (!!result.error) {
+                        console.log("Error:", result.error);
+                        throw result.error;
+                    }
+
+                //  Success.
+                    if (!!result.success) {
+                        console.log("Success:", "Tshirt uploaded successfully!");
+                        return result.success.insertedIds;
+                    }
+
+                }).then( function( insertedIds ){
+
+                //  Insert entry to zargodb.
+
+                //  zargodb.
+                    entry._id = insertedIds[0];
+                    db.open(function(err, database){
+                        if (err) console.error( err );
+                        debugMode && console.log( "%s opened!", db.name )
+                    }).then( function(){
+
+                        var collection = db.collection("textures");
+                        collection.insert( entry, function(err){
+                            if (err) throw err;
+                        }).then(function(){
+
+                        //  Success.
+                            $(".form-spinner").remove();
+                            console.log("Success:", "Tshirt saved successfully!");
+                            var msg = "Tshirt uploaded successfully."
+                            bootboxSuccessAlert( msg, function(){
+                                $FormPanel.dialog("close");
+                            });
+
+                        }).catch( function(err){
+                            console.error("IndexedDB InsertError:", err); 
+                            bootboxErrorAlert(err);
+                            throw Error(err);
+                        });
+
+                    }).catch(function (err) {
+                    //  IMPORTANT: zargodb does not throw  
+                    //  an error if you explictly not catch it.
+                        console.error("IndexedDB Error:", err);
+                        bootboxErrorAlert(err);
+                        throw Error(err);
+                    }); // end db.open.
+
+                }).fail(function (err) {
+                    console.error("Texture InsertError:", err);
+                    bootboxErrorAlert(err);
+                    throw Error(err);
+                }); // end $.post().
+
+        //  Catch errors until here.
+            }).catch(function (err) {
+                console.error("Texture UploadError:", err); 
+                bootboxErrorAlert(err);
+                throw Error(err);
+            }); // end new Promise.
+
+        }).catch(function (err) {
+            $(".form-spinner").remove();
+            console.error("Form Error:", err); 
+            bootboxErrorAlert(err);
+        }); // end Promise.all()
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+    
+            return new Blob([u8arr], {type:mime});
+        }
+
+        function bootboxErrorAlertCallback(){
+            $(".form-spinner").remove();
+            button.disabled = false;
+        }
+
+    });
+
+</script>
+
+
+<script>
+
+//  Form Cancel button.
+    var formCancelButtonSelector = "#form-cancel-button";
+    $(formCancelButtonSelector).on("click", function(){
+        $FormPanel.dialog("close");
+    });
+
+</script>

@@ -1,0 +1,253 @@
+<!-- catalog-panel-items-demo.html (v1.0) -->
+
+<style>
+
+    #editor-panel,
+    #catalog-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:550px !important;
+        max-height:550px !important; 
+        background-color:#000000;
+    }
+    .catalog-item {
+        width:100px;
+        height:100px;
+        margin:4px;
+        background-size: contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat;
+    }
+    .panel-container {
+        height:auto; 
+        padding:0px;
+        margin:0px;
+        color:#ffffff;
+    }
+    .pager {
+        padding-right:20px;
+    }
+
+</style>
+
+
+<div id="catalog-items" class="panel-container">
+    <h4>Select item:</h4>
+    <li id={{id}} class="btn btn-default btn-white-outline catalog-item" w3-repeat="success"
+    title={{title}} data-mtl-index={{material_index}} data-img-ext={{ext}} onclick="catalogItemClickHandler(this);"
+    style="background-image:url('https://i.imgur.com/{{master_snapshot}}s.jpg');"></li>
+</div>
+
+<div class="pager">
+    <li class="btn btn-primary get-prev-btn pull-left">Prev page</li>
+    <a class="btn btn-default">1</a>
+    <a class="btn btn-default">2</a>
+    <a class="btn btn-default">3</a>
+    <a class="btn btn-default">4</a>
+    <a class="btn btn-default">5</a>
+    <li class="btn btn-primary get-next-btn pull-right">Next page</li>
+</div>
+
+<script>
+
+//  On editor panel dialog open.
+
+//  panel pager.js
+
+    var catalogHolderButton = $(dressCatalogButtonSelector)[0];
+    var endpoint = catalogHolderButton.catalogOption.endpoint;
+    var selectors = catalogHolderButton.catalogOption.selectors;
+
+    var options = catalogHolderButton.catalogOption.options;
+    debugMode && console.log( "options:", options );
+
+    var skip = options.skip;
+    var limit = options.limit;
+    var page = skip / limit;
+    debugMode && console.log( "page:", page );
+
+    var getNextBtnSelector = ".get-next-btn";
+    var getPrevBtnSelector = ".get-prev-btn";
+    var loadMoreBtnSelector = ".load-more-btn";
+    $(getNextBtnSelector).on("click", getNextPageClickHandler);
+    $(getPrevBtnSelector).on("click", getPrevPageClickHandler);
+
+    function getNextPageClickHandler(){
+
+        page++; skip = page * limit;        
+        debugMode && console.log( "page:", page, "skip:", skip );
+
+        options.skip = skip;
+
+        debugMode && console.log( "catalogOption.options:", catalogHolderButton.catalogOption.options );
+
+        fetchCatalogItems( endpoint, selectors, options );
+
+    }
+
+    function getPrevPageClickHandler(){
+        if ( page - 1 < 0 ) return;
+
+        page--; skip = page * limit;
+        debugMode && console.log( "page:", page, "skip:", skip );
+
+        options.skip = skip;
+
+        debugMode && console.log( "catalogOption.options:", catalogHolderButton.catalogOption.options );
+
+        fetchCatalogItems( endpoint, selectors, options );
+
+    }
+
+    function fetchCatalogItems( endpoint, selectors, options ){
+
+        var data = {
+            selectors: JSON.stringify( selectors ),
+            options:   JSON.stringify( options ),
+        };
+
+   //   debugMode && console.log("data:", data);
+
+        var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+            debugMode && console.log("post %s: %s", endpoint, status);
+        }).then( function( data ){
+            debugMode && console.log("data:", data);
+            w3.displayObject("catalog-items", data);
+        });
+
+        jqxhr.done( function(){
+            $EditorPanel.dialog("open");
+        });
+
+        jqxhr.fail( function( err ){
+        //  console.error(err);
+            throw err;
+        });
+
+    }
+
+/*
+        var data = {
+            selectors: JSON.stringify( selectors ),
+            options:   JSON.stringify( options ),
+        };
+
+    //  debugMode && console.log("data:", data);
+
+        var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+            debugMode && console.log("post %s: %s", endpoint, status);
+        }).then( function( data ){
+            debugMode && console.log("data:", data);
+            w3.displayObject("catalog-items", data);
+        });
+
+        jqxhr.done( function(){
+            $EditorPanel.dialog("open");
+        });
+
+        jqxhr.fail( function( err ){
+        //  console.error(err);
+            throw err;
+        });
+*/
+
+</script>
+
+
+<script>
+
+    var catalogItemSelector = ".catalog-item";
+
+    function catalogItemClickHandler( self ){
+        if ( !( !!target && target instanceof THREE.Material ) ) return;
+
+        var spinner = [ 
+            '<div class="item-spinner" style="position:relative; top:0px; height:100%;',
+            'background-size:50%; background-position:50% 50%; background-repeat:no-repeat;',
+            'background-image:url(https://i.imgur.com/7qG1W04.gif);"><div>' 
+        ].join(" ");
+
+        $(self).append(spinner);
+        
+    //  debugMode && console.log( "self:", self );
+        debugMode && console.log( "target:", target ); // material.
+
+        var title = $(self).attr("title");
+        var index = parseInt( $(self).attr("data-mtl-index") );  // the index of multimaterial.
+        if ( isNaN(index) || index < 0 ) index = 0;
+
+        var id  = $(self).attr("id");
+        var ext = $(self).attr("data-img-ext");   // the extension of texture image.
+        var url = ["https://i.imgur.com/", id, ".", ext].join("");
+    //  debugMode && console.log( "url:", url );
+
+
+        var img = new Image();
+        img.crossOrigin = "anonymous";
+        $(img).on("load", onImageLoad);
+        $(img).on("error", onImageError);
+        img.src = url;
+
+        function onImageLoad(){
+            if ( !target ) {
+                debugMode && console.log( "Aborted!" );
+                $(img).remove(); return; 
+            }
+
+            var texture = new THREE.Texture( img ); // or canvas //
+            texture.name = title;
+            texture.sourceFile = url; // IMPORTANT //
+            applyTexture( "map" );
+            applyTexture( "bumpMap" );
+            applyTexture( "emissiveMap" );
+            target.needsUpdate = true;
+            $(self).find(".item-spinner").remove();
+            $(img).remove();
+
+            function applyTexture(map){
+
+            //  Dispose old texture.
+                if ( !!target[map] && target[map] instanceof THREE.Texture ){
+                    deallocateTextures( target[map] );
+                }
+    
+                target[map] = texture;
+                target[map].needsUpdate = true;
+            //  target.needsUpdate = true;
+    
+            }
+
+        //  deallocateTextures.js
+        
+            function deallocateTextures(){
+                var deallocate = {};
+
+                for (var arg in arguments){
+                    deallocate[arg] = arguments[arg];
+                    arguments[arg] = null;
+                }
+
+                debugMode && console.log( "deallocate:", deallocate );
+
+                for (var name in deallocate){
+                    if (!deallocate[name]) continue;
+                    deallocate[name].dispose();
+                    deallocate[name] = null;
+                    delete deallocate[name];
+                }
+
+            }
+
+        } // end onLoadImage.
+
+        function onImageError(err){
+            console.log("error:", err);
+            $(self).find(".item-spinner").remove();
+            $(img).remove(); 
+        } // end onImageError.
+    }
+
+</script>
+
+

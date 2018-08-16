@@ -1,0 +1,106 @@
+<!-- scene-background-button.html -->
+
+<div id="scene-background-button" class="form-control btn btn-default btn-white-outline">Open background editor panel</div>
+
+<script>
+
+    var target;
+    var $EditorPanel;
+
+    var componentsFolder = "/components/";
+    var sceneBackgroundButtonSelector = "#scene-background-button";
+
+
+    var editorPanelScricpt =  "/js/editor-panel.js";
+    $.getScript(editorPanelScricpt, function(script, status, xhr){
+        debugMode && console.log("editor-panel:", status);
+
+        $EditorPanel.on( "dialogopen", function( event, ui ) {
+            if (!!window.controls) controls.enabled = false;
+            var sceneBackgroundButtonsDemoComponent = componentsFolder + "scene-background-buttons-demo.html";
+            $EditorPanel.load(sceneBackgroundButtonsDemoComponent, function(resoponse, status, xhr){
+                debugMode && console.log("scene-background-buttons-demo:", status);
+            });
+        });
+
+        $EditorPanel.on( "dialogclose", function( event, ui ) {
+            if (!!window.controls) controls.enabled = true;
+        });
+
+    });
+
+</script>
+
+<script>
+
+//  Define target.
+    $(sceneBackgroundButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            target = scene.background;
+        } else {
+            target = undefined;
+        }
+    });
+
+//  Import dialog components.
+    $(sceneBackgroundButtonSelector).on("click", function (){
+        if (!!target && !$EditorPanel.active){
+
+            $EditorPanel.dialog( "option", {
+                width    : 316,
+                minWidth : 316,
+                maxWidth : 316,
+                height   : 500,
+                minHeight: 500,
+                maxHeight: 500,
+                title: "Scene Backgrounds"
+            });
+
+        }
+
+    });
+
+//  Open/Close dialog.
+    $(sceneBackgroundButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+            //controls.enabled = false;
+        } else {
+            $EditorPanel.dialog("close");
+            //controls.enabled = true;
+        }
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

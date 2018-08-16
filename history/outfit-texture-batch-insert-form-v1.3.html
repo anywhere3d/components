@@ -1,0 +1,1268 @@
+<!-- outfit-texture-batch-insert-form.html (v1.3)-->
+
+
+<style>
+/* outfit-form-snapshots.css */
+
+    .form-snapshots {
+        padding:20px;
+        height:250px;
+        color: #ffffff;
+    }
+
+    #outfit-snapshots {
+        overflow-x:auto;
+        height:170px;
+        text-align:center;
+    /*  border: 1px solid;  */
+    }
+
+    .snapshot-container {
+        width:150px;
+        height:150px;
+        margin:0px;
+        padding:4px;
+        color: #ffffff;
+        display:inline-block;
+        overflow: hidden !important;
+    }
+
+    .snapshot-container > .thumbnail {
+        width:100%;
+        height:100%;
+    }
+
+    #crop-button {
+        position:absolute;
+        bottom: 0px;
+        right: 0px;
+    }
+
+    #exit-button {
+        position:absolute;
+        bottom: 0px;
+        left: 0px;
+    }
+
+    .snapshot-inner-btn { 
+        width:20px; height:20px; 
+        padding:6px; position:relative; 
+        float:right; left:-10px; top:-50px;
+        background-size: contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat;
+    }
+
+    input[type=checkbox].snapshot-inner-btn, 
+    input[type=radio].snapshot-inner-btn {
+        margin:0px !important;
+    }
+
+    .snapshot-remove { 
+        background-image:url("https://i.imgur.com/EM3JWgl.png");
+    }
+
+</style>
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+        z-index:1040 !important;
+    }
+
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .form-header {
+        margin-top:10px;
+        height:auto;
+        color: #ffffff;
+    }
+
+    .form-body {
+        padding:20px;
+        height:220px;
+        color: #ffffff;
+    }
+
+    #item-description {
+        min-width:100%;
+        max-width:100%;
+        min-height:40px;
+        max-height:75px;
+        color:#000000;
+    }
+
+    .form-footer {
+        padding:20px;
+        height:70px;
+        color: #ffffff;
+    }
+/*
+    .modal-dialog {
+        width:fit-content;
+    }
+
+    .pull-right + .pull-right {
+        margin-right: 10px;
+    }
+*/
+    #catalog-items {
+        width:100%;
+        height:430px;
+        overflow:hidden;
+        padding:0px;
+        text-align:center;
+    /*  margin-bottom:30px;  */
+    }
+/*
+    #form-holder {
+        padding-left: 80px;
+        padding-right: 80px;
+    }
+*/
+    .catalog-item {
+        width:100px;
+        height:100px;
+        margin:4px;
+        background-size: contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat;
+    }
+
+    .pager {
+        padding-left:15px;
+    }
+    
+    h3 {
+        margin:0px;
+        text-align:center;
+    }
+
+    .alert-small {
+        max-width: 60%;
+        font-weight: 700;
+    }
+
+    .clocks-holder {
+        width:100%;
+    /*  margin-top:20px;  */
+        text-align:center;
+    }
+    
+    .alert-list {
+        width:250px;
+        font-weight:normal;
+        list-style-type:decimal;
+    }
+
+</style>
+
+
+<div id="form-holder" class="col-md-12">
+
+    <h3>Outfit texture batch insert: <span id="down-counter"></span></h3>
+
+    <div id="countdown-clocks" class="clocks-holder"></div>
+
+    <div class="form-body">
+        <div>Title:</div>
+        <input type="text" id="item-title" class="form-control" value="skirt SKF" readonly>
+        <div class="label">Description (optional):</div>
+        <textarea id="item-description" cols="33" rows="1" maxlength="600" class="form-control" readonly></textarea>
+        <div class="label">Tags (optional - comma, delimiter):</div>
+        <input type="text" id="item-tags" class="form-control" readonly>
+    </div>
+
+    <div class="form-snapshots">
+        <div style="height:50px;">Snapshots: 
+            <!-- div id="add-snapshot" class="btn btn-primary btn-white-outline pull-right">Add Snapshots</div -->
+        </div>
+        <div id="outfit-snapshots">
+            <div class="item-snapshot"><img class="thumbnail"></div>
+            <div class="item-snapshot"><img class="thumbnail"></div>
+            <div class="item-snapshot"><img class="thumbnail"></div>
+            <div class="item-snapshot"><img class="thumbnail"></div>
+        </div>
+    </div>
+
+    <div class="form-footer">
+        <div id="form-cancel-button" class="btn btn-default btn-white-outline">Cancel</div>
+        <input type=button id="add-snapshot" class="btn btn-primary btn-white-outline gradient-btn" style="margin-left:25px;" value="Add Snapshots">
+        <input type=button id="form-insert-button" class="btn btn-success btn-white-outline gradient-btn pull-right" value="Submit textures" disabled>
+    </div>
+
+</div>
+
+<div class="col-md-12" style="margin-bottom:10px;">
+    <div class="pull-right small">page:<span id="page"></span>, items:
+        <span id="from"></span> to <span id="to"></span> of <span id="count"></span>
+    </div>
+</div>
+
+<div id="catalog-items" class="col-md-12">
+    <li id={{id}} class="btn btn-default btn-white-outline catalog-item"
+    style="background-image:url('https://i.imgur.com/{{id}}s.{{ext}}');"
+    title={{title}} data-img-ext={{ext}} w3-repeat="success" 
+    onclick="catalogItemClickHandler(this);"></li>
+</div>
+
+<div class="pager col-md-12">
+    <li class="btn btn-primary get-prev-btn pull-left">Prev page</li>
+    <a class="btn btn-default">1</a>
+    <a class="btn btn-default">2</a>
+    <a class="btn btn-default">3</a>
+    <a class="btn btn-default">4</a>
+    <a class="btn btn-default">5</a>
+    <li class="btn btn-primary get-next-btn pull-right">Next page</li>
+</div>
+
+<script>
+
+//  Form Cancel button.
+
+    var formCancelButtonSelector = "#form-cancel-button";
+    $(formCancelButtonSelector).on("click", function(){
+        $EditorPanel.dialog("close");
+    });
+
+</script>
+
+<script>
+
+//  Form Update button.
+
+    var Deferreds = [];
+
+    var downCounterSelector       = "#down-counter";
+    var itemTitleSelector         = "#item-title";
+    var outfitSnapshotsSelector   = "#outfit-snapshots";
+    var itemSnapshotSelector      = ".item-snapshot";
+    var snapshotContainerSelector = ".snapshot-container";
+    var snapshotImageSelector     = ".snapshot-image";
+    var formSpinnerSelector       = ".form-spinner";
+    var itemDescriptionSelector   = "#item-description";
+    var itemTagsSelector          = "#item-tags";
+    var addSnapshotSelector       = "#add-snapshot";
+    var jcropTrackerSelector      = ".jcrop-tracker";
+    var formInsertButtonSelector  = "#form-insert-button";
+
+    var prefixedTitle = editorHolderButton.options.prefixedTitle; //  "skirt SKF";
+    var counterPath = editorHolderButton.options.counterPath; //  "/textures/skirt/upload/counter";
+    var uploadCounter = store.get( counterPath );
+
+    $(downCounterSelector).text( countdown );
+    $(outfitSnapshotsSelector).contents().remove();
+    $(formInsertButtonSelector).on("click", insertButtonClickHandler);
+
+    function insertButtonClickHandler(){
+
+    //  Collect snapshorts.
+        var formSnapshots = $(outfitSnapshotsSelector)
+            .find(snapshotContainerSelector).toArray();
+        if ( formSnapshots.length == 0 ) return;
+
+    //  Remove event listensers.
+        this.disabled = true;
+        $(this).off("click");
+        $(addSnapshotSelector).off("click");
+        $(addSnapshotSelector)[0].disabled = true;
+
+    //  Reset Deferreds.
+        Deferreds.length = 0;
+
+    //  Start upload.
+        uploadRace();
+
+        function alertCallback(){
+        //  Enable snapshot button.
+            $(addSnapshotSelector)[0].disabled = false;
+        //  $(formInsertButtonSelector)[0].disabled = false;
+
+        //  Restore click handlers.
+            $(addSnapshotSelector).on("click", addSnapshotButtonClickHandler);   // IMPORTANT //
+            $(formInsertButtonSelector).on("click", insertButtonClickHandler);   // IMPORTANT //
+        //  $EditorPanel.dialog("close"); // (DO NOT CLOSE AUTOMATIC (promises in action yet.)
+        }
+
+
+    //  Promise.race.
+
+        function uploadRace(){
+
+        //  Start snapshots uploading.
+            formSnapshots.forEach( function( snapshot, i ){
+                Deferreds.push( 
+                    snapshot.upload().then( function( result ){ 
+                    //  console.log("upload result:", result);   // imgur result.
+                        return snapshot.insert();                // entry result.
+                    })
+                );
+            });
+    
+            debugMode && console.log( "Deferreds:", Deferreds );
+    
+            Promise.race( Deferreds ).then( function( result ){
+                debugMode && console.log( "Promise.race result:", result );  // entry result.
+    
+                var msg = "Promise.race message: outfit textures are uploading!";
+                bootboxSuccessAlert( msg, alertCallback );
+    
+            }).catch( function(err){
+    
+                console.error( "Promise.race CatchError:", err );
+                countdownErrorAlert( err, alertCallback );
+    
+            });
+    
+            function countdownErrorAlert( err, callback ){
+                var message = err.message.split(" ");
+                function howmachtime(num){ return !isNaN(num); }
+                var minutes = parseInt( message.filter( howmachtime ).pop() );
+                var index = message.findIndex( howmachtime );
+                message[index] = "%M:%S";
+                var formatter = message.join(" ");
+                var msec = minutes * 60 * 1000;
+                var now = Date.now();
+                bootboxErrorAlert("countdown message", callback);
+                $(".alert-small").countdown( now + msec, function(e) {
+                    $(this).html( e.strftime( formatter ) );
+                });
+            }
+
+        }
+
+
+    //  Promise.all.
+
+        function uploadAll(){
+    
+        //  Start snapshots uploading.
+            formSnapshots.forEach( function( snapshot, i ){
+                Deferreds.push( 
+                    snapshot.upload().then( function( result ){ 
+                        console.log("upload result:", result);   // imgur result.
+                        return snapshot.insert();         // entry result.
+                    }).catch( function( err ){
+                        console.log( err );
+                        throw err;
+                    })
+                );
+            });
+    
+        //  When all promises done.
+            Promise.all( Deferreds ).then( function( results ){
+                debugMode && console.log( "Promise.all results:", results );  // entries results.
+    
+            //  Success alert.
+                var titles = [];
+                results.forEach( function( entry, i ){
+                    titles.push( [ "<li class='alert-list'>", entry.title, "</li>" ].join("") );
+                });
+    
+                var msg = "Success! outfit textures<ul>" + titles.join("") + "</ul>uploaded successfully!";
+    
+                bootboxSuccessAlert( msg, alertCallback );
+    
+            }).catch( function(err){
+    
+                $(".form-spinner").remove();
+    
+                bootboxErrorAlert(err, alertCallback);
+    
+                throw err;
+    
+            })
+    
+        }
+
+    }
+
+</script>
+
+<script>
+
+//  Countdown allert - Super!!!
+/*
+    var message = err.message.split(" ");
+    function howmachtime(num){ return !isNaN(num); }
+    var minutes = parseInt( message.filter( howmachtime ).pop() );
+    var index = message.findIndex( howmachtime );
+    message[index] = "%M:%S";
+    var formatter = message.join(" ");
+    var msec = minutes * 60 * 1000;
+    var now = Date.now();
+    bootboxErrorAlert("countdown message", alertCallback);
+    $(".alert-small").countdown( now + msec, function(e) {
+        $(this).html( e.strftime( formatter ) );
+    });
+*/
+
+/*
+//  jquery.countdown.js
+
+    var message = error.message.split(" ");
+//  debugMode && console.log( "message:", message);
+    function howmachtime(num){ return !isNaN(num); }
+    var minutes = parseInt( message.filter( howmachtime ).pop() );
+
+    var msec = minutes * 60 * 1000;
+//  debugMode && console.log( "msec:", msec);
+
+    var now = Date.now();
+    var clockSelector = ["#", now].join("");
+    var div = [ '<div id=', now, ' data-countdown=', now + msec, '>' ].join('"');
+    var clock = [ div, '</div>' ].join("");
+    debugMode && console.log( "clock:", clock );
+
+    $("#countdown-clocks").contents().remove();
+    $("#countdown-clocks").append( clock );
+    $(clockSelector).countdown( now + msec, function(e) {
+        var formatter = error.message + "<br>" + 
+        "remaining time until next upload: %M:%S";
+        $(this).html( e.strftime( formatter ) );
+    });
+*/
+
+</script>
+
+<script>
+
+//  Define insert target (defined by the button).
+//  target = localPlayer.outfit["tshirt"].material.materials[0];
+
+    var endpoint = editorHolderButton.fetchOptions.endpoint;
+    var selectors = editorHolderButton.fetchOptions.selectors;
+    var options = editorHolderButton.fetchOptions.options;
+    debugMode && console.log( "options:", options );
+
+    var count;
+    var skip  = options.skip;
+    var limit = options.limit;
+    var page_index = parseInt( skip / limit );
+    debugMode && console.log( "page_index:", page_index );
+
+    var getNextBtnSelector = ".get-next-btn";
+    var getPrevBtnSelector = ".get-prev-btn";
+    var loadMoreBtnSelector = ".load-more-btn";
+    $(getNextBtnSelector).on("click", getNextPageClickHandler);
+    $(getPrevBtnSelector).on("click", getPrevPageClickHandler);
+
+    countCatalogItems();
+
+    fetchCatalogItems( endpoint, selectors, options );
+
+    function getNextPageClickHandler(){
+        if ( !count || skip + limit >= count ) return;
+
+        page_index++; skip = page_index * limit;        
+        debugMode && console.log( "page_index:", page_index, "skip:", skip );
+
+        options.skip = skip;
+
+        debugMode && console.log( "fetchOptions.options:", editorHolderButton.fetchOptions.options );
+
+        fetchCatalogItems( endpoint, selectors, options );
+
+    }
+
+    function getPrevPageClickHandler(){
+        if ( page_index - 1 < 0 ) return;
+
+        page_index--; skip = page_index * limit;
+        debugMode && console.log( "page_index:", page_index, "skip:", skip );
+
+        options.skip = skip;
+
+        debugMode && console.log( "fetchOptions.options:", editorHolderButton.fetchOptions.options );
+
+        fetchCatalogItems( endpoint, selectors, options );
+
+    }
+
+    function fetchCatalogItems( endpoint, selectors, options ){
+
+        var data = {
+            options:   JSON.stringify( options ),
+            selectors: JSON.stringify( selectors ),
+        };
+
+   //   debugMode && console.log("data:", data);
+
+        var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+            debugMode && console.log("post %s: %s", endpoint, status);
+        }).then( function( data ){
+            debugMode && console.log("data:", data);
+            w3.displayObject("catalog-items", data);
+            return data.success; // --> results: array.
+        });
+
+        jqxhr.done( function( results ){
+            $("span#page").text(page_index + 1);
+            $("span#from").text(skip + 1);
+            $("span#to").text(skip + results.length);
+        });
+
+        jqxhr.fail( function( err ){
+            throw err;
+        });
+
+        jqxhr.always( function(){
+            countCatalogItems();
+        });
+
+    }
+
+    function countCatalogItems(){
+        var endpoint = "/textures/count/selectors/options";
+
+        var options = {};
+        debugMode && console.log( "selectors:", selectors );
+
+        var data = {
+            options:   JSON.stringify( options ),
+            selectors: JSON.stringify( selectors ),
+        };
+
+    //  debugMode && console.log("data:", data);
+
+        var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+        //  debugMode && console.log("data:", data);
+        }).then( function( data ){
+            return data.count;
+        });
+
+        jqxhr.done( function( result ){
+            count = result;
+            debugMode && console.log( "count:", count );
+            $("span#count").text(count);
+        });
+
+        jqxhr.fail( function( err ){
+            console.error(err);
+        });
+    }
+
+</script>
+
+
+<script>
+
+    var catalogItemSelector = ".catalog-item";
+
+    function catalogItemClickHandler( self ){
+
+        if ( !( !!target && target instanceof THREE.Material ) ) return;
+
+        var spinner = [ 
+            '<div class="item-spinner" style="position:relative; top:0px; height:100%;',
+            'background-size:50%; background-position:50% 50%; background-repeat:no-repeat;',
+            'background-image:url(https://i.imgur.com/7qG1W04.gif);"><div>' 
+        ].join(" ");
+
+        $(self).append(spinner);
+
+    //  debugMode && console.log( "self:", self );
+    //  debugMode && console.log( "target:", target ); // material.
+
+        var title = $(self).attr("title");
+        var index = parseInt( $(self).attr("data-mtl-index") );  // the index of multimaterial.
+        if ( isNaN(index) || index < 0 ) index = 0;
+
+        var id  = $(self).attr("id");
+        var ext = $(self).attr("data-img-ext");   // the extension of texture image.
+        var url = ["https://i.imgur.com/", id, ".", ext].join("");
+    //  debugMode && console.log( "url:", url );
+
+        var img = new Image();
+        img.crossOrigin = "anonymous";
+        $(img).on("load", onImageLoad);
+        $(img).on("error", onImageError);
+        img.src = url;
+
+        function onImageLoad(){
+
+            if ( !target ) {
+                debugMode && console.log( "Aborted!" );
+                $(img).remove(); return; 
+            }
+
+            getSelectedItemData( id );  // IMPORTANT //
+
+            var texture = new THREE.Texture( img );
+            texture.name = title;     // IMPORTANT //
+            texture.ext = ext;        // IMPORTANT //
+            texture.img_id = id;      // IMPORTANT //
+            texture.sourceFile = url; // IMPORTANT //
+            applyTexture( "map" );
+            applyTexture( "bumpMap" );
+            applyTexture( "emissiveMap" );
+            target.bumpScale = 0.05;
+            target.color.setHex(0xffffff);
+            target.emissive.setHex(0x999999);
+            target.needsUpdate = true;
+            $(self).find(".item-spinner").remove();
+            $(img).remove();
+
+            function applyTexture(map){
+
+            //  Dispose old texture.
+                if ( !!target[map] && target[map] instanceof THREE.Texture ){
+                    deallocateTextures( target[map] );
+                }
+
+                target[map] = texture;
+                target[map].needsUpdate = true;
+            //  target.needsUpdate = true;
+
+            }
+
+        //  deallocateTextures.js
+
+            function deallocateTextures(){
+                var deallocate = {};
+
+                for (var arg in arguments){
+                    deallocate[arg] = arguments[arg];
+                    arguments[arg] = null;
+                }
+
+                debugMode && console.log( "deallocate:", deallocate );
+
+                for (var name in deallocate){
+                    if (!deallocate[name]) continue;
+                    deallocate[name].dispose();
+                    deallocate[name] = null;
+                    delete deallocate[name];
+                }
+
+            }
+
+        }
+
+    //  end onLoadImage.
+
+        function onImageError(err){
+            console.log("error:", err);
+            $(self).find(".item-spinner").remove();
+            $(img).remove(); 
+        } 
+
+    //  end onImageError.
+
+        function getSelectedItemData( id ){
+    
+            var endpoint = "/textures/imgur/id/" + id;
+            var jqxhr = $.post(endpoint, function(result, status, xhr){
+                debugMode && console.log("post%s: %s", endpoint, status);
+            }).then( function(result, status, xhr){
+    
+            //  Error.
+                if (!!result.error) {
+                    console.log("Error:", result.error);
+                    throw Error(result.error);
+                }
+    
+            //  Success.
+                if (!!result.success) {
+                //  debugMode && console.log(result.success);
+                    return result.success;
+                }
+
+            });
+
+            jqxhr.done( function( data ){
+            //  debugMode && console.log( data );
+                if ( $(addSnapshotSelector).length == 0 ) return;
+                var snapshotbutton = $(addSnapshotSelector)[0];
+                snapshotbutton.object_id = id;
+                snapshotbutton.tags = data.tags;
+                snapshotbutton.description = data.description;
+            //  debugMode && console.log("$button:", $(snapshotbutton));
+
+            });
+
+            //  button.snapshots = data.snapshots;
+            //  button.master_snapshot = data.master_snapshot;
+            //  button.title = data.title;
+
+            jqxhr.fail(function ( err ) {
+                console.error(err);
+            });
+
+        }
+
+    //  end getSelectedItemData().
+
+    }
+
+</script>
+
+<script>
+
+//  Jcrop is used to define crop coordinates on a canvas.
+
+    $(addSnapshotSelector).on( "click", addSnapshotButtonClickHandler );
+    
+    function addSnapshotButtonClickHandler(){
+
+        if ( !this.object_id ) {
+            var msg = "Scrool down this form and select stamp item first."
+            bootboxErrorAlert( msg );
+            return;
+        }
+
+        var button = this;
+
+        var size =  {x:450, y:450}; // {x:420, y:570}; //
+
+        var options = {
+
+            aspectRatio: size.x / size.y, // 1, 
+        //  for snapshots use "aspectRatio: 420/570,"
+
+        //  $jcropTracker: size.x, size.y.
+            setSelect: [ 
+                (renderer.domElement.width * 0.5)  - (size.x * 0.5),
+                (renderer.domElement.height * 0.5) - (size.y * 0.5),
+                (renderer.domElement.width * 0.5)  + (size.x * 0.5),
+                (renderer.domElement.height * 0.5) + (size.y * 0.5),
+            ],
+
+            minSize: [size.x, size.y], // fixed size.
+            maxSize: [size.x, size.y], // fixed size.
+
+            onChange: function(coords){
+                //debugMode && console.log("onChange coords:", coords);
+            },
+            onSelect: function(coords){
+                //debugMode && console.log("coords:", coords);
+            },
+            onRelease: function(){
+                this.exit();
+            },
+        };
+
+
+    //  returns: $(renderer.domElement).
+        $(renderer.domElement).Jcrop(options, function(){
+        //  jcropTracker = $(".jcrop-tracker");
+
+            jcrop_tracker = $(".jcrop-tracker")[0];
+            $(jcrop_tracker).append([
+                '<div id="crop-button" class="btn btn-primary">Crop</div>',
+                '<div id="exit-button" class="btn btn-default">Cancel</div>',
+            ].join("") );
+
+            var jcropper = this;
+            jcropper.exit = exit;
+            jcropper.crop = crop;
+
+            debugMode && console.log( "jcropper:", jcropper );
+            debugMode && console.log( "jcropper options:", jcropper.getOptions() );
+
+            $("#exit-button").on( "click", function(){
+                exit();
+            });
+
+            $("#crop-button").on( "click", function(){
+
+                var $itemSnapshot = $([
+                    '<div class="item-snapshot snapshot-container">',
+                        '<img class="thumbnail snapshot-image">',
+                        '<div class="btn btn-default snapshot-inner-btn snapshot-remove"></div>',
+                    '</div>'
+                ].join("") );
+
+                crop().then(function( canvas ){
+
+                    if ( !!button.object_id  ){
+
+                        $itemSnapshot.find("img")[0].src = canvas.toDataURL("image/jpeg");
+                        debugMode && console.log("$itemSnapshot:", $itemSnapshot);
+
+                        $itemSnapshot[0].upload = upload;
+                        $itemSnapshot[0].insert = insert;
+                        $itemSnapshot[0].object_id = button.object_id;
+
+                        $(outfitSnapshotsSelector).append( $itemSnapshot );
+
+                        $itemSnapshot.on("click", function(){
+                            $(itemTitleSelector).val( this.title );
+                        });
+
+                        $itemSnapshot.find(".snapshot-remove").on("click", function(){
+                            $itemSnapshot.remove();
+                        });
+
+                        $(formInsertButtonSelector)[0].disabled = false; // IMPORTANT //
+
+                        var title = prefixedTitle + store.set( counterPath, ++uploadCounter );
+                        $itemSnapshot[0].title = title;
+                        $(itemTitleSelector).val( title );
+                        debugMode && console.log( "title:", title );
+
+                    }
+
+                }).then(function(){
+                    exit();
+                });
+
+            });
+
+
+            function crop(){
+
+                return new Promise( function(resolve, reject){
+
+                    var selection = jcropper.tellSelect();   // <-- {x: 400, y: 245, x2: 850, y2: 695, w: 450, h:450}
+                    var scaletion = jcropper.tellScaled();   // <-- {x: 400, y: 245, x2: 850, y2: 695, w: 450, h:450}
+                //  debugMode && console.log( "selection:", selection );  
+                //  debugMode && console.log( "scaletion:", scaletion );
+    
+                //  ctx.drawImage() arguments.
+                    var img = renderer.domElement;
+                    var sourceX = selection.x;
+                    var sourceY = selection.y;
+                    var sourceWidth = selection.w;
+                    var sourceHeight = selection.h;
+                    var x = 0, y = 0;
+                    var width = selection.w;
+                    var height = selection.h;
+    
+                    var canvas = document.createElement( 'canvas' );
+                    var ctx = canvas.getContext("2d");
+                    canvas.width = width;
+                    canvas.height = height;
+    
+    
+                //  Clip the image and position the clipped part on the canvas:
+                    ctx.drawImage(
+                        img,          // Specifies the image, canvas, or video element to use.
+                        sourceX,      // The x coordinate where to start clipping.
+                        sourceY,      // The y coordinate where to start clipping.
+                        sourceWidth,  // The width of the clipped image.
+                        sourceHeight, // The height of the clipped image.
+                        x, y,         // The x, y coordinates where to place the image on the canvas.	
+                        width,        // The width of the image to use (stretch or reduce the image).
+                        height        // The height of the image to use (stretch or reduce the image)	
+                    );
+    
+                    resolve( canvas );
+                });
+            }
+
+            function exit(){
+                jcropper.destroy();
+                $(container).append(renderer.domElement); // IMPORTANT //
+            };
+
+        });
+
+
+    //  Upload snapshot.
+
+        function upload(){
+
+            var self = this;
+
+            var spinner = [ 
+                '<div class="form-spinner" style="position:relative; top:-162px; height:100%;',
+                'background-size:25%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"><div>' 
+            ].join(" ");
+
+            $(self).append( spinner );
+
+        //  image.
+            var image = $(self).find("img")[0];
+
+        //  title.
+            if ( !!self.title && self.title.length > 0 ) {
+                var title = self.title;
+            } else {
+                var title = self.title = "stamp TSP" + store.set(counterPath, ++uploadCounter);
+            }
+
+            return new Promise( function(resolve, reject){
+
+            //  debugMode && console.log( "$image:", $(image) );
+            //  debugMode && console.log( "$self:", $(self) );
+            //  debugMode && console.log( "this:", this ); // window //
+
+                var data = image.src;
+                var blob = dataURLtoBlob( data );
+                var size = blob.size;
+                var name = Date.now().toString(36);
+                var mimeType = blob.type;
+
+                var extension;
+                switch (mimeType){
+                    case "image/jpeg": { extension = "jpg"; break; }
+                    case "image/png":  { extension = "png"; break; }
+                }
+                var filename = name + "." + extension;
+                var file = new File([blob], filename, { type: mimeType });
+
+            //  imgurUpload.js
+
+                var formdata = new FormData();
+                formdata.append("image", file);
+                formdata.append("name",  filename);
+                formdata.append("title", title);
+             // formdata.append("description", description);
+
+                var clientid = "95e1ecaf14ca5e6";                // form options variable.
+                var endpoint = "https://api.imgur.com/3/image";  // form options variable.
+
+                var xhttp = new XMLHttpRequest();
+                xhttp.open('POST', endpoint, true);
+                xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                xhttp.onerror = function(err){ throw err };    // IMPORTANT //
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState === 4) {
+
+                    //  var response = "";
+                        if (this.status >= 200 && this.status < 300) {
+
+                        //  var response = JSON.parse(this.responseText); 
+                            resolve( JSON.parse(this.responseText) ); // resolve response.
+                        
+                        //  Countdown uploads.
+                            $(downCounterSelector).text( --countdown );
+
+                        //  Reset countdowner.
+                            if ( countdown < 1 ) {
+                                $(downCounterSelector).text( countdownReset() );
+                            }
+
+                        } else {
+
+                            var error = JSON.parse(this.responseText).data.error;
+                            console.error( "error:", error );
+                            reject( error );
+
+                        //  Upload downcounter.
+
+                            $(downCounterSelector).text( countdownReset() );
+
+                    /*
+                        //  jquery.countdown.js
+
+                            var message = error.message.split(" ");
+                        //  debugMode && console.log( "message:", message);
+                            function howmachtime(num){ return !isNaN(num); }
+                            var minutes = parseInt( message.filter( howmachtime ).pop() );
+
+                            var msec = minutes * 60 * 1000;
+                        //  debugMode && console.log( "msec:", msec);
+
+                            var now = Date.now();
+                            var clockSelector = ["#", now].join("");
+                            var div = [ '<div id=', now, ' data-countdown=', now + msec, '>' ].join('"');
+                            var clock = [ div, '</div>' ].join("");
+                            debugMode && console.log( "clock:", clock );
+
+                            $("#countdown-clocks").contents().remove();
+                            $("#countdown-clocks").append( clock );
+                            $(clockSelector).countdown( now + msec, function(e) {
+                                var formatter = error.message + "<br>" + 
+                                "remaining time until next upload: %M:%S";
+                                $(this).html( e.strftime( formatter ) );
+                            });
+                    */
+
+                    /*
+                        //  Retry upload.
+                            var _timeout_id = setTimeout( function(){ self.upload();
+                            //  BE CAREFULL: if corret panel is not open, or an other panel is open,
+                            //  (meaning that editorHolderButton is undefined or is an other, setTimout 
+                            //  function will fail or will meshup.
+                            }, msec );
+                            if ( !!window.INTERVAL_IDS ) INTERVAL_IDS.push( _timeout_id );
+                    */
+                            $(self).remove();        // TESTING //
+                        //  $(self).find(".form-spinner").remove();
+                            button.disabled = false;
+
+                    /*
+                        //  Retry to upload after penalty time expires (!!!it works just fine!!!)
+                            bootboxErrorAlert(error.message, function(){
+                                setTimeout( function(){ self.upload(); }, msec );
+                            });
+                    */
+                        //  throw Error( this.responseText );
+
+                        }
+                    }
+                };
+
+                xhttp.send( formdata );
+                xhttp = null;
+
+            }).then( function( response ){
+
+                var data = response.data; // imgur snapshot data.
+            //  debugMode && console.log("snapshot data:", data);
+
+            //  Collect snapshots ids.
+                self.snapshots = [];
+                self.snapshots.push(data.id); // IMPORTANT //
+
+            //  Define master snapshot.
+            //  if ( $(self).find(".snapshot-master")[0].checked ) cover = data.id;
+            //  debugMode && console.log( "checked:", $(self).find(".snapshot-master")[0].checked );
+
+
+            //  Insert snapshot to mongodb.
+
+                var json = JSON.stringify( data );
+                var endpoint = editorHolderButton.uploadOptions.snapshotEndpoint || "/snapshots/insert";  // form options variable.
+
+                var jqxhr = $.post(endpoint, {data:json}, function(result, status, xhr){
+                    debugMode && console.log("post %s: %s", endpoint, status);
+                //  debugMode && console.log("snapshot result:", result);  // snapshot.
+                }).then( function(result, status, xhr){
+
+                    if (!!result.error) {
+                        throw result.error;
+                    }
+
+                    if (!!result.success) {
+                    //  debugMode && console.log("mongodb result:", result); // snapshot.
+                        return result.success;
+                    }
+
+                });
+
+            //  Insert snapshot to zargodb.
+
+                jqxhr.done(function ( results ) {
+
+                    data._id = results.insertedIds[0];
+                    db.open(function(err, database){
+                        if (err) console.error( err );
+                    }).then( function(){
+
+                        var collection = db.collection("snapshots");
+                        collection.insert( data, function(err){
+                            if (err) throw err;
+                        }).then(function(){
+
+                            return; // IMPORTANT //
+
+                        }).catch(function (err) {
+                            console.error("IndexedDB InsertError:", err);
+                        //  IMPORTANT: zargodb does not throw  
+                        //  an error if you explictly not catch it.
+                        //  bootboxErrorAlert( err, function(){
+                                $(self).find(".form-spinner").remove();
+                                throw err;
+                        //  });
+                        });
+
+                    }).catch(function (err) {
+                        console.error("IndexedDB Error:", err);
+                        throw err;
+                    });
+
+                });
+
+            //  mongodb errors.
+
+                jqxhr.fail(function (err) {
+                    console.error("Snapshot InsertError:", err);
+                    throw err;
+                });
+
+                return data; // imgur data.
+
+        //  Catch promise errors.
+            }).catch(function (err) {
+                $(self).find(".form-spinner").remove();
+                console.error("UploadError:", err); 
+                throw err;
+            });
+
+        //  end promise.
+
+        }
+
+
+    //  Insert texture.
+
+        function insert( token ){
+
+            var self = this;
+
+        //  Get texture data.
+            var clientid = editorHolderButton.uploadOptions.clientid || "95e1ecaf14ca5e6"; // form options variable.
+            var endpoint = "https://api.imgur.com/3/image/" + this.object_id;
+
+            return new Promise( function(resolve, reject){
+
+            //  Get texture data from imgur.
+                var xhttp = new XMLHttpRequest();
+                xhttp.open('GET', endpoint, true);
+                xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                xhttp.onerror = function(err){ throw err };    // IMPORTANT //
+                xhttp.onreadystatechange = function () {
+
+                    if (this.readyState === 4) {
+
+                    //  var response = "";
+                        if (this.status >= 200 && this.status < 300) {
+
+                        //  var response = JSON.parse(this.responseText);
+                            resolve( JSON.parse(this.responseText) ); // resolve response.
+
+                        } else {
+
+                            var error = JSON.parse(this.responseText).data.error;
+                            console.error( "error:", error );
+                            reject( error );
+                        //  throw Error( this.responseText );
+
+                        }
+                    }
+                };
+
+                xhttp.send();
+                xhttp = null;
+
+            }).then( function( response ){
+
+                var data = response.data;
+            //  debugMode && console.log("texture data:", data);
+
+            //  Create texture entry.
+
+                entry = {};
+
+                var ext;  // IMPORTANT //
+                switch (data.type){
+                    case "image/jpeg": { ext = "jpg"; break; }
+                    case "image/png":  { ext = "png"; break; }
+                }
+
+            //  Collect entry data.
+                entry.kind = editorHolderButton.uploadOptions.kind || "texture";       // form options variable.
+                entry.type = editorHolderButton.uploadOptions.type || "map";           // form options variable.
+                entry.outfit = editorHolderButton.uploadOptions.outfit;                // form options variable.
+                entry.category = editorHolderButton.uploadOptions.category;            // form options variable.
+                entry.material_index = editorHolderButton.uploadOptions.index;         // form options variable.
+                entry.gender = editorHolderButton.uploadOptions.gender;                // form options variable.
+                entry.geometry_name = [ localPlayer.outfit[ editorHolderButton.uploadOptions.name ].geometry.name ];
+                entry.geometry_file = [ localPlayer.outfit[ editorHolderButton.uploadOptions.name ].geometry.sourceFile ];
+                entry.title = self.title;
+                entry.description = self.description;
+                entry.tags = editorHolderButton.uploadOptions.tags;
+                entry.snapshots = self.snapshots;
+                entry.master_snapshot = self.snapshots[0];
+                entry.id = data.id;   // IMPORTANT // 
+                entry.ext = ext;     // IMPORTANT // 
+                entry.mimeType = data.type;
+                entry.size = data.size;
+                entry.width = data.width;
+                entry.height = data.height;
+                debugMode && console.log( "entry:", entry );
+
+                return JSON.stringify( entry );
+
+            }).then( function( data ){
+
+
+            //  Insert entry to mongodb.
+
+                var endpoint = editorHolderButton.uploadOptions.texturesEndpoint || "/textures/insert";  // form options variable.
+
+                var jqxhr = $.post(endpoint, {data:data}, function(result, status, xhr){
+                    debugMode && console.log("post %s: %s", endpoint, status);
+                //  debugMode && console.log("entry result:", result);
+                }).then( function(result, status, xhr){
+
+                //  Error.
+                    if (!!result.error) {
+                        console.log("Mongodb Error:", result.error);
+                        throw result.error;
+                    }
+
+                //  Success.
+                    if (!!result.success) {
+                        var log = "Mongodb (success): texture %s inserted successfully!";
+                        console.log( log, self.title );
+                        return result.success.insertedIds[0]; // IMPORTANT (for zargodb).
+                    }
+
+                });
+
+
+            //  Insert entry to zargodb.
+
+                jqxhr.done( function( insertedId ){
+
+                //  Insert entry to zargodb.
+                    entry._id = insertedId;
+                    db.open(function(err, database){
+                        if (err) console.error( err );
+                    }).then( function(){
+
+                        var collection = db.collection("textures");
+                        collection.insert( entry, function(err){
+                            if (err) throw err;
+                        }).then(function(){
+
+                        //  Success.
+                            var log = "Zargodb (success): texture %s inserted successfully!";
+                            console.log(log, self.title);
+                            $(self).remove();
+                            return entry;
+
+                        }).catch( function(err){
+                            console.error( "IndexedDB InsertError:", err );
+                        //  IMPORTANT: zargodb does not throw an
+                        //  error if explictly you dont catch it.
+                        //  bootboxErrorAlert( err, function(){
+                            $(self).remove();
+                        //  });
+                        });
+
+                    }).catch(function (err) {
+                        console.error( "IndexedDB Error:", err );
+                    });
+
+                });
+
+            //  Catch insert errors.
+                jqxhr.fail(function (err) {
+                    console.error( "Texture InsertError:", err );
+                //  bootboxErrorAlert(err, function(){throw err;});
+                });
+
+                return JSON.parse( data ); // entry.
+
+        //  Catch new Promise errors.
+            }).catch(function (err) {
+                console.error( "InsertError:", err ); 
+            //  bootboxErrorAlert(err, function(){throw err;});
+                throw err;
+            }); 
+
+        //  end new Promise.
+
+        }
+
+    }
+
+</script>
+
+

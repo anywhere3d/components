@@ -1,0 +1,136 @@
+<!-- texture-tshirt-map-options-button.html (v1.0) -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Tshirt Map Texture:</li>
+<div id="tshirt-map-options-button" class="form-control btn btn-danger btn-white-outline gradient-btn">Open texture options panel</div>
+
+
+
+<script>
+
+    var tshirtMapOptionsButtonSelector = "#tshirt-map-options-button";
+
+//  Outfit is not avaliable.
+    $(tshirtMapOptionsButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit ) {
+            var msg = "Outfit not defined.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Tshirt is not avaliable.
+    $(tshirtMapOptionsButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit["tshirt"] ) {
+            var msg = "Tshirt not defined.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Material is not avaliable.
+    $(tshirtMapOptionsButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit["tshirt"].material.materials[0] ) {
+            var msg = "Material not defined.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Texture is not avaliable.
+    $(tshirtMapOptionsButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit["tshirt"].material.materials[0].map ) {
+            var msg = "Texture not defined.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Define holder.
+    $(tshirtMapOptionsButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit["tshirt"].material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+
+    });
+
+
+//  Define target (texture).
+    $(tshirtMapOptionsButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit["tshirt"].material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit["tshirt"].material.materials[0].map;
+        } else {
+            target = undefined;
+        }
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(tshirtMapOptionsButtonSelector).on("click", function(){
+
+        if ( !target ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 300,
+                minWidth: 300,
+                maxWidth: 300,
+                height: 450,
+                minHeight: 450,
+                maxHeight: 450,
+                title: "Tshirt Map Options",
+            }
+
+            var component = "texture-options-panel.html";
+            $EditorPanel.loadComponent(component, option);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(tshirtMapOptionsButtonSelector).on("click", function(){
+
+        if ( !$EditorPanel.active ) {
+            if ( !target ) return;
+
+            $EditorPanel.dialog("open");
+
+        //  Stop outfit animation.
+            localPlayer.outfit.AnimationsHandler.stop();
+
+        } else {
+
+            $EditorPanel.dialog("close");
+
+        }
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

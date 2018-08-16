@@ -1,0 +1,407 @@
+<!-- mask-form-demo.html -->
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-width:616px !important;
+        max-height:670px !important;
+    }
+
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+    }
+
+    .col-panel {
+        height:auto; 
+     /* border:black 1px solid; */
+        padding-top:0px; padding-bottom:0px;
+        color:#ffffff;
+    }
+
+    .sub-panel {
+        height:auto; 
+        border:white 1px solid;
+        border-radius:8px;
+        padding:15px;
+        padding-top:0px;
+        margin-bottom:15px;
+        color:#ffffff;
+    }
+
+    .col-panel a { color:#ffffff; }
+    .col-panel h4 { margin-top:20px; }
+    .col-panel input, 
+    .col-panel label{ font-family: Arial, sans-serif; font-size:14px; }
+
+    .sp-container { width:100%; background-color:#000000; border:none; }
+    .sp-input { color:#ffffff; border:none; }
+    .sp-picker-container { width:90%; border:none; }
+
+    .texture-btn { margin-bottom:15px; }
+
+    .panel-controls-output { 
+        width:50px; outline:none;
+        color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+        font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
+    }
+
+</style>
+
+<div class="col-md-12 col-panel" style="margin-top:20px; margin-bottom:20px; border:1px solid;">
+    <canvas id="result-preview" width="512" height="512"></canvas>
+</div>
+
+<div class="col-md-6 col-panel">
+    <input type="file" class="hidden" id="mask-input">
+    <div class="btn btn-success btn-white-outline form-control texture-btn" id="mask-button">Import mask.png</div>
+</div>
+
+<div class="col-md-6 col-panel">
+    <input type="file" class="hidden" id="texture-input">
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="texture-button">Import image to mask</div>
+</div>
+
+<div class="col-md-12 col-panel">
+    <div class="btn btn-default btn-white-outline form-control texture-btn" id="save-desktop-button">Save to desktop</div>
+    <div class="btn btn-default btn-white-outline form-control texture-btn" id="upload-imgur-button">Upload to Imgur</div>
+</div>
+
+<script>
+
+    var resultPreviewSelector  = "#result-preview";
+
+    var maskButtonSelector     = "#mask-button";
+    var textureButtonSelector  = "#texture-button";
+
+    var maskInputSelector      = "#mask-input";
+    var textureInputSelector   = "#texture-input";
+
+
+    $(maskButtonSelector).on("click", function(){
+    //  Reset file input.
+        $(maskInputSelector).val("");
+    //  Open file input.
+        $(maskInputSelector).click();
+    });
+
+
+    $(textureButtonSelector).on("click", function(){
+    //  Reset file input.
+        $(textureInputSelector).val("");
+    //  Open file input.
+        $(textureInputSelector).click();
+    });
+
+
+    $(maskInputSelector).on("change", function(e){
+        if ( !e.target.files.length ) return;
+
+        var canvas = $(resultPreviewSelector)[0];
+        var ctx = canvas.getContext("2d");
+
+    //  Clear canvas context.
+        canvas.width = canvas.width;
+
+    //  Get canvas width, height.
+        var width  = canvas.width; 
+        var height = canvas.height;
+
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function(event){
+            var img = new Image(canvas.width, canvas.height);
+            img.crossOrigin = "anonymous";
+            $(img).one("load", function(){
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            //  Apply texture.
+                if (!!target){
+                    if (!target.map) {
+                        target.map = new THREE.Texture( canvas );
+                    } else {
+                        target.map.image = canvas;
+                    }
+                    target.map.needsUpdate = true;
+                    target.needsUpdate = true;
+                }
+
+            //  Remove image.
+                this.remove();
+
+            });
+
+            img.src = this.result;
+        }
+        reader.readAsDataURL(e.target.files[0]); 
+
+    //  Reset file input.
+        this.value = "";
+    });
+
+    $(textureInputSelector).on("change", function(e){
+        if ( !e.target.files.length ) return;
+
+        var canvas = $(resultPreviewSelector)[0];
+        var ctx = canvas.getContext("2d");
+
+        var width  = canvas.width; 
+        var height = canvas.height;
+
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function(event){
+
+            var img = new Image(width, height);
+            img.crossOrigin = "anonymous";
+        
+            $(img).one("load", function(){
+
+                ctx.globalCompositeOperation = 'source-atop'; // IMPORTANT //
+                ctx.drawImage(img, 0, 0, width, height);
+
+            //  Apply texture.
+                if (!!target){
+                    if (!target.map) {
+                        target.map = new THREE.Texture( canvas );
+                    } else {
+                        target.map.image = canvas;
+                    }
+                    target.map.needsUpdate = true;
+                    target.needsUpdate = true;
+                    
+                    if (!target.emissiveMap) {
+                        target.emissiveMap = new THREE.Texture( canvas );
+                    } else {
+                        target.emissiveMap.image = canvas;
+                    }
+                    target.emissiveMap.needsUpdate = true;
+                    target.needsUpdate = true;
+                }
+            //  Remove image.
+                this.remove();
+
+            });
+
+            img.src = this.result;
+        }
+
+        reader.readAsDataURL(e.target.files[0]); 
+
+    //  Reset file input.
+        this.value = "";
+    });
+
+//  The CanvasRenderingContext2D.clearRect() method of the Canvas 2D API 
+//  sets all pixels in the rectangle defined by starting point (x, y) 
+//  and size (width, height) to transparent black, 
+//  erasing any previously drawn content.
+//  context.clearRect(0, 0, canvas.width, canvas.height); // not working for me.
+//  ctx.beginPath();
+
+    var saveDesktopButtonSelector = "#save-desktop-button";
+
+    $(saveDesktopButtonSelector).on("click", function(){
+        var canvas = $(resultPreviewSelector)[0];
+
+    //  var data = canvas.toDataURL();
+
+        saveToDesktop( canvas.toDataURL() );
+
+        function saveToDesktop(dataurl){
+        //  Save image to desktop.
+            dataurl.replace("image/png", "image/octet-stream");
+            var link = document.createElement("a");
+            $(link).on("click", function(){ this.remove(); });
+            link.download = ["dress", "texture", Date.now().toString(36)].join("-") + ".png";
+            link.href = dataurl;  //  debugMode && console.log("a.href:", a.href);
+            link.click();
+        }
+
+    });
+
+    var uploadImgurButtonSelector = "#upload-imgur-button";
+
+    $(uploadImgurButtonSelector).on("click", function(){
+        var canvas = $(resultPreviewSelector)[0];
+
+        var target = localPlayer.outfit.dress.material.materials[0];
+
+        var file = dataURLtoBlob( canvas.toDataURL() );
+        debugMode && console.log( "file:", file );
+
+        uploadToImgur(file, function(res){
+            debugMode && console.log("imgur response:", res.data);
+
+            var data = res.data;
+            var id = data.id;
+            var url = data.link;
+            var key = "/textures/dress/" + data.id;
+            target.map.sourceFile = data.link;
+            debugMode && console.log("imgur link: %s, id: %s", url, id);
+
+        /*  localforage indexedDB -- deprecated --.
+            AW3D_db.setItem(key, data).then(function(result){
+                debugMode && console.log( "result:", result );
+                bootboxSuccessAlert("Texture has been uploaded successfully.");
+            });
+        */
+
+        //  ZangoDB.
+
+            var cursor = Textures.insert(data, function(err, result){
+                if (err) throw Error(err);
+                else console.log("result:", result); // <-- undefined.
+            }).then(function( results ){
+                console.log("cursor:", cursor.valueOf() );
+            });
+
+
+            var img = new Image();
+            img.crossOrigin = "anonymous";
+            $(img).on("load", function(){
+                var texture = new THREE.Texture( img );
+                target.map = texture;
+                target.map.sourceFile = img.src;
+                target.map.needsUpdate = true;
+                target.needsUpdate = true;
+            });
+            img.src = url;
+
+        });
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+    
+            return new Blob([u8arr], {type:mime});
+        }
+    
+        function uploadToImgur(file, callback) {
+    
+            var clientid = "95e1ecaf14ca5e6";
+            var endpoint = "https://api.imgur.com/3/image";
+    
+            var formdata = new FormData();
+            formdata.append("image", file);
+    
+            var xhttp = new XMLHttpRequest();
+    
+            xhttp.open('POST', endpoint, true);
+            xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4) {
+    
+                    var response = "";
+    
+                    if (this.status >= 200 && this.status < 300) {
+    
+                        try {
+                            response = JSON.parse(this.responseText);
+                        } catch (err) {
+                            response = this.responseText;
+                        }
+    
+                        callback.call(window, response);
+    
+                    } else {
+    
+                        try {
+                            response = JSON.parse(this.responseText);
+                            debugMode && console.log( "Error response:", response );
+                            var error = response.data.error;
+                            var code = error.code || response.status;
+                            var message = error.message || error;
+                            debugMode && console.error( "Error status:", this.status, "- error.code:", error.code, "- error:", error );
+                            bootboxErrorAlert( "<b>Error code: " + code + "</b><br>" + message );
+                        } catch (err) {
+                            var error = this.responseText;
+                            debugMode && console.error( "Error:" + this.status, error );
+                        }
+    
+                    //  $("#spin").remove();
+    
+                    }
+    
+                }
+            };
+    
+            xhttp.send(formdata);
+            xhttp = null;
+        }
+
+    });
+</script>
+
+
+<script>
+    
+    function canvasmask(){
+    
+          var imagecanvas = document.createElement('canvas');
+          var imagecontext = imagecanvas.getContext('2d');
+        
+      //  Uncomment below to see the canvas to debug.
+      //  document.body.appendChild(imagecanvas);
+          
+          window.addEventListener('load', function(){
+            [].forEach.call(document.querySelectorAll('.mask'), function(img){
+              var newImg = document.createElement('img');
+              newImg.src = img.src;
+              
+              newImg.onload = function() {
+                var width  = newImg.width;
+                var height = newImg.height;
+        
+                var mask = document.createElement('img');
+                mask.src = img.getAttribute('data-mask');
+                mask.onload = function() {
+                  imagecanvas.width  = width;
+                  imagecanvas.height = height;
+        
+                  imagecontext.drawImage(mask, 0, 0, width, height);
+                  imagecontext.globalCompositeOperation = 'source-in';
+                  imagecontext.drawImage(img, 0, 0);
+        
+                  img.src = imagecanvas.toDataURL();
+                }
+              }
+            });
+          }, false);
+    }
+    
+    function handleImage(e){
+        var reader = new FileReader();
+        reader.onload = function(event){
+            var img = new Image();
+            img.onload = function(){
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img,0,0);
+            }
+            img.src = event.target.result;
+        }
+        reader.readAsDataURL(e.target.files[0]);     
+    }
+
+</script>
+
+
+
+
+
+
+

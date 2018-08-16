@@ -1,0 +1,784 @@
+<!-- outfit-bra-upload-form.html (v1.2) -->
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+    }
+
+    #form-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .form-header {
+        margin-top:10px;
+        height:auto;
+        color: #ffffff;
+    }
+
+    .form-body {
+        padding:20px;
+        height:220px;
+        color: #ffffff;
+    }
+
+    #item-description {
+        min-width:100%;
+        max-width:100%;
+        min-height:40px;
+        max-height:75px;
+        color:#000000;
+    }
+
+    .form-footer {
+        padding:20px;
+        height:70px;
+        color: #ffffff;
+    }
+
+    .modal-dialog {
+        width:fit-content;
+    }
+
+</style>
+
+<h4>Upload bra item:</h4>
+
+<div class="form-body">
+    <div>Title:</div>
+    <input type="text" id="item-title" class="form-control">
+    <div class="label">Description (optional):</div>
+    <textarea id="item-description" cols="33" rows="3" maxlength="600" class="form-control"></textarea>
+    <div class="label">Tags (optional - comma, delimiter):</div>
+    <input type="text" id="item-tags" class="form-control">
+</div>
+
+<div id="form-snapshots-holder">
+    <script>
+        var formSnapshotsHolderSelector = "#form-snapshots-holder";
+        var formSnapshotsComponents = componentsFolder + "form-snapshots.html";
+        $(formSnapshotsHolderSelector).load(formSnapshotsComponents, function(response, status, xhr){
+            debugMode && console.log("form-snapshots:", status);
+        });
+    </script>
+</div>
+
+<!-- 
+    <div class="form-snapshots">
+        <div style="height:50px;">Snapshots: 
+            <div id="add-snapshot" class="btn btn-primary btn-white-outline pull-right">Add Snapshots</div>
+        </div>
+        <div id="outfit-snapshots">
+    
+            <div class="item-snapshot"><img class="thumbnail"></div>
+            <div class="item-snapshot"><img class="thumbnail"></div>
+            <div class="item-snapshot"><img class="thumbnail"></div>
+            <div class="item-snapshot"><img class="thumbnail"></div>
+    
+        </div>
+    </div>
+ -->
+
+<div class="form-footer">
+    <input type=button id="form-upload-button" class="btn btn-success btn-white-outline pull-right" value="Upload bra item">
+    <div id="form-cancel-button" class="btn btn-default btn-white-outline">Cancel</div>
+</div>
+
+<script>
+
+//  IMPORTANT: form_target must be canvas element explicitly.
+    if ( !(form_target instanceof HTMLCanvasElement) ) {
+        console.warn( "Form target must be HTMLCanvasElement explicitly." );
+        var form_target_msg = "Open bra editor panel and import a diffuse map texture<br>for this outfit first."
+        bootboxErrorAlert( form_target_msg, function(){
+            $FormPanel.dialog("close");
+        });
+    }
+
+</script>
+
+
+<script>
+
+//  Form Upload button.
+
+    var itemTitleSelector         = "#item-title";
+    var outfitSnapshotsSelector   = "#outfit-snapshots";
+    var itemSnapshotSelector      = ".item-snapshot";
+    var snapshotContainerSelector = ".snapshot-container";
+    var snapshotImageSelector     = ".snapshot-image";
+    var formSpinnerSelector       = ".form-spinner";
+    var itemDescriptionSelector   = "#item-description";
+    var itemTagsSelector          = "#item-tags";
+    var formUploadButtonSelector  = "#form-upload-button";
+
+//    var snapshotSpinner = [
+//        '<div class="snapshot-spinner spinner-loading">',
+//            '<span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />',
+//        '</div>'
+//    ].join("");
+
+    $(formUploadButtonSelector).on("click", function(){
+
+        var button = this;
+        this.disabled = true;
+
+    //  Validate title.
+        if ( $(itemTitleSelector).val().length < 4 ){
+            var msg = "You must type a title for this outfit.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+    
+    //  Validate snapshots.
+        if ( $(outfitSnapshotsSelector).find(snapshotImageSelector).toArray().length == 0 ){
+            var msg = "You must add one snapshot at least.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+
+    //  Collect form data.
+        var entry = {};
+        var snapshots = [];
+        var asset = localPlayer.outfit["bra"];
+        var geometry = asset.geometry;
+        var material = asset.material.materials[0];
+        var title = $(itemTitleSelector).val();
+        var description = $(itemDescriptionSelector).val();
+        var tags = $(itemTagsSelector).val().split(",");
+
+    //  Collect snapshot images.
+        var formSnapshots = $(outfitSnapshotsSelector).find(".snapshot-container").toArray();
+        debugMode && console.log( "formSnapshots:", formSnapshots );
+
+    //  Upload snapshots.
+        var deferreds = [];
+
+        formSnapshots.forEach(function( snapshotContainer, index ){
+            debugMode && console.log( "snapshotContainer:", snapshotContainer );
+            var image = $(snapshotContainer).find(snapshotImageSelector)[0];
+        //  debugMode && console.log( "image:", image );
+
+            var spinner = [ 
+                '<div class="form-spinner" style="position:relative; top:-162px; height:100%;',
+                'background-size:50%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"><div>' 
+            ].join(" ");
+
+            deferreds.push(
+            //  uploadToImgur.js  //
+                new Promise( function(resolve, reject){
+                    $(snapshotContainer).append( spinner );
+
+                    var data = image.src;
+                    var blob = dataURLtoBlob( data );
+                    var size = blob.size;
+                    var name = Date.now().toString(36);
+                    var extension;
+                    var mimeType = blob.type;
+                    switch (mimeType){
+                        case "image/jpeg": { extension = "jpg"; break; }
+                        case "image/png":  { extension = "png"; break; }
+                    }
+                    var filename = name + "." + extension;
+                    var file = new File([blob], filename, { type: mimeType });
+
+                //  imgurUpload.js
+
+                    var clientid = "95e1ecaf14ca5e6";
+                    var endpoint = "https://api.imgur.com/3/image";
+
+                    var formdata = new FormData();
+                    formdata.append("image", file);
+                    formdata.append("name",  filename);
+                    formdata.append("title", title);
+                    formdata.append("description", description);
+
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open('POST', endpoint, true);
+                    xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState === 4) {
+                            var response = "";
+                            if (this.status >= 200 && this.status < 300) {
+                                response = JSON.parse(this.responseText);
+                                resolve( response ); // resolve Promise.
+                            } else {
+                                var error = JSON.parse(this.responseText).data.error;
+                                console.error( "error:", error );
+                                bootboxErrorAlert(error.message, bootboxErrorAlertCallback);
+                                throw Error( this.responseText );
+                            }
+                        }
+                    };
+                    xhttp.send(formdata);
+                    xhttp = null;
+
+
+                }).then( function( response ){
+                    debugMode && console.log("imgur response data:", response.data);
+
+                    var data = response.data;
+                    snapshots.push(data.id);
+
+                    return response;
+
+                }).then( function( response ){
+
+                //  mongodb.
+                    var url = "/snapshots/insert";
+                    var data = response.data;
+
+                    $.post(url, {data:data}, function(result, status, xhr){
+
+                        debugMode && console.log("post %s: %s", url, status);
+                        debugMode && console.log("mongodb result:", result);
+
+                    }).then( function(result, status, xhr){
+
+                        if (!!result.error) throw result.error;
+
+                        if (!!result.success) {
+
+                        //  zargodb.
+                            data._id = result.success.insertedIds[0];
+                            db.open(function(err, database){
+                                if (err) console.error( err );
+                                debugMode && console.log( "%s opened!", db.name )
+                            }).then( function(){
+                                var collection = db.collection("snapshots");
+                                collection.insert( data, function(err){
+                                    if (err) throw err;
+                                }).then(function(){
+                                    $(snapshotContainer).remove();
+                                }).catch(function (err) {
+                                    console.error("IndexedDB InsertError:", err);
+                                    throw Error(err);
+                                });
+                        //  IMPORTANT: zargodb does not throw  
+                        //  an error if you explictly not catch it.
+                            }).catch(function (err) {
+                                console.error("IndexedDB Error:", err);
+                                throw Error(err);
+                            });
+
+                        }
+
+                    }).fail(function (err) {
+                        console.error("Snapshot InsertError:", err);
+                        throw Error(err);
+                    });
+                    
+                    return data; // IMPORTANT //
+
+            //  Catch errors until here.
+                }).catch(function (err) {
+                    $(snapshotContainer).find(".form-spinner").remove();
+                    console.error("Snapshot UploadError:", err); 
+                    throw Error(err);
+                }) // end promise. 
+
+            ); // end push.
+
+        }); // end forEach.
+
+        debugMode && console.log( "deferreds:", deferreds );
+
+    //  Upload snapshot to imgur.
+        Promise.all(deferreds).then( function(results){
+            debugMode && console.log( "deferreds results:", results );
+            debugMode && console.log( "snapshots:", snapshots );
+
+            var spinner = [ 
+                '<div class="form-spinner"', 
+                'style="position:absolute; left:0px; top:0px; height:600px; width:100%;',
+                'background-size:30%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"></div>' 
+            ].join(" ");
+
+        //  Upload texture to imgUr.
+            new Promise( function(resolve, reject){
+                $("#form-panel").append( spinner );
+
+            //  IMPORTANT: form_target must be canvas.
+                form_target.toBlob( function(blob){
+
+                    var size = blob.size;
+                    var mime = blob.type;
+                    switch (mime){
+                        case "image/jpeg": { ext = "jpg"; break; }
+                        case "image/png":  { ext = "png"; break; }
+                    }
+
+                    var name;
+                    if ( !!material["map"].name && material["map"].name != "" ) {
+                        name = material["map"].name;
+                    } else { 
+                        name = Date.now().toString(36);
+                    }
+
+                    var filename = [ name, ".", ext ].join("");
+                    var file = new File([blob], filename, { type: mime });
+                    debugMode && console.log( "texture file:", file );
+
+                    var clientid = "95e1ecaf14ca5e6";
+                    var endpoint = "https://api.imgur.com/3/image";
+
+                    var formdata = new FormData();
+                    formdata.append("image", file);
+                    formdata.append("name",  filename);
+                    formdata.append("title", title);
+                    formdata.append("description", description);
+
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open('POST', endpoint, true);
+                    xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState === 4) {
+                            var response = "";
+                            if (this.status >= 200 && this.status < 300) {
+                                response = JSON.parse(this.responseText);
+                                resolve( response );
+                            } else {
+                                var error = JSON.parse(this.responseText).data.error;
+                                console.error( "error:", error );
+                                bootboxErrorAlert(error.message, bootboxErrorAlertCallback);
+                                throw Error( this.responseText );
+                            }
+                        }
+                    };
+                    xhttp.send(formdata);
+                    xhttp = null;
+
+                });
+
+            }).then( function( response ){
+
+                var data = response.data;
+                debugMode && console.log("imgur response data:", data);
+
+            //  Extension.
+                var ext; // IMPORTANT //
+                switch (data.type){
+                    case "image/jpeg": { ext = "jpg"; break; }
+                    case "image/png":  { ext = "png"; break; }
+                }
+
+            //  Collect entry data.
+
+                entry.kind = "texture";
+                entry.type = "map";
+                entry.gender = "female";
+                entry.outfit = "bra";
+                entry.category = "bra";
+                entry.geometry_name = geometry.name;
+                entry.geometry_file = geometry.sourceFile;
+                entry.title = title;
+                entry.description = description;
+                entry.tags = ["female", "lingerie", "bra", "top", "bikini", "underwears"];
+                entry.snapshots = snapshots;
+                entry.master_snapshot = snapshots[0]; // snapshots[] index.
+                entry.mimeType = data.type;
+                entry.ext = ext;  // IMPORTANT //
+                entry.id = data.id;
+                entry.size = data.size;
+                entry.width = data.width;
+                entry.height = data.height;
+            //  entry.texture = data;
+            //  debugMode && console.log( "entry:", entry );
+    
+            //  return entry;
+
+            }).then( function(){
+                debugMode && console.log( "entry:", entry );
+
+            //  Upload entry to mongodb.
+
+            //  mongodb.
+                var url = "/textures/insert";
+                $.post(url, {data:entry}, function(result, status, xhr){
+                    debugMode && console.log("post %s: %s", url, status);
+                    debugMode && console.log("mongodb result:", result);
+                }).then( function(result, status, xhr){
+
+                //  Error.
+                    if (!!result.error)  {
+                        console.log("Error:", result.error);
+                        throw result.error;
+                    }
+
+                //  Success.
+                    if (!!result.success){
+                        console.log("Success:", "Bra uploaded successfully!");
+
+                    //  zargodb.
+                        entry._id = result.success.insertedIds[0];
+                        db.open(function(err, database){
+                            if (err) console.error( err );
+                            debugMode && console.log( "%s opened!", db.name )
+                        }).then( function(){
+                            var collection = db.collection("textures");
+                            collection.insert( entry, function(err){
+                                if (err) throw err;
+                            }).then(function(){
+
+                            //  Success.
+                            //  $(".form-spinner").remove();
+                            //  BE CAREFULL: (outfit name) IMPORTANT  //
+                                replaceTexture( "bra" );  
+
+                            //  Close form panel.
+                            //  $FormPanel.dialog("close");
+
+                            }).catch(function (err) {
+                                console.error("IndexedDB InsertError:", err); 
+                                throw Error(err);
+                            });
+
+                    //  IMPORTANT: zargodb does not throw  
+                    //  an error if you explictly not catch it.
+                        }).catch(function (err) {
+                            console.error("IndexedDB Error:", err);
+                            bootboxErrorAlert(err);
+                            throw Error(err);
+                        });
+
+                    }
+
+                }).fail(function (err) {
+                    console.error("Texture InsertError:", err);
+                    bootboxErrorAlert(err);
+                    throw Error(err);
+                });
+
+        //  Catch errors until here.
+            }).catch(function (err) {
+                console.error("Texture UploadError:", err); 
+                bootboxErrorAlert(err);
+                throw Error(err);
+            });
+
+        }).catch(function (err) {
+            $(".form-spinner").remove();
+            console.error("Form Error:", err); 
+            bootboxErrorAlert(err);
+        });
+
+        function replaceTexture( name ){
+
+        //  Apply texture.
+            var asset = localPlayer.outfit[ name ];
+            var img = new Image();
+            img.crossOrigin = "anonymous";
+            $(img).one("load", function (){
+
+                var texture = new THREE.Texture( img ); // or canvas //
+                texture.name = entry.name;
+                texture.sourceFile = img.src;
+                applyTexture( asset, texture, "map", 0 );
+                applyTexture( asset, texture, "emissiveMap", 0 );
+                $(img).remove();
+
+            //  Success.
+                $(".form-spinner").remove();
+                var msg = "Bra uploaded successfully."
+                bootboxSuccessAlert( msg, function(){
+                    $FormPanel.dialog("close");
+                });
+
+            });
+
+            img.src = [ "https://i.imgur.com/", entry.id, ".", entry.ext ].join("");
+
+        }
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+    
+            return new Blob([u8arr], {type:mime});
+        }
+
+        function bootboxErrorAlertCallback(){
+            $(".form-spinner").remove();
+            button.disabled = false;
+        }
+
+    });
+
+</script>
+
+
+<script>
+/*
+    function bootboxErrorAlert( msg ){
+        var prefix = '<div class="alert-icon icon-error"></div><label class="alert-small">';
+        var postfix = '</label>';
+        var message =  [prefix, msg, postfix].join("") ;
+        if (!bootbox) {
+            alert( msg );
+            $(".form-spinner").remove();
+            button.disabled = false;
+        } else { 
+            bootbox.alert({
+                size:"small", 
+                message: message, 
+                callback: function(){
+                    $(".form-spinner").remove();
+                    button.disabled = false;
+                },
+            });
+        }
+    }
+*/
+</script>
+
+
+<script>
+
+//  Form Cancel button.
+
+    var formCancelButtonSelector = "#form-cancel-button";
+    $(formCancelButtonSelector).on("click", function(){
+        $FormPanel.dialog("close");
+    });
+
+</script>
+
+
+<script>
+/*
+    var JcropScript = "/js/jquery.Jcrop.js";
+    $.getScript(JcropScript, function(script, status, xhr){
+        debugMode && console.log("Jcrop:", status);
+    });
+*/
+</script>
+
+
+<script>
+/*
+//  form-snapshot-button.html.
+
+//  Jcrop is used to define crop coordinates on a canvas.
+
+    var addSnapshotSelector = "#add-snapshot";
+    var jcropTrackerSelector = ".jcrop-tracker";
+    var outfitSnapshotsSelector = "#outfit-snapshots";
+    $(outfitSnapshotsSelector).contents().remove();
+
+    $(addSnapshotSelector).on("click", function(){
+
+        var size =  {x:450, y:450}; // {x:420, y:570}; //
+
+        var options = {
+
+            aspectRatio: size.x / size.y, // 1, 
+        //  for snapshots use "aspectRatio: 420/570,"
+
+        //  $jcropTracker: size.x, size.y.
+            setSelect: [ 
+                (renderer.domElement.width * 0.5)  - (size.x * 0.5),
+                (renderer.domElement.height * 0.5) - (size.y * 0.5),
+                (renderer.domElement.width * 0.5)  + (size.x * 0.5),
+                (renderer.domElement.height * 0.5) + (size.y * 0.5),
+            ],
+
+            minSize: [size.x, size.y], // fixed size.
+            maxSize: [size.x, size.y], // fixed size.
+
+            onChange: function(coords){
+            //  debugMode && console.log("onChange coords:", coords);
+            },
+            onSelect: function(coords){
+                debugMode && console.log("coords:", coords);
+            },
+            onRelease: function(){
+            //  debugMode && console.log("onRelease this:", this);
+                this.exit();
+            },
+        };
+
+    //  returns: $(renderer.domElement).
+        $(renderer.domElement).Jcrop(options, function(){
+
+        //  jcropTracker = $(".jcrop-tracker");
+
+            jcrop_tracker = $(".jcrop-tracker")[0];
+            $(jcrop_tracker).append([
+                '<div id="crop-button" class="btn btn-primary">Crop</div>',
+                '<div id="exit-button" class="btn btn-default">Exit</div>',
+            ].join("") );
+
+            var jcropper = this;
+            jcropper.exit = exit;
+            jcropper.crop = crop;
+
+            debugMode && console.log( "jcropper:", jcropper );
+            debugMode && console.log( "jcropper options:", jcropper.getOptions() );
+
+            $("#exit-button").on( "click", function(){
+                exit();
+            });
+
+            $("#crop-button").on( "click", function(){
+
+                crop().then(function( canvas ){
+                //  $itemSnapshot.append( canvas );
+
+                    var $itemSnapshot = $([
+                        '<div class="item-snapshot">',
+                        '<img class="thumbnail snapshot-image">',
+                        '<div class="btn btn-default snapshot-inner-btn snapshot-remove"></div>',
+                    //  '<div class="btn btn-default snapshot-inner-btn snapshot-remove"></div>',
+                    //  '<div class="btn btn-default snapshot-inner-btn snapshot-remove"></div>',
+                        '</div>'
+                    ].join("") );
+                    $itemSnapshot.find("img")[0].src = canvas.toDataURL("image/jpeg");
+                    $(outfitSnapshotsSelector).append( $itemSnapshot );
+
+                    $itemSnapshot.find(".snapshot-remove").on("click", function(){
+                        debugMode && console.log(".snapshot-remove click handler.");
+                        $itemSnapshot.remove();
+                    });
+
+                }).then(function(){
+                    exit();
+                });
+                
+            });
+
+            function crop(){
+
+                return new Promise( function(resolve, reject){
+
+                    var selection = jcropper.tellSelect();   // <-- {x: 400, y: 245, x2: 850, y2: 695, w: 450, h:450}
+                    var scaletion = jcropper.tellScaled();   // <-- {x: 400, y: 245, x2: 850, y2: 695, w: 450, h:450}
+                    debugMode && console.log( "selection:", selection );  
+                    debugMode && console.log( "scaletion:", scaletion );
+    
+                //  ctx.drawImage() arguments.
+                    var img = renderer.domElement;
+                    var sourceX = selection.x;
+                    var sourceY = selection.y;
+                    var sourceWidth = selection.w;
+                    var sourceHeight = selection.h;
+                    var x = 0, y = 0;
+                    var width = selection.w;
+                    var height = selection.h;
+    
+                    var canvas = document.createElement( 'canvas' );
+                    var ctx = canvas.getContext("2d");
+                    canvas.width = width;
+                    canvas.height = height;
+    
+    
+                //  Clip the image and position the clipped part on the canvas:
+                    ctx.drawImage(
+                        img,          // Specifies the image, canvas, or video element to use.
+                        sourceX,      // The x coordinate where to start clipping.
+                        sourceY,      // The y coordinate where to start clipping.
+                        sourceWidth,  // The width of the clipped image.
+                        sourceHeight, // The height of the clipped image.
+                        x, y,         // The x, y coordinates where to place the image on the canvas.	
+                        width,        // The width of the image to use (stretch or reduce the image).
+                        height        // The height of the image to use (stretch or reduce the image)	
+                    );
+    
+                    resolve( canvas );
+                });
+            }
+
+            function exit(){
+                jcropper.destroy();
+                $(container).append(renderer.domElement);
+            };
+
+        });
+
+    });
+*/
+</script>
+
+<style>
+/*  spinner.css  */
+/*
+    .snapshot-spinner { position:absolute; left:0px; top:0px; width:100%; height:100%; text-align:center; }
+    .img-helper { display:inline-block; height:100%; vertical-align:middle; }
+    .spin-img { height:128px; vertical-align:middle; }
+*/
+</style>
+
+<style>
+/* outfit-form-snapshots.css */
+/*
+    .form-snapshots {
+        padding:20px;
+        height:250px;
+        color: #ffffff;
+    }
+
+    #outfit-snapshots {
+        overflow-x:auto;
+        height:170px;
+        border: 1px solid;
+    }
+
+    .item-snapshot {
+        width:150px;
+        height:150px;
+        margin:0px;
+        padding:4px;
+        color: #ffffff;
+        display:inline-block;
+    }
+
+    .item-snapshot > img {
+        width:100%;
+        height:100%;
+    }
+
+    #crop-button {
+        position:absolute;
+        bottom: 0px;
+        right: 0px;
+    }
+
+    #exit-button {
+        position:absolute;
+        bottom: 0px;
+        left: 0px;
+    }
+
+    .snapshot-inner-btn { 
+        width:20px; height:20px; 
+        padding:6px; position:relative; 
+        float:right; left:-10px; top:-50px;
+        background-size: contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat;
+    }
+
+    .snapshot-remove { 
+        background-image:url("https://i.imgur.com/EM3JWgl.png");
+    }
+*/
+</style>
+
+

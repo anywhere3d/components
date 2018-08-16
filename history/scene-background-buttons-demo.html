@@ -1,0 +1,380 @@
+<!-- scene-background-buttons-demo.html -->
+
+<style>
+
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:450px !important;
+        max-height:450px !important; 
+        background-color:#000000;
+    }
+
+    .texture-btn { 
+        margin-bottom:15px; 
+        margin-right:10px; 
+        width:115px;
+        height:115px;
+    }
+
+</style>
+
+
+<h4>Backgrounds:</h4>
+
+<a id="clouds-skybox" name="clouds" class="nav-link btn btn-default btn-white-outline texture-btn" 
+style="background-image: url('https://i.imgur.com/Wq5hNgpm.jpg'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Clouds"></a>
+
+<a id="space4-skybox" name="space4" class="nav-link btn btn-default btn-white-outline texture-btn" 
+style="background-image: url('https://i.imgur.com/v6bjQLbm.jpg'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Space4"></a>
+
+<!-- 
+<a id="space1-skybox" name="space1" class="nav-link btn btn-default btn-white-outline texture-btn" 
+style="background-image: url('https://i.imgur.com/v6bjQLbm.jpg'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Space1"></a>
+
+<a id="space2-skybox" name="space2" class="nav-link btn btn-default btn-white-outline texture-btn" 
+style="background-image: url('https://i.imgur.com/v6bjQLbm.jpg'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Space2"></a>
+
+<a id="space3-skybox" name="space3" class="nav-link btn btn-default btn-white-outline texture-btn" 
+style="background-image: url('https://i.imgur.com/v6bjQLbm.jpg'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Space3"></a>
+ -->
+
+
+<script>
+
+    var debugMode;
+
+    var scriptFolder = "/scripts/";
+    var sceneBackgroundScript = scriptFolder + "sceneBackground.js";
+    $.getScript(sceneBackgroundScript, function(script, status, xhr){
+        debugMode && console.log("scene-background:", status);
+    });
+/*
+    function sceneBackground( urls ){
+        if (!scene || Number(THREE.REVISION) < 78) return;
+        var loader = new THREE.CubeTextureLoader();
+        loader.load( urls, function(texture){
+            scene.background = texture;
+            scene.background.needsUpdate = true;
+        });
+    }
+*/
+</script>
+
+
+<script>
+
+    var resetSkyboxSelector = "#reset-skybox";
+
+    var cloudsSkyboxSelector = "#clouds-skybox";
+    var space1SkyboxSelector = "#space1-skybox";
+    var space2SkyboxSelector = "#space2-skybox";
+    var space3SkyboxSelector = "#space3-skybox";
+    var space4SkyboxSelector = "#space4-skybox";
+
+
+
+    $(cloudsSkyboxSelector).on("click", function(){
+        sceneBackground( clouds.urls );
+    });
+
+    $(space1SkyboxSelector).on("click", function(){
+        sceneBackground( space1.urls );
+    });
+
+    $(space2SkyboxSelector).on("click", function(){
+        sceneBackground( space2.urls );
+    });
+
+    $(space3SkyboxSelector).on("click", function(){
+        sceneBackground( space3.urls );
+    });
+
+    $(space4SkyboxSelector).on("click", function(){
+        sceneBackground( space4.urls );
+    });
+
+    $(resetSkyboxSelector).on("click", function(){
+        sceneBackground([
+            "https://i.imgur.com/v6bjQLb.jpg", // "posx",
+            "https://i.imgur.com/lwrlr6P.jpg", // "negx", 
+            "https://i.imgur.com/kKUKBJg.jpg", // "posy", 
+            "https://i.imgur.com/N0oZlJR.jpg", // "negy", 
+            "https://i.imgur.com/x9q8z0K.jpg", // "posz", 
+            "https://i.imgur.com/HYcK7Ii.jpg", // "negz"
+        ]);
+    });
+
+</script>
+
+
+<script>
+
+//  skyboxes.json
+
+    clouds = {
+
+        type: "skybox",
+        name: "clouds",
+        title: "Clouds",
+        thumb: "https://i.imgur.com/Wq5hNgpm.jpg",
+        
+        ids: [
+            "Wq5hNgp", "miDjkfE",        // posx, negx.
+            "uqV1m3t", "fNegTKZ",        // posy, negy.
+            "BIMqAp8", "wJFiTpM",        // posz, negz.
+        ],
+
+        urls: [
+            "https://i.imgur.com/Wq5hNgp.jpg", // posx.
+            "https://i.imgur.com/miDjkfE.jpg", // negx.
+            "https://i.imgur.com/uqV1m3t.jpg", // posy.
+            "https://i.imgur.com/fNegTKZ.jpg", // negy.
+            "https://i.imgur.com/BIMqAp8.jpg", // posz.
+            "https://i.imgur.com/wJFiTpM.jpg", // negz.
+        ],
+
+        IDs: {
+            posx: "Wq5hNgp",
+            negx: "miDjkfE",
+            posy: "uqV1m3t",
+            negy: "fNegTKZ",
+            posz: "BIMqAp8",
+            negz: "wJFiTpM",
+        },
+
+        URLs: {
+            posx: "https://i.imgur.com/Wq5hNgp.jpg",
+            negx: "https://i.imgur.com/miDjkfE.jpg",
+            posy: "https://i.imgur.com/uqV1m3t.jpg",
+            negy: "https://i.imgur.com/fNegTKZ.jpg",
+            posz: "https://i.imgur.com/BIMqAp8.jpg",
+            negz: "https://i.imgur.com/wJFiTpM.jpg",
+        },
+    };
+
+    space1 = {
+
+        type: "skybox",
+        name: "space1",
+        title: "Space1",
+        thumb: "https://i.imgur.com/m.jpg",
+
+        ids: [
+            "", "",        // posx, negx.
+            "", "",        // posy, negy.
+            "", "",        // posz, negz.
+        ],
+
+        urls: [
+            "", // posx.
+            "", // negx.
+            "", // posy.
+            "", // negy.
+            "", // posz.
+            "", // negz.
+        ],
+
+        IDs: {
+            posx: "",
+            negx: "",
+            posy: "",
+            negy: "",
+            posz: "",
+            negz: "",
+        },
+
+        URLs: {
+            posx: "",
+            negx: "",
+            posy: "",
+            negy: "",
+            posz: "",
+            negz: "",
+        },
+    };
+
+    space2 = {
+
+        type: "skybox",
+        name: "space2",
+        title: "Space2",
+        thumb: "https://i.imgur.com/m.jpg",
+
+        ids: [
+            "", "",        // posx, negx.
+            "", "",        // posy, negy.
+            "", "",        // posz, negz.
+        ],
+
+        urls: [
+            "", // posx.
+            "", // negx.
+            "", // posy.
+            "", // negy.
+            "", // posz.
+            "", // negz.
+        ],
+
+        IDs: {
+            posx: "",
+            negx: "",
+            posy: "",
+            negy: "",
+            posz: "",
+            negz: "",
+        },
+
+        URLs: {
+            posx: "",
+            negx: "",
+            posy: "",
+            negy: "",
+            posz: "",
+            negz: "",
+        },
+    };
+
+    space3 = {
+
+        type: "skybox",
+        name: "space3",
+        title: "Space3",
+        thumb: "https://i.imgur.com/m.jpg",
+
+        ids: [
+            "", "",        // posx, negx.
+            "", "",        // posy, negy.
+            "", "",        // posz, negz.
+        ],
+
+        urls: [
+            "", // posx.
+            "", // negx.
+            "", // posy.
+            "", // negy.
+            "", // posz.
+            "", // negz.
+        ],
+
+        IDs: {
+            posx: "",
+            negx: "",
+            posy: "",
+            negy: "",
+            posz: "",
+            negz: "",
+        },
+
+        URLs: {
+            posx: "",
+            negx: "",
+            posy: "",
+            negy: "",
+            posz: "",
+            negz: "",
+        },
+    };
+
+    space4 = {
+
+        type: "skybox",
+        name: "space4",
+        title: "Space4",
+        thumb: "https://i.imgur.com/v6bjQLbm.jpg",
+        
+        ids: [
+            "v6bjQLb", "lwrlr6P",        // posx, negx.
+            "kKUKBJg", "N0oZlJR",        // posy, negy.
+            "x9q8z0K", "HYcK7Ii",        // posz, negz.
+        ],
+
+        urls: [
+            "https://i.imgur.com/v6bjQLb.jpg", // posx.
+            "https://i.imgur.com/lwrlr6P.jpg", // negx.
+            "https://i.imgur.com/kKUKBJg.jpg", // posy.
+            "https://i.imgur.com/N0oZlJR.jpg", // negy.
+            "https://i.imgur.com/x9q8z0K.jpg", // posz.
+            "https://i.imgur.com/HYcK7Ii.jpg", // negz.
+        ],
+
+        IDs: {
+            posx: "v6bjQLb",
+            negx: "lwrlr6P",
+            posy: "kKUKBJg",
+            negy: "N0oZlJR",
+            posz: "x9q8z0K",
+            negz: "HYcK7Ii",
+        },
+
+        URLs: {
+            posx: "https://i.imgur.com/v6bjQLb.jpg",
+            negx: "https://i.imgur.com/lwrlr6P.jpg",
+            posy: "https://i.imgur.com/kKUKBJg.jpg",
+            negy: "https://i.imgur.com/N0oZlJR.jpg",
+            posz: "https://i.imgur.com/x9q8z0K.jpg",
+            negz: "https://i.imgur.com/HYcK7Ii.jpg",
+        },
+    };
+
+    space5 = {
+
+        type: "skybox",
+        name: "space5",
+        title: "Space5",
+        thumb: "https://i.imgur.com/m.jpg",
+
+        ids: [
+            "", "",        // posx, negx.
+            "", "",        // posy, negy.
+            "", "",        // posz, negz.
+        ],
+
+        urls: [
+            "", // posx.
+            "", // negx.
+            "", // posy.
+            "", // negy.
+            "", // posz.
+            "", // negz.
+        ],
+
+        IDs: {
+            posx: "",
+            negx: "",
+            posy: "",
+            negy: "",
+            posz: "",
+            negz: "",
+        },
+
+        URLs: {
+            posx: "",
+            negx: "",
+            posy: "",
+            negy: "",
+            posz: "",
+            negz: "",
+        },
+    };
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+

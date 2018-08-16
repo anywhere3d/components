@@ -1,0 +1,69 @@
+<!-- outfit-item-upload-button-demo.html -->
+
+<h4>Outfit item Upload Form:</h4>
+<div id="outfit-item-upload-button" class="form-control btn btn-primary btn-white-outline">Upload this outfit item</div>
+
+
+<script>
+
+//  outfit-item-upload-button.html
+
+    var outfitItemUploadButtonSelector = "#outfit-item-upload-button";
+
+//  Define upload target.
+    $(outfitItemUploadButtonSelector).on("click", function (){
+        if ( !$FormPanel.active ){
+            form_target = localPlayer.outfit.panties.material.materials[0].map.image; // must be canvas.
+        } else {
+            form_target = undefined;
+        }
+        debugMode && console.log("form_target:", form_target);
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(outfitItemUploadButtonSelector).on("click", function(){
+        if ( !$FormPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Outfit Item Upload Form",
+            }
+
+            var component = "outfit-item-upload-form-demo.html";
+            $FormPanel.loadForm(component, option);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(outfitItemUploadButtonSelector).on("click", function(){
+        if ( !$FormPanel.active ) {
+            $FormPanel.dialog("open");
+        } else {
+            $FormPanel.dialog("close");
+        }
+    });
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
