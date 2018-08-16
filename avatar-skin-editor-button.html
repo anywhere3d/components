@@ -1,0 +1,135 @@
+<!-- avatar-skin-editor-button.html -->
+
+<h4>Skin Editor:</h4>
+<div id="avatar-skin-editor-button" class="form-control btn btn-info btn-white-outline">Open skin editor panel</div>
+
+
+<script>
+
+//    var dialogTargetEventListenersScript = "/js/dialogTargetEventListeners.js";
+//    $.getScript(dialogTargetEventListenersScript, function(script, status, xhr){
+//        debugMode && console.log("dialogTargetEventListeners:", status);
+//    });
+
+</script>
+
+
+<script>
+
+//    var componentsFolder = "/components/";
+//    var AvatarEditorPanelScript = "/js/avatar-editor-panel.js";
+//    $.getScript(AvatarEditorPanelScript, function(script, status, xhr){
+//        debugMode && console.log("avatar-editor-panel:", status);
+//    });
+
+</script>
+
+
+<script>
+
+    var skinEditorButtonSelector = "#avatar-skin-editor-button";
+
+//  Target asset is not avaliable.
+    $(skinEditorButtonSelector).on("click", function (){
+        if (!localPlayer.outfit.body) {
+            bootboxErrorAlert("Outfit body is not avaliable.");
+        }
+    });
+
+//  Define target.
+    $(skinEditorButtonSelector).on("click", function (){
+        if (!localPlayer.outfit.body) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.body.material.materials[0];
+        } else {
+            target = undefined;
+        }
+    });
+
+//  Import dialog components.
+    $(skinEditorButtonSelector).on("click", function (){
+        if (!localPlayer.outfit.body) return;
+
+        if (!!target && !$EditorPanel.active){
+
+            $EditorPanel.dialog( "option", {
+                width: 616,
+                minWidth: 616,
+                maxWidth: 616,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600
+            });
+
+            var size = [1024, 1024];
+            var title = "Skin Editor";
+            $EditorPanel.loadMaterialPanel(title, size);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(skinEditorButtonSelector).on("click", function (){
+        if (!localPlayer.outfit.body) return;
+
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+
+    });
+
+</script>
+
+
+
+
+<script>
+/*
+    function loadMaterialPanel(title, size){
+
+        if ( target instanceof THREE.MeshStandardMaterial ) {
+            var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
+            $EditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
+                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+                if (status == "success") debugMode && console.log("Standard Material Panel:", status);
+                $EditorPanel.dialog( "option", {title: title + " (standard)"} );
+            //  Settings.
+                textureSize = size || 256;
+            });
+            return;
+        }
+    
+        if ( target instanceof THREE.MeshLambertMaterial ) {
+            var lambertMaterialPanelComponent = componentsFolder + "lambert-material-panel.html";        
+            $EditorPanel.load(lambertMaterialPanelComponent, function(resoponse, status, xhr){
+                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+                if (status == "success") debugMode && console.log("Lambert Material Panel:", status);
+                $EditorPanel.dialog( "option", {title:  title + " (lambert)"} );
+            //  Settings.
+                textureSize = size || 256;
+            });
+            return;
+        }
+
+        if ( target instanceof THREE.MeshPhongMaterial ) {
+            var phongMaterialPanelComponent = componentsFolder + "phong-material-panel.html";        
+            $EditorPanel.load(phongMaterialPanelComponent, function(resoponse, status, xhr){
+                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+                if (status == "success") debugMode && console.log("Phong Material Panel:", status);
+                $EditorPanel.dialog( "option", {title:  title + " (phong)"} );
+            //  Settings.
+                textureSize = size || 256;
+            });
+            return;
+        }
+
+    }
+*/
+</script>
+
+
+

@@ -1,0 +1,98 @@
+<!-- avatar-store-button.html -->
+
+<h4>Store Avatar:</h4>
+<div id="avatar-store-button" class="form-control btn btn-info btn-white-outline">Store Current Avatar</div>
+
+<script>
+
+    var avatarStoreButtonSelector = "#avatar-store-button";
+
+    $(avatarStoreButtonSelector)[0].uploadOptions = {
+        editor  : "avatar", // editor name.
+    //  entry.
+        kind    : "avatar",
+        type    : "dna",
+        category: "avatar",
+        tags    : ["avatar"],
+    //  imgur.
+        clientid: "95e1ecaf14ca5e6",
+        endpoint: "https://api.imgur.com/3/image",
+    //  mongodb.
+        method: "POST",
+        snapshotEndpoint: "/snapshots/insert",  // post url.
+        collectionEndpoint: "/outfits/insert",  // post url.
+    //  zargodb.
+        collection: "outfits",
+    //  Replace sourceFiles only.
+        scrOnly: true, //  replace sourceFiles only.
+    };
+
+
+//  Outfit body is not avaliable.
+    $(avatarStoreButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.body ) {
+            var msg = "Outfit body is not defined.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Define button holder.
+    $(avatarStoreButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.body ) return;
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+    });
+
+
+//  Define target (outfit).
+    $(avatarStoreButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.body ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit;
+        } else {
+            target = undefined;
+        }
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(avatarStoreButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.body ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Avatar Store Form",
+            }
+
+            var component = "avatar-store-form.html";
+            $EditorPanel.loadComponent(component, option);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(avatarStoreButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.body ) return;
+
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+</script>

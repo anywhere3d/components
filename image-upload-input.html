@@ -1,0 +1,91 @@
+<!-- image-upload-input.html -->
+
+<input type="file" class="hidden" id="image-upload-input" multiple>
+
+
+<script>
+
+//  image-upload-input.html
+
+    var imageUploadInputSelector = "#image-upload-input";
+
+    $(imageUploadInputSelector).on("change", function(e){
+        console.log( "files[]:", this.files );
+    
+        var uploads = [];
+
+        for (var i=0; i < this.files.length; i++){
+
+            var file = this.files[i];
+            console.log("file:", file);
+
+            uploads.push( 
+                new Promise( function(resolve, reject){
+    
+                //  imgurUpload.js
+        
+                    var clientid = "95e1ecaf14ca5e6";
+                    var endpoint = "https://api.imgur.com/3/image";
+        
+                    var formdata = new FormData();
+                    formdata.append("image", file);
+                    formdata.append("name",  file.name);
+                    //formdata.append("title", title);
+                    //formdata.append("description", description);
+        
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open('POST', endpoint, true);
+                    xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState === 4) {
+                            var response = "";
+                            if (this.status >= 200 && this.status < 300) {
+                                response = JSON.parse(this.responseText);
+                                resolve( response ); // resolve Promise.
+                            } else {
+                                var error = JSON.parse(this.responseText).data.error;
+                                console.error( "error:", error );
+                                throw Error( this.responseText );
+                            }
+                        }
+                    };
+                    xhttp.send(formdata);
+                    xhttp = null;
+        
+                }).then( function( response ){
+                    var data = response.data;
+                    console.log( "data:", data);
+                    return data;
+                }).catch( function(err){
+                    console.error(err);
+                    throw err;
+                }) // end promise.
+    
+            ); // end push.
+
+        } // end forEach.
+
+        console.log( "uploads:", uploads);
+        
+        Promise.all(uploads).then( function( results ){
+            console.log( "results:", results );
+
+        //  do what you have to do with results.
+            //  callback( results );  //
+        /*
+            for (var j=0; j < results.length; j++){
+                var data = results[j];
+            //  do what you have to do  //
+            }
+        */
+
+            bootboxSuccessAlert("Success!", function(){});
+
+        }).catch( function(err){
+            console.error(err);
+            bootboxErrorAlert(err, function(){});
+        });
+
+    });
+
+</script>

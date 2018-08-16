@@ -1,0 +1,259 @@
+<!-- catalog-avatar-items.html (v1.2) -->
+
+<style>
+
+    .ui-dialog {
+        z-index:9999 !important;
+    }
+
+    #editor-panel,
+    #catalog-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:550px !important;
+        max-height:550px !important; 
+        background-color:#000000;
+    }
+    .catalog-item {
+        width:100px;
+        height:100px;
+        margin:4px;
+        background-size: contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat;
+    }
+    .panel-container {
+        height:auto; 
+        padding:0px;
+        margin:0px;
+        color:#ffffff;
+    }
+    .pager {
+        padding-right:20px;
+    }
+
+    #editor-panel h4 { 
+        color:#ffffff; 
+    }
+
+    .ui-widget-overlay { 
+        background:none;
+        opacity:0;
+    }
+
+</style>
+
+<h4>Select avatar: <div class="pull-right small">page:<span id="page"></span>, items:<span id="from"></span> to <span id="to"></span> of <span id="count"></span></div></h4>
+
+<div id="catalog-avatar-items" class="panel-container">
+    <li class="btn btn-default btn-white-outline catalog-item" 
+    style="background-image:url('https://i.imgur.com/{{master_snapshot}}s.jpg');"
+    title={{title}} data-id={{_id}} data-type={{type}} data-data={{data}} 
+    w3-repeat="success" onclick="catalogItemClickHandler(this);"></li>
+</div>
+
+<div class="pager">
+    <li class="btn btn-primary get-prev-btn pull-left">Prev page</li>
+    <a class="btn btn-default">1</a>
+    <a class="btn btn-default">2</a>
+    <a class="btn btn-default">3</a>
+    <a class="btn btn-default">4</a>
+    <a class="btn btn-default">5</a>
+    <li class="btn btn-primary get-next-btn pull-right">Next page</li>
+</div>
+
+
+<script>
+
+//  On editor panel dialog open.
+
+//  panel pager.js
+
+    var endpoint = editorHolderButton.fetchOptions.endpoint;
+    var selectors = editorHolderButton.fetchOptions.selectors;
+    var options = editorHolderButton.fetchOptions.options;
+    debugMode && console.log( "options:", options );
+
+    var count;
+    var skip  = options.skip;
+    var limit = options.limit;
+    var page_index = parseInt( skip / limit );
+    debugMode && console.log( "page_index:", page_index );
+
+    var getNextBtnSelector = ".get-next-btn";
+    var getPrevBtnSelector = ".get-prev-btn";
+    var loadMoreBtnSelector = ".load-more-btn";
+    $(getNextBtnSelector).on("click", getNextPageClickHandler);
+    $(getPrevBtnSelector).on("click", getPrevPageClickHandler);
+
+    countCatalogItems();
+
+//  $("span#page").text(page_index + 1);
+//  $("span#from").text(skip + 1);
+//  $("span#to").text(skip + limit);
+//  $("span#count").text(count);
+
+    function getNextPageClickHandler(){
+        if ( !count || skip + limit >= count ) return;
+
+        page_index++; skip = page_index * limit;        
+        debugMode && console.log( "page_index:", page_index, "skip:", skip );
+
+        options.skip = skip;
+
+        debugMode && console.log( "fetchOptions.options:", editorHolderButton.fetchOptions.options );
+
+        fetchCatalogItems( endpoint, selectors, options );
+
+    }
+
+    function getPrevPageClickHandler(){
+        if ( page_index - 1 < 0 ) return;
+
+        page_index--; skip = page_index * limit;
+        debugMode && console.log( "page_index:", page_index, "skip:", skip );
+
+        options.skip = skip;
+
+        debugMode && console.log( "fetchOptions.options:", editorHolderButton.fetchOptions.options );
+
+        fetchCatalogItems( endpoint, selectors, options );
+
+    }
+
+    function fetchCatalogItems( endpoint, selectors, options ){
+
+        var data = {
+            options:   JSON.stringify( options ),
+            selectors: JSON.stringify( selectors ),
+        };
+
+   //   debugMode && console.log("data:", data);
+
+        var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+            debugMode && console.log("post %s: %s", endpoint, status);
+        }).then( function( data ){
+            debugMode && console.log("data:", data);
+            w3.displayObject("catalog-avatar-items", data);
+            return data.success; // --> results: array.
+        });
+
+        jqxhr.done( function(results){
+        //  results == data.success (array).
+            $("span#page").text(page_index + 1);
+            $("span#from").text(skip + 1);
+            $("span#to").text(skip + results.length);
+        //  $("span#count").text(count);
+        });
+
+        jqxhr.fail( function( err ){
+        //  console.error(err);
+            throw err;
+        });
+
+        jqxhr.always( function(){
+            countCatalogItems();
+        });
+
+    }
+
+    function countCatalogItems(){
+        var endpoint = "/outfits/count/selectors/options";
+
+        var options = {};
+        debugMode && console.log( "selectors:", selectors );
+
+        var data = {
+            options:   JSON.stringify( options ),
+            selectors: JSON.stringify( selectors ),
+        };
+
+    //  debugMode && console.log("data:", data);
+
+        var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+        //  debugMode && console.log("data:", data);
+        }).then( function( data ){
+            return data.count;
+        });
+
+        jqxhr.done( function( result ){
+            count = result;
+            debugMode && console.log( "count:", count );
+            $("span#count").text(count);
+        });
+
+        jqxhr.fail( function( err ){
+            console.error(err);
+        });
+    }
+
+</script>
+
+
+
+<script>
+
+    var catalogItemSelector = ".catalog-item";
+
+    function catalogItemClickHandler( self ){
+        if ( !( !!target && localPlayer.outfit == target ) ) return;
+
+        var spinner = [ 
+            '<div class="item-spinner" style="position:relative; top:0px; height:100%;',
+            'background-size:50%; background-position:50% 50%; background-repeat:no-repeat;',
+            'background-image:url(https://i.imgur.com/7qG1W04.gif);"><div>' 
+        ].join(" ");
+
+        $(self).append(spinner);
+
+    //  debugMode && console.log( "self:", self );
+    //  debugMode && console.log( "target:", target ); // material.
+
+        var _id = $(self).data("id");
+        var title = $(self).attr("title");
+        var type = $(self).data("type");
+        var data = $(self).data("data");
+
+        var log = "title: %s, type: %s, data: %s"
+        debugMode && console.log( log, title, type, data );
+
+        localPlayer.outfit.fromDNA( data );
+        
+        $(self).find(".item-spinner").remove();
+
+    }
+
+/*
+//  deallocateTextures.js
+
+    function deallocateTextures(){
+        var deallocate = {};
+
+        for (var arg in arguments){
+            deallocate[arg] = arguments[arg];
+            arguments[arg] = null;
+        }
+
+        debugMode && console.log( "deallocate:", deallocate );
+
+        for (var name in deallocate){
+            if (!deallocate[name]) continue;
+            deallocate[name].dispose();
+            deallocate[name] = null;
+            delete deallocate[name];
+        }
+
+    }
+*/
+
+</script>
+
+
+
+
+
+
+
+
+

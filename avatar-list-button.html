@@ -1,0 +1,197 @@
+<!-- avatar-list-button.html -->
+
+<h4>Avatars List:</h4>
+<div id="avatar-list-button" class="form-control btn btn-info btn-white-outline">Open avatar list panel</div>
+
+<script>
+
+    var avatarListButtonSelector = "#avatar-list-button";
+
+    $(avatarListButtonSelector)[0].fetchOptions = {
+        endpoint: null, 
+        collection: "outfits", //  zargodb.
+        selectors:{
+            kind: "avatar",
+            type: "dna",
+            category: "avatar",
+        },
+        options:{
+            skip: 0,
+            limit: 20,
+            sort: {_id: -1 },
+            fields: {  
+                "kind":1, 
+                "type":1,
+                "title":1,
+                "gender":1,
+                "avatar":1,
+                "pose":1,
+                "snapshots":1,
+                "master_snapshot":1,
+            },
+        },
+    };
+
+    debugMode && console.log( avatarListButtonSelector, "fetchOptions:", $(avatarListButtonSelector)[0].fetchOptions );
+
+
+//  Outfit is not avaliable.
+    $(avatarListButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit ) {
+            var msg = "Outfit is not defined.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Define button holder.
+    $(avatarListButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit ) return;
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+    });
+
+
+//  Define target (outfit).
+    $(avatarListButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit;
+        } else {
+            target = undefined;
+        }
+    });
+
+
+//  Import dialog list component and apply dialog option.
+    $(avatarListButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Avatar List Panel",
+            }
+
+        //  $EditorPanel.dialog( "option", option );
+            var component = "avatar-list-items.html";
+            $EditorPanel.loadComponent(component, option);
+
+        }
+
+    });
+
+    $(avatarListButtonSelector).on("click", function (){
+        if ( !target ) return;
+
+        if (!$EditorPanel.active){
+        //  Get items from zargodb outfits collection.
+            console.log( "fetchOptions:", this.fetchOptions );
+
+            var collection = this.fetchOptions.collection;
+            var selectors = this.fetchOptions.selectors;
+            var fields = {_id:1, title:1};
+
+        //  zargodb.
+
+            db.open(function(err, database){
+                if (err) throw err;
+            }).then( function(){
+                debugMode && console.log( "%s: opened!", db.name )
+
+                db.collection(collection)
+                .find( selectors, fields )
+                .toArray(function(err, results){
+                    if (err) throw err;
+                }).then(function(results){
+
+                    debugMode && console.log( "data:", {success:results} );
+                    w3.displayObject("avatar-list-items", {success:results} );
+
+                }).catch(function (err) {
+                //  IMPORTANT: zargodb does not throw  
+                //  an error if you explictly not catch it.
+                    console.error("Error:", err);
+                    bootboxErrorAlert(err);
+                });
+
+            }).catch(function (err) {
+            //  IMPORTANT: zargodb does not throw  
+            //  an error if you explictly not catch it.
+                console.error("IndexedDB Error:", err);
+                bootboxErrorAlert(err);
+            });
+
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(avatarListButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit ) return;
+
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+
+//  w3.
+/*
+    db.collection("outfits").find({},{_id:1, title:1})
+    .toArray(function(err, results){
+        if (err) throw err;
+    }).then( function(results){
+        debugMode && console.log( "data:", {success:results} );
+
+        var component = "avatar-list-items.html";
+        var editorComponent = componentsFolder + component; 
+        $EditorPanel.load(editorComponent, function(response, status, xhr){
+            debugMode && console.log("avatar-list-items:", status);
+            w3.displayObject("avatar-list-items", {success:results} ); 
+        });
+
+    }).catch(function (err) {
+    //  IMPORTANT: zargodb does not throw  
+    //  an error if you explictly not catch it.
+        console.error("Error:", err);
+        bootboxErrorAlert(err);
+    });
+*/
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

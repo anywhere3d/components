@@ -1,0 +1,577 @@
+<!-- fabric-texture-multiple-upload-form.html (v1.5)-->
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+        z-index:1040 !important;
+    }
+
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .form-header {
+        margin-top:10px;
+        height:auto;
+        color: #ffffff;
+    }
+
+    .form-body {
+        padding:20px;
+        height:220px;
+        color: #ffffff;
+    }
+
+    .texture-btn { 
+        margin-top:15px;
+        margin-bottom:15px; 
+    }
+
+    #item-description {
+        min-width:100%;
+        max-width:100%;
+        min-height:35px;
+        max-height:75px;
+        color:#000000;
+    }
+
+    .form-snapshots {
+        padding:20px;
+        height:250px;
+        color: #ffffff;
+    }
+
+    #outfit-snapshots {
+        overflow-x:auto;
+        height:170px;
+        text-align:center;
+    /*  border: 1px solid;  */
+    }
+
+    .snapshot-container {
+        width:150px;
+        height:150px;
+        margin:0px;
+        padding:4px;
+        color: #ffffff;
+        display:inline-block;
+        overflow: hidden !important;
+    }
+
+    .snapshot-container > .thumbnail {
+        width:100%;
+        height:100%;
+    }
+
+    .snapshot-inner-btn { 
+        width:20px; height:20px; 
+        padding:6px; position:relative; 
+        float:right; left:-10px; top:-50px;
+        background-size: contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat;
+    }
+
+    input[type=checkbox].snapshot-inner-btn, 
+    input[type=radio].snapshot-inner-btn {
+        margin:0px !important;
+    }
+
+    .snapshot-remove { 
+        background-image:url("https://i.imgur.com/EM3JWgl.png");
+    }
+
+    .form-footer {
+        padding:20px;
+        height:70px;
+        color: #ffffff;
+    }
+
+    .modal-dialog {
+        width:fit-content;
+    }
+
+    .ui-widget-overlay { 
+        background:none;
+        opacity:0;
+    }
+
+    .power-output { 
+        width:15px;
+    }
+
+    .alert-small {
+        max-width: 60%;
+        font-weight: 700;
+    }
+
+</style>
+
+<h4>Upload fabric textures:
+    <div id="size-output-holder" class="pull-right small">
+        <span>size:</span><span id="size-output"></span>
+        <input type="number" id="texture-power" class="action-controls-output power-output" index-tab="-1">
+    </div>
+</h4>
+
+<div class="form-body">
+    <div>Title:</div>
+    <input type="text" id="item-title" class="form-control texture-btn" value="fabric FBR" autofocus>
+    <div class="texture-btn">Tags: <span class="small">(optional - comma, delimiter)</span></div>
+    <input type="text" id="item-tags" class="form-control texture-btn">
+    <div class="btn btn-danger btn-white-outline form-control gradient-btn" id="texture-import">Choose image files</div>
+    <input type="file" class="hidden" id="texture-input" multiple>
+</div>
+
+<div class="form-snapshots">
+    <div style="height:50px;">Preview:</div>
+    <div id="outfit-snapshots">
+        <div class="item-snapshot"><img class="thumbnail"></div>
+    </div>
+</div>
+
+<div class="form-footer">
+    <input type=button id="form-upload-button" class="btn btn-success btn-white-outline gradient-btn pull-right" value="Upload texture">
+    <div id="form-cancel-button" class="btn btn-primary btn-white-outline gradient-btn">Cancel</div>
+</div>
+
+
+<script>
+/*
+    var sizeOutputHolderSelector = "#size-output-holder";
+    var textureSizeOutputComponent = componentsFolder + "texture-size-output.html";
+    $(sizeOutputHolderSelector).load(textureSizeOutputComponent, function(){
+        debugMode && console.log("texture-size-output:", status);
+    });
+*/
+</script>
+
+
+<script>
+
+    var power = 9;
+    var sizeOutputSelector = "#size-output";
+    var texturePowerSelector = "#texture-power";
+
+//  Initialize texture size input.
+
+//  textureSize: $EditorPanel global variable --> 512.
+    textureSize = Math.pow(2, power);
+    $(sizeOutputSelector).text( textureSize );
+
+    $(texturePowerSelector).attr({
+        min:7, max:11, step:1, value:power
+    });
+
+    $(texturePowerSelector).on("input change", function(){
+        power = parseInt( this.value );
+        textureSize = Math.pow(2, power);
+        $(sizeOutputSelector).text( textureSize );
+    });
+
+</script>
+
+
+<script>
+
+//  Form Cancel button.
+
+    var formCancelButtonSelector = "#form-cancel-button";
+    $(formCancelButtonSelector).on("click", function(){
+        $EditorPanel.dialog("close");
+    });
+
+</script>
+
+
+<script>
+
+//  Snapshot preview.
+
+    var outfitSnapshotsSelector = "#outfit-snapshots";
+    $(outfitSnapshotsSelector).contents().remove();
+
+</script>
+
+
+<script>
+
+//  File Input button.
+
+    var fileinputSelector = "#texture-input";
+    var textureImportSelector = "#texture-import";
+
+    $(textureImportSelector).on( "click", textureImportButtonClickHandler );
+
+    function textureImportButtonClickHandler(){
+        $(fileinputSelector).val("");  // reset Filelist.
+        debugMode && console.log( "files:", $(fileinputSelector)[0].files );
+        $(fileinputSelector).click();  // open file input window.
+    }
+
+//  Define upload target.
+
+    $(fileinputSelector).on("change", function(e){
+
+        if ( e.currentTarget.files.length == 0 ) return;
+        debugMode && console.log("value:", $(this).val() );
+
+        var files = e.currentTarget.files;
+        debugMode && console.log("files:", files);
+
+        var defereds = [];
+
+        for (var i = 0; i < files.length; i++) {
+
+            defereds.push( new Promise( function(resolve, reject){
+
+            //  Get file, name and extension.
+                var file = e.currentTarget.files[i];
+                var filename = file.name;
+                debugMode && console.log("filename:", filename);
+        
+                var ext = filename.split( "." ).pop().toLowerCase();
+                var name = filename.split( "." ); name.pop(); 
+                name = name.join( "." ).replace(/\W/g, "_");
+                debugMode && console.log("name:", name, "extension:", ext);
+        
+            //  File Reader.
+                var reader = new FileReader();
+                reader.onerror = onReaderError;
+                reader.onload = onReaderLoad;
+                reader.readAsDataURL(file);
+        
+                function onReaderError(err){
+                    console.error(err);
+                }
+        
+                function onReaderLoad(event){
+                    var img = new Image();
+                    img.crossOrigin = "anonymous";
+                    img.onload = onImageLoad;
+                    img.src = reader.result;
+                }
+
+                function onImageLoad(){
+
+                    var canvas = document.createElement( "canvas" );
+                    canvas.width = canvas.height = textureSize || 512;
+                    var context = canvas.getContext( "2d" );
+                    context.drawImage( this, 0, 0, canvas.width, canvas.height );
+                    debugMode && console.warn( "Image resized to:", canvas.width, "x", canvas.height );
+
+                    $(canvas).css({"width": "100%"});
+                    $(canvas).addClass("thumbnail snapshot-image");
+                    debugMode && console.log("canvas:", canvas);
+                    
+                    resolve( canvas );
+
+                    var $itemSnapshot = $('<div class="item-snapshot snapshot-container"></div>');
+                    $itemSnapshot.append(canvas);
+                    $itemSnapshot.append('<div class="btn btn-default snapshot-inner-btn snapshot-remove"></div>');
+                    $itemSnapshot.append('<input type="checkbox" class="btn btn-default snapshot-inner-btn snapshot-master">');
+                    debugMode && console.log("$itemSnapshot:", $itemSnapshot);
+
+                    $(outfitSnapshotsSelector).append( $itemSnapshot );
+
+                    $itemSnapshot.find(".snapshot-remove").on("click", function(){
+                        debugMode && console.log(".snapshot-remove click handler.");
+                        $itemSnapshot.remove();
+                    });
+        
+                    $itemSnapshot.find(".snapshot-master").on("click", function(){
+                        $(".snapshot-master").attr("checked", false);
+                        this.checked = true;
+                    });
+
+                }
+
+            }));
+
+        //  end push new promise.
+
+        }
+
+        debugMode && console.log("defereds:", defereds);
+        
+        Promise.all(defereds).then(function( results ){
+            debugMode && console.log("results:", results);
+        });
+
+    });
+
+</script>
+
+
+
+<script>
+
+//  Form Upload button.
+
+    var itemTitleSelector         = "#item-title";
+    var outfitSnapshotsSelector   = "#outfit-snapshots";
+    var itemSnapshotSelector      = ".item-snapshot";
+    var snapshotContainerSelector = ".snapshot-container";
+    var snapshotImageSelector     = ".snapshot-image";
+    var formSpinnerSelector       = ".form-spinner";
+    var itemDescriptionSelector   = "#item-description";
+    var itemTagsSelector          = "#item-tags";
+    var formUploadButtonSelector  = "#form-upload-button";
+
+    var counterPath   = "/textures/fabric/upload/counter";
+    var uploadCounter = store.get( counterPath );
+
+    $(formUploadButtonSelector).on( "click", formMultiUploadButtonClickHandler );
+    
+    function formMultiUploadButtonClickHandler(){
+
+    //  Validate title.
+        if ( $(itemTitleSelector).val().length < 4 ){
+            var msg = "You must type a title for this texture.";
+            bootboxWarningAlert(msg);
+            return;
+        }
+
+    //  Validate snapshots.
+        if ( $(outfitSnapshotsSelector).find(snapshotImageSelector).toArray().length == 0 ){
+            var msg = "You must import one image at least.";
+            bootboxWarningAlert(msg);
+            return;
+        }
+
+        var submit = this;
+        submit.disabled = true;
+        debugMode && console.log("submit:", submit);
+
+
+    //  Disactivate click handlers.
+        $(submit).off("click"); // IMPORTANT //
+        $(textureImportSelector).off("click");
+        $(fileinputSelector).val("");  // reset Filelist.
+        debugMode &&  console.log( "files:", $(fileinputSelector)[0].files );
+
+
+    //  Collect form data.
+        var title = $(itemTitleSelector).val();
+        var description = $(itemDescriptionSelector).val();
+        var tags = $(itemTagsSelector).val().split(",");
+
+        var defereds = [];
+
+    //  Collect form snapshots.
+        var formSnapshots = $(outfitSnapshotsSelector).find(".snapshot-container").toArray();
+        debugMode && console.log( "formSnapshots:", formSnapshots );
+
+        formSnapshots.forEach(function( snapshotContainer, index ){
+            var canvas = $(snapshotContainer).find(snapshotImageSelector)[0];
+            debugMode && console.log( "canvas:", canvas );
+
+            var spinner = [ 
+                '<div class="form-spinner" style="position:relative; top:-162px; height:100%;',
+                'background-size:25%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"><div>' 
+            ].join(" ");
+
+            defereds.push( 
+            //  uploadToImgur.js  //
+                new Promise( function(resolve, reject){
+                    $(snapshotContainer).append( spinner );
+
+                //  Upload texture.
+                    canvas.toBlob( imgurUpload, "image/jpeg" );
+
+                //  canvas.toBlob callback.
+                    function imgurUpload( blob ){
+
+                        var size = blob.size;
+                        var mime = blob.type;
+                        switch (mime){
+                            case "image/jpeg": { ext = "jpg"; break; }
+                            case "image/png":  { ext = "png"; break; }
+                        }
+
+                        var name = Date.now().toString(36);
+                        var filename = [ name, ".", ext ].join("");
+                        var file = new File([blob], filename, { type: mime });
+                        debugMode && console.log( "texture file:", file );
+
+                    //  imgurUpload.js
+
+                        var formdata = new FormData();
+                        formdata.append("image", file);
+                        formdata.append("name",  filename);
+                        formdata.append("title", title);
+                    //  formdata.append("description", description);
+
+                        var clientid = editorHolderButton.uploadOptions.clientid || "95e1ecaf14ca5e6";                // form options variable.
+                        var endpoint = editorHolderButton.uploadOptions.endpoint || "https://api.imgur.com/3/image";  // form options variable.
+
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.open('POST', endpoint, true);
+                        xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                        xhttp.onreadystatechange = function () {
+                            if (this.readyState === 4) {
+                                var response = "";
+                                if (this.status >= 200 && this.status < 300) {
+                                    response = JSON.parse(this.responseText);
+                                    resolve( response );
+                                } else {
+                                    var error = JSON.parse(this.responseText).data.error;
+                                    console.error( "imgurError:", error );
+                                    bootboxErrorAlert(error.message, function(){
+                                        $(snapshotContainer).find(".form-spinner").remove();
+                                    });
+                                }
+                            }
+                        };
+                        xhttp.send(formdata);
+                        xhttp = null;
+
+                    }
+
+                //  end canvas.toBlob callback.
+
+                }).then( function( response ){
+                    debugMode && console.log("imgur response:", response);
+
+                    var data = response.data;
+                    debugMode && console.log("imgur data:", data);
+
+                //  Create texture entry.
+
+                    var ext;  // IMPORTANT //
+                    switch (data.type){
+                        case "image/jpeg": { ext = "jpg"; break; }
+                        case "image/png":  { ext = "png"; break; }
+                    }
+
+                //  Collect entry data.
+                    var entry = {};
+                    entry.kind = editorHolderButton.uploadOptions.kind || "texture";         // form options variable.
+                    entry.type = editorHolderButton.uploadOptions.type || "map";             // form options variable.
+                    entry.category = editorHolderButton.uploadOptions.category || "fabric";  // form options variable.
+                    entry.title = title + store.set( counterPath, ++uploadCounter );
+                    entry.tags = editorHolderButton.uploadOptions.tags;
+                    entry.ext = ext;           // IMPORTANT // 
+                    entry.mimeType = data.type;
+                    entry.id = data.id;
+                    entry.size = data.size;
+                    entry.width = data.width;
+                    entry.height = data.height;
+                    debugMode && console.log( "entry:", entry );
+
+                    return entry;
+
+                }).then( function( entry ){
+
+                //  mongodb.
+
+                    var data = JSON.stringify( entry );
+                    debugMode && console.log( "data:", data );
+
+                //  Insert entry to mongodb.
+                    var endpoint = editorHolderButton.uploadOptions.texturesEndpoint || "/textures/insert";  // form options variable.
+
+                    var jqxhr = $.post(endpoint, {data:data}, function(result, status, xhr){
+                        debugMode && console.log("post %s: %s", endpoint, status);
+                    }).then( function(result, status, xhr){
+                        debugMode && console.log("insert result:", result);
+
+                    //  Error.
+                        if (!!result.error) {
+                            console.log("Error:", result.error);
+                            throw result.error;
+                        }
+
+                    //  Success.
+                        if (!!result.success) {
+                            var msg = "Success: fabric texture %s uploaded successfully!";
+                            debugMode && console.log( msg, entry.title );
+                            return result.success.insertedIds;
+                        }
+
+                    });
+
+                    jqxhr.done( function( insertedIds ){
+                        debugMode && console.log( "insertedIds:", insertedIds );
+                        $(snapshotContainer).remove();
+                    });
+
+                    jqxhr.fail(function (err) {
+                        console.error("Texture InsertError:", err);
+                        throw err;
+                    });
+
+                    return entry.title;
+
+            //  Catch errors of Promise.
+        
+                }).catch(function (err) {
+                    console.error("Texture UploadError:", err); 
+                    throw err;
+                })
+
+            //  end new promise.
+
+            );
+
+        //  end push.
+
+        });
+
+    //  end forEach.
+
+        debugMode && console.log("defereds:", defereds);
+
+        Promise.all(defereds).then( function( results ){
+            debugMode && console.log( "results:", results );
+
+            var names = [];
+            results.forEach( function( name, i ){
+                names.push( ["<li style='list-style-type:decimal;width:250px;font-weight:normal;'>", name, "</li>"].join("") );
+            });
+
+            var msg = "Success! fabric textures<ul>" + names.join("") + "</ul>uploaded successfully!";
+            bootboxSuccessAlert( msg, function(){
+            //  Restore click handlers.
+                submit.disabled = false;
+                $(submit).on( "click", formMultiUploadButtonClickHandler ); // IMPORTANT //
+                $(textureImportSelector).on("click", textureImportButtonClickHandler );
+            //  $EditorPanel.dialog("close");
+            });
+
+        }).catch(function (err) {
+            console.error("Textures UploadError:", err); 
+            bootboxErrorAlert(err);
+        });
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+
+            return new Blob([u8arr], {type:mime});
+        }
+
+        function bootboxErrorAlertCallback(){
+            $(".form-spinner").remove();
+            submit.disabled = false;
+        }
+
+    }
+
+</script>

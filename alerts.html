@@ -1,0 +1,67 @@
+<!-- alerts.html -->
+
+<!-- head>
+    <link rel="stylesheet" href="/css/alerts.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootbox-dialoges.css">
+</head -->
+
+<style>
+/* alerts.css */
+
+    .alert-small {max-width:60%;}
+    .alert-normal {max-width:70%;}
+    .alert-icon {width:50px; height:50px; display:inline-block; margin-right:10px; float:right;}
+    .icon-success {background:url("https://i.imgur.com/mHGg0Bi.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-cancel {background:url("https://i.imgur.com/Z36ZsNx.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-warning {background:url("https://i.imgur.com/m1TrzOn.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-error {background:url("https://i.imgur.com/D7Qx5sU.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-logo {background:url("https://i.imgur.com/09bC4Q0.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-bug {background:url("https://i.imgur.com/zxSPAEL.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-web {background:url("https://i.imgur.com/Ro3bzC8.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+
+</style>
+
+<script>
+
+    $.getScript("/js/bootbox.min.js");
+    $.getScript("/js/bootstrap.min.js");
+
+</script>
+
+
+<script>
+
+//  alerts.js (v2.0)
+
+    function bootboxSuccessAlert( msg, callback ){
+        var message = [ '<div class="alert-icon icon-success"></div>', '<label class="alert-small">', msg, '</label>' ].join("") ;
+        bootbox.alert({size:"small", message:message, callback:callback});
+    }
+
+    function bootboxCancelAlert( msg, callback ){
+        var message = [ '<div class="alert-icon icon-cancel"></div>', '<label class="alert-small">', msg, '</label>' ].join("") ;
+        bootbox.alert({size:"small", message:message, callback:callback});
+    }
+
+    function bootboxWarningAlert( msg, callback ){
+        var message = [ '<div class="alert-icon icon-warning"></div>', '<label class="alert-small">', msg, '</label>' ].join("") ;
+        bootbox.alert({size:"small", message:message, callback:callback});
+    }
+
+    function bootboxErrorAlert( msg, callback ){
+        var message = [ '<div class="alert-icon icon-error"></div>', '<label class="alert-small">', msg, '</label>' ].join("") ;
+        bootbox.alert({size:"small", message:message, callback:callback});
+    }
+
+    function bootboxInfoAlert( msg, callback ){
+        var message = [ '<div class="alert-icon icon-logo"></div>', '<label class="alert-small">', msg, '</label>' ].join("") ;
+        bootbox.alert({size:"small", message:message, callback:callback});
+    }
+
+    function bootboxBugAlert( msg, callback ){
+        var message = [ '<div class="alert-icon icon-bug"></div>', '<label class="alert-small">', msg, '</label>' ].join("") ;
+        bootbox.alert({size:"small", message:message, callback:callback});
+    }
+
+</script>

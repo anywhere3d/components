@@ -1,0 +1,97 @@
+<!-- avatar-save-button.html -->
+
+<h4>Save Avatar:</h4>
+<div id="avatar-save-button" class="form-control btn btn-success btn-white-outline">Save Current Avatar</div>
+
+<script>
+//  required:
+//  if (!window.store) $.getScript("/js/store2.js");
+//  if (!window.zango){
+//      $.getScript("/js/zangodb.min.js");
+//      $.getScript("/js/anywheredb.js");
+//  }
+//  if (!window.generateSalt) $.getScript("/scripts/generateSalt.js");
+//  if (!window.bootboxSuccessAlert) $.getScript("/js/alerts.js");
+</script>
+
+
+<script>
+
+    var avatarSaveButtonSelector = "#avatar-save-button";
+    $(avatarSaveButtonSelector).on("click", function(){
+
+    //  var path = userSettings.outfit; 
+    //  userSettings.outfit: "/user/settings/outfit/json/current".
+    //  Used in skeletonLoader.js to restore last saved 
+    //  outfit at page reload.
+
+        var path = "/user/settings/outfit/json/current";
+    //  var path = userSettings.outfit;
+        var json = localPlayer.outfit.toJSON();
+    //  debugMode && console.log( "json:", json );
+        var dna  = localPlayer.outfit.toDNA();
+    //  debugMode && console.log( "dna:", dna );
+        var pose = localPlayer.outfit.getPose("body");
+    //  debugMode && console.log( "pose:", pose );
+
+        var old_value = store.set( path, json );
+    //  debugMode && console.log( "old value:", old_value );
+        var new_value = store.get( path );
+    //  var new_value = userSettings.getValue("outfit");
+        debugMode && console.log( "new value:", new_value );
+
+        if ( !!new_value ){
+            var msg = "Avatar saved successfully!";
+            bootboxSuccessAlert( msg );
+        } else {
+            var msg = "Error: Something is wrong.";
+            console.error("Avatar Save Error:", msg);
+            bootboxErrorAlert( msg );
+        }
+
+    });
+
+    //  Save avatar to zargodb outfits collection.
+/*
+        db.open(function(err, database){
+            if (err) console.error( err );
+            debugMode && console.log( "%s opened!", db.name );
+        }).then( function(){
+
+            var entry  = {};
+            entry.pose = window.btoa( RawDeflate.deflate( JSON.stringify(pose) ); // encode( JSON.stringify(pose) );
+            entry.json = json;
+            entry.dna  = dna;
+            entry._id  = (Date.now() * 1000).toString(16);  // 13 character length _id;
+            debugMode && console.log( "entry:", entry );
+
+            var collection = db.collection("outfits");
+        //  debugMode && console.log( "collection", collection.name );
+            collection.insert( entry, function(err){
+                if (err) throw err;
+            }).then(function(){
+            //  db.close();  // ???
+            }).catch(function (err) {
+                console.error("insertError:", err); 
+            });
+
+    //  IMPORTANT  //
+        }).catch(function (err) {
+            console.error(err);
+        });
+*/
+
+
+/*
+//  Restore avatar.
+    db.open(function(){}).then(function(){ 
+    	collection = db.collection("outfits");
+    	collection.findOne({_id:"uMHyeEX18VSmw"}).then(function(result){
+    		localPlayer.outfit.fromJSON( result.avatar );
+    	});
+    })
+*/
+</script>
+
+
+

@@ -1,0 +1,34 @@
+<!-- emissive-map-input.html -->
+
+<h4>Emissive map:</h4>
+<div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-emissiveMap-btn">Import emissive map</div>
+<input type="file" class="hidden" id="emissiveMap-input">
+
+<script>
+
+    var emissiveMapInputSelector = "#emissiveMap-input";
+    var emissiveMapImportSelector = "#import-emissiveMap-btn";
+    targetClickFileInputEventListener(emissiveMapImportSelector, emissiveMapInputSelector);
+    targetDesktopMapFileInputEventListener(emissiveMapInputSelector, "emissiveMap", function(){
+        toggleImportRemoveButton(desktopEmissiveMapSelector, removeEmissiveMapSelector, "emissiveMap");
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,319 @@
+<style>
+    .helpers a { font-size:16px; font-weight:bold; cursor:pointer; text-decoration:none; } 
+</style>
+<hr>
+<h4>Display helpers:</h4>
+
+<li id="ground-helper" class="helpers">
+    <a>Hide ground helper</a>
+</li>
+<li id="origin-helper" class="helpers">
+    <a>Hide origins helper</a>
+</li>
+<li id="axis-helper" class="helpers">
+    <a>Hide axis helper</a>
+</li>
+<li id="player-helper" class="helpers">
+    <a>Hide Player helpers</a>
+</li>
+<li id="label-helper" class="helpers">
+    <a>Pick up a nickname</a>
+</li>
+<li id="joysticks-helper" class="helpers">
+    <a>Hide joysticks</a>
+</li>
+
+<!-- 
+<li id="store-helper" class="helpers">
+    <a>Clear Storage</a>
+</li>
+<li id="connect-helper" class="helpers">
+    <a>Disconnect</a>
+</li>
+ -->
+
+<hr/>
+
+<script>
+
+    var groundHelperSelector = "#ground-helper a";
+    var originHelperSelector = "#origin-helper a";
+    var axisHelperSelector   = "#axis-helper a";
+
+    var labelHolderSelector = "#label-helper";
+    var labelHelperSelector = "#label-helper a";
+
+    var joysticksHelperSelector  = "#joysticks-helper a";
+    var joystickControlsSelector = ".joystick-controls";
+
+    var connectHelperHolder   = "#connect-helper";
+    var connectHelperSelector = "#connect-helper a";
+    
+    var playerHelperHolder = "#player-helper";
+    var playerHelperSelector = "#player-helper a";
+
+    var storeHelperSelector = "#store-helper a";
+
+
+                    //  Initialize.
+
+    (function(){
+
+        if (!debugMode) $(connectHelperHolder).slideUp(); //  IMPORTANT  //
+        if (!debugMode) $(playerHelperHolder).slideUp(); //  IMPORTANT  //
+
+        if (groundHelper.visible) {
+            $(groundHelperSelector).text("Hide ground helper");
+        } else {
+            $(groundHelperSelector).text("Show ground helper");
+        }
+
+        if (axisOriginHelper.visible) {
+            $(originHelperSelector).text("Hide origins helper");
+        } else {
+            $(originHelperSelector).text("Show origins helper");
+        }
+
+        if (axisCustomHelper.visible) {
+            $(axisHelperSelector).text("Hide axis helper");
+        } else {
+            $(axisHelperSelector).text("Show axis helper");
+        }
+        
+        if ( localPlayer.holder.visible ) {
+            $(playerHelperSelector).text("Hide player helper");
+        } else {
+            $(playerHelperSelector).text("Show player helper");
+        }
+
+        if ( !!localPlayer.label ){
+            if (localPlayer.label.visible) 
+                $(labelHelperSelector).text("Hide nicknames");
+            else 
+                $(labelHelperSelector).text("Show nicknames");
+        } else {
+            $(labelHolderSelector).slideUp();
+        }
+
+    })();
+
+//  Ground helper.
+
+    $(groundHelperSelector).on("click", function(){
+        groundHelper.visible = !groundHelper.visible;
+        if (groundHelper.visible) 
+            $(groundHelperSelector).html("Hide ground helper");
+        else 
+            $(groundHelperSelector).html("Show ground helper");
+    });
+
+    $(groundHelperSelector).on("click", function(){
+    //  Store settings to local storage.
+        var path = "/user/settings/ground/helper/visible";
+        var old_value = store.set( path, groundHelper.visible );
+        var new_value = store.get( path );
+    });
+
+
+//  Origins helper.
+
+    $(originHelperSelector).on("click", function(){
+        axisOriginHelper.visible = !axisOriginHelper.visible;
+        if (axisOriginHelper.visible) 
+            $(originHelperSelector).text("Hide origins helper");
+        else 
+            $(originHelperSelector).text("Show origins helper");
+    });
+
+    $(originHelperSelector).on("click", function(){
+    //  Store settings to local storage.
+        var path = "/user/settings/origin/helper/visible";
+        var old_value = store.set( path, axisOriginHelper.visible );
+        var new_value = store.get( path );
+    });
+
+
+//  Axis helper.
+
+    $(axisHelperSelector).on("click", function(){
+        axisCustomHelper.visible = !axisCustomHelper.visible;
+        if (axisCustomHelper.visible) 
+            $(axisHelperSelector).text("Hide axis helper");
+        else 
+            $(axisHelperSelector).text("Show axis helper");
+    });
+
+    $(axisHelperSelector).on("click", function(){
+    //  Store settings to local storage.
+        var path = "/user/settings/axis/helper/visible";
+        var old_value = store.set( path, axisCustomHelper.visible );
+        var new_value = store.get( path );
+    });
+
+
+//  Player holder helper.
+
+    $(playerHelperSelector).on("click", function(){
+        localPlayer.holder.visible = !localPlayer.holder.visible;
+        if ( localPlayer.holder.visible )
+            $(playerHelperSelector).text("Hide player helper");
+        else
+            $(playerHelperSelector).text("Show player helper");
+    });
+
+    $(playerHelperSelector).on("click", function(){
+    //  Store settings to local storage.
+        var path = "/user/settings/player/holder/visible";
+        var old_value = store.set( path, localPlayer.holder.visible );
+        var new_value = store.get( path );
+    });
+
+
+//  Label helper.
+
+    $(labelHelperSelector).on("click", function(){
+        localPlayer.label.visible = !localPlayer.label.visible;
+        for (var id in RemotePlayersManager){
+            var remotePlayer = RemotePlayersManager[id];
+            remotePlayer.label.visible = localPlayer.label.visible;
+        }
+        if (localPlayer.label.visible) 
+            $(labelHelperSelector).text("Hide nicknames");
+        else 
+            $(labelHelperSelector).text("Show nicknames");
+    });
+
+    $(labelHelperSelector).on("click", function(){
+    //  Store settings to local storage.
+        var path = "/user/settings/player/label/visible";
+        var old_value = store.set( path, localPlayer.label.visible );
+        var new_value = store.get( path );
+    });
+
+/*
+    $(labelHelperSelector).one("click", function(){
+        if ( localPlayer.label ) return;
+
+        var self = this;
+        keyInputControls.Off();  // IMPORTANT //
+
+        bootbox.prompt({
+            title: "Type a nickname:", 
+            size: "small",
+            closeButton: true,
+            callback: function(result){
+
+                if (!!result && result != ""){
+                    localPlayer.label = new PlayerLabel( result );
+                    $(self).off("click");
+                    keyInputControls.On();  // IMPORTANT //
+
+                //  Initialize label helper.
+                    if (localPlayer.label.visible) 
+                        $(labelHelperSelector).text("Hide nicknames");
+                    else if (!localPlayer.label.visible) 
+                        $(labelHelperSelector).text("Show nicknames");
+
+                    $(labelHelperSelector).on("click", function(){
+                        localPlayer.label.visible = !localPlayer.label.visible;
+                        for (var id in RemotePlayersManager){
+                            var remotePlayer = RemotePlayersManager[id];
+                            remotePlayer.label.visible = localPlayer.label.visible;
+                        }
+                        if (localPlayer.label.visible) 
+                            $(labelHelperSelector).text("Hide nicknames");
+                        else 
+                            $(labelHelperSelector).text("Show nicknames");
+                    });
+
+                //  SocketCluster connect.
+                    socketclusterConnect();
+
+                //  Show connect helper.
+                    $(connectHelperHolder).slideDown();  // IMPORTANT //
+
+                } else {
+                //  TODO: You must pick up an nickname alert.
+                    return true;
+                }
+            }
+        });
+
+    });
+*/
+                //  Joysticks Helper.
+
+//  Initialize.
+
+    (function(){
+    //  IMPORTANT: Joysticks must be visible at startup.
+        $(joysticksHelperSelector)[0].active = true;
+    })();
+
+    $(joysticksHelperSelector).on("click", function(){
+
+    //  Joysticks must be visible at startup.
+        $(joystickControlsSelector).toggleClass("hidden");
+
+        this.active = !this.active;
+
+        if (this.active) {
+            $(joysticksHelperSelector).text("Hide joystick controls");
+        } else {
+            $(joysticksHelperSelector).text("Show joystick controls");
+        }
+    });
+
+    $(joysticksHelperSelector).on("click", function(){
+    //  IMPORTANT: Joysticks must be visible at startup.
+    //  Store settings to local storage.
+        var path = "/user/settings/joystick/controls/visible";
+        var old_value = store.set( path, $(joysticksHelperSelector)[0].active );
+        var new_value = store.get( path );
+    });
+
+
+             //  Local storage clean up.
+
+//  Clear local storage settings. (DANGER).
+    $(storeHelperSelector).on("click", function(){
+        var result = confirm("Are you sure to clear your settings?");
+    //  if (result) store.clear(); // DANGER: disactivated. //
+    });
+
+
+                //  Connection Helper.
+
+//  Initialize.
+/*
+    (function(){
+        if (!socket || (!!socket && socket.state != "open") )
+            $(connectHelperSelector).text("Connect to server");
+        else 
+            $(connectHelperSelector).text("Disconnect from server");
+    })();
+
+//  SocketCluster connection.
+    $(connectHelperSelector).on("click", function(){
+
+        if ( !localPlayer.label ) {
+        //  console.error("You must pick up a nickname to connect to server.");
+        //  return;
+        }
+
+        if (!socket) {
+        //  socketclusterConnect(); 
+        //  return;
+        }
+
+        if (socket.state == "open" ) {
+            socket.disconnect();
+            $(connectHelperSelector).text("Connect to server");
+        } else {
+            socket.connect();
+            $(connectHelperSelector).text("Disconnect from server");
+        }
+
+    });
+*/
+</script>

@@ -1,0 +1,171 @@
+<!-- mask-form-button.html -->
+
+<h4>Create texture:</h4>
+<div id="mask-form-button" class="form-control btn btn-default btn-white-outline form-button">Open mask form</div>
+
+
+<script>
+
+    var componentsFolder = "/components/";
+
+//  Mask Form Button event listeners.
+    var maskFormButtonSelector = "#mask-form-button";
+
+//  Import dialog form component and apply dialog option.
+    $(maskFormButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+
+            var option = {
+                width    : 600,
+                minWidth : 600,
+                maxWidth : 600,
+                height   : 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title    : "Create masked texture"
+            };
+
+            var component = "mask-form-demo.html";
+            $EditorPanel.loadComponent(component, option);
+
+        }
+    });
+
+//  Define target. Default form panel target is "form". 
+//  Here we define "target" to apply masked texture to dress map.
+//  EDIT: Changed from $FormPanel to $EditorPanel.
+    $(maskFormButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.dress.material.materials[0];
+            debugMode && console.log("target:", target);
+        } else {
+            target = undefined;
+            debugMode && console.log("target:", target);
+        }
+    });
+
+//  Open/Close dialog.
+    $(maskFormButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+/*
+//  Define form.
+    $(maskFormButtonSelector).on("click", function (){
+        if ( !$FormPanel.active ){
+            form = $("form");
+        } else {
+            form = undefined;
+        }
+    });
+
+//  Confing dialog option.
+    $(maskFormButtonSelector).on("click", function (){
+        if ( !$FormPanel.active ){
+
+            var dialogOption = {
+                width    : 600,
+                minWidth : 600,
+                maxWidth : 600,
+                height   : 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title    : "Create masked texture"
+            };
+
+            $FormPanel.dialog( "option", dialogOption );
+        }
+    });
+
+//  Import form component.
+    $(maskFormButtonSelector).on("click", function (){
+        if ( !$FormPanel.active ){
+            var maskFormDemoComponent = componentsFolder + "mask-form-demo.html";
+            $FormPanel.loadForm(maskFormDemoComponent, function(response, status, xhr){
+                debugMode && console.log("mask-form-demo:", status);
+            });
+        }
+    });
+*/
+
+</script>
+
+
+<script>
+/*
+//  Load form panel.
+    var FormPanelScript = "/js/form-panel.js";
+    $.getScript(FormPanelScript, function(script, status, xhr){
+        debugMode && console.log("form-panel:", status);
+    });
+*/
+</script>
+
+<script>
+/*
+//  form-panel.js
+
+    var debugMode;
+
+//  Every dialoge form panel point to a from target
+//  that is a form and deals with this target only.
+
+    var form; // IMPORTANT //
+
+    var formPanelHtml = '<div id="form-panel" title="Form Panel">';
+
+    var $FormPanel = $(formPanelHtml).dialog({ 
+        autoOpen: false, 
+        show: { effect: 'fade', duration: 500 },
+        hide: { effect: 'fade', duration: 500 },
+    });
+
+    $FormPanel.on( "dialogopen", function( event, ui ) {
+        $FormPanel.active = true;
+        debugMode && console.log( "dialog opened:", $FormPanel.active );
+        debugMode && console.log( "form:", !!form );
+    });
+
+    $FormPanel.on( "dialogclose", function( event, ui ) {
+        $FormPanel.active = false;
+        $FormPanel.contents().remove();
+        form = undefined;
+        debugMode && console.log( "dialog closed:", !$FormPanel.active );
+        debugMode && console.log( "form:", !!form );
+    });
+
+    $FormPanel.loadFormComponent = function(component, option){
+        var formComponent = componentsFolder + component; 
+        $FormPanel.load(formComponent, function(resoponse, status, xhr){
+            debugMode && console.log("form component:", status);
+            if ( !!option ) $FormPanel.dialog( "option", option );
+        });
+    }
+*/
+/*
+    var dialogOption = {
+        width:    616,
+        minWidth: 616,
+        maxWidth: 616,
+        height:   600,
+        minHeight:600,
+        maxHeight:600
+    };
+*/
+
+</script>
+
+
+
+
+
+
+
+
+
+
+

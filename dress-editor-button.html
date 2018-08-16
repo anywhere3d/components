@@ -1,0 +1,87 @@
+<!-- dress-editor-button.html -->
+
+<div id="dress-editor-button" class="form-control btn btn-default btn-white-outline">Open dress editor panel</div>
+<!-- div id="mask-form-button" class="form-control btn btn-default btn-white-outline form-button">Open mask form</div -->
+<!-- div id="texture-form-button" class="form-control btn btn-default btn-white-outline form-button">Open texture form</div -->
+
+
+<script>
+//  Load dialog target event listeners.
+//    var dialogTargetEventListenersScript = "/js/dialogTargetEventListeners.js";
+//    $.getScript(dialogTargetEventListenersScript, function(script, status, xhr){
+//        debugMode && console.log("dialogTargetEventListeners:", status);
+//    });
+</script>
+
+<script>
+//  Load avatar editor panel.
+//    var AvatarEditorPanelScript = "/js/avatar-editor-panel.js";
+//    $.getScript(AvatarEditorPanelScript, function(script, status, xhr){
+//        debugMode && console.log("avatar-editor-panel:", status);
+//    });
+</script>
+
+<script>
+
+    var componentsFolder = "/components/";
+
+//  Dress Editor Button event listeners.
+    var dressEditorButtonSelector = "#dress-editor-button";
+
+//  Define target.
+    $(dressEditorButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.dress.material.materials[0];
+        } else {
+            target = undefined;
+        }
+    });
+
+//  Import dialog material panel component.
+    $(dressEditorButtonSelector).on("click", function (){
+        if (!!target && !$AvatarEditorPanel.active){
+
+            $AvatarEditorPanel.dialog( "option", {
+                width    : 616,
+                minWidth : 616,
+                maxWidth : 616,
+                height   : 600,
+                minHeight: 600,
+                maxHeight: 600
+            });
+
+            var size = 512; // texture size.
+            var title = "Dress Editor Panel";
+            $AvatarEditorPanel.loadMaterialPanel(title, size);
+        }
+    });
+
+//  Open/Close dialog.
+    $(dressEditorButtonSelector).on("click", function (){
+        if ( !$AvatarEditorPanel.active ) {
+            $AvatarEditorPanel.dialog("open");
+        } else {
+            $AvatarEditorPanel.dialog("close");
+        }
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

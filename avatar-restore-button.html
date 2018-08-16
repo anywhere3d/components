@@ -1,0 +1,55 @@
+<!-- avatar-restore-button.html -->
+
+<h4>Restore Avatar:</h4>
+<div id="avatar-restore-button" class="form-control btn btn-success btn-white-outline">Restore Last Saved Avatar</div>
+
+<script>
+//  required:
+//  if (!window.store) $.getScript("/js/store2.js");
+//  if (!window.bootboxErrorAlert) $.getScript("/js/alerts.js");
+</script>
+
+
+<script>
+
+    var avatarRestoreButtonSelector = "#avatar-restore-button";
+    $(avatarRestoreButtonSelector).on("click", function(){
+
+    //  if (!!userSettings && store.has(userSettings.outfit) ){
+        if ( store.has("/user/settings/outfit/json/current") ){
+
+            var json = store.get("/user/settings/outfit/json/current");
+        //  var json = userSettings.getValue( "outfit" );
+            localPlayer.outfit.fromJSON( json );
+
+        //  Initialize skintone buttons.
+            var skintoneButtonsSelector = "#skintone-buttons";
+            
+            $(skintoneButtonsSelector).contents().remove();
+
+            if ( json.gender == "male" ){
+                var maleSkintoneButtonsComponent = componentsFolder + "male-skintone-buttons.html";
+                $(skintoneButtonsSelector).load(maleSkintoneButtonsComponent, function(resoponse, status, xhr){
+                    if (status == "error") console.error( status, xhr.status, xhr.statusText );
+                }); 
+            }
+
+            if ( json.gender == "female" ){
+                var femaleSkintoneButtonsComponent = componentsFolder + "female-skintone-buttons.html";
+                $(skintoneButtonsSelector).load(femaleSkintoneButtonsComponent, function(resoponse, status, xhr){
+                    if (status == "error") console.error( status, xhr.status, xhr.statusText );
+                });
+            }
+            
+            
+
+        } else {
+
+            var msg = "Sorry! Can not restore avatar.";
+            bootboxErrorAlert( msg );
+
+        }
+
+    });
+
+</script>

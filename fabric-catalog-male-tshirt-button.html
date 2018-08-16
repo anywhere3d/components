@@ -1,0 +1,156 @@
+<!-- fabric-catalog-male-tshirt-button.html (v1.2) -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Fabric Textures Library:</li>
+<div id="fabric-texture-catalog-button" class="form-control btn btn-danger btn-white-outline gradient-btn">Open fabric library panel</div>
+
+
+<script>
+
+    var fabricCatalogButtonSelector = "#fabric-texture-catalog-button";
+
+    $(fabricCatalogButtonSelector)[0].fetchOptions = {
+        endpoint: "/textures/find/selectors/options",
+        selectors: {
+            kind: "texture",
+            type: "map",
+            category: "fabric",
+        },
+        options: {
+            skip: 0,
+            limit: 16,
+            sort: {_id: -1 },
+        },
+    };
+
+    $(fabricCatalogButtonSelector)[0].options = {
+        material: "hmTshirtMtl",
+        title: "Fabric Texture Library",
+        component: "catalog-texture-items.html",
+    };
+
+
+//  Define holder.
+    $(fabricCatalogButtonSelector).on("click", function (){
+        if ( !Materials[ this.options.material ] ) return;
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+
+    });
+
+
+//  Define target (material).
+    $(fabricCatalogButtonSelector).on("click", function (){
+        if ( !Materials[ this.options.material ] ) return;
+
+        if ( !$EditorPanel.active ){
+
+            target = Materials[ this.options.material ];
+
+        } else {
+
+            target = undefined;
+
+        }
+    });
+
+
+//  Import dialog components.
+    $(fabricCatalogButtonSelector).on("click", function (){
+
+        if ( !target ) return;
+
+        if (!$EditorPanel.active){
+
+            var option =  {
+                width: 500,
+                minWidth: 500,
+                maxWidth: 500,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600,
+                title: "Fabric Texture Library",
+            };
+
+            var component = "catalog-texture-items.html";
+            $EditorPanel.loadComponent(component, option);
+
+        }
+    });
+
+
+//  fetchCatalogPanelItems.js
+
+    function fetchCatalogPanelItems(domElement_id){
+
+        var endpoint = editorHolderButton.fetchOptions.endpoint;
+
+        var data = {
+            selectors: JSON.stringify( editorHolderButton.fetchOptions.selectors ),
+            options:   JSON.stringify( editorHolderButton.fetchOptions.options ),
+        };
+
+        debugMode && console.log("data:", data);
+
+        var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+            debugMode && console.log("post %s: %s", endpoint, status);
+        }).then( function( data ){
+            debugMode && console.log("data:", data);
+            w3.displayObject( domElement_id, data );
+        //  pager initial values.
+            var page_index = parseInt( options.skip / options.limit );
+            $("span#page").text( page_index + 1 );
+            $("span#from").text( options.skip + 1 );
+            $("span#to").text(options.skip + data.success.length);
+        });
+
+        jqxhr.done( function(){
+            $EditorPanel.dialog("open");
+        });
+
+        jqxhr.fail( function( err ){
+            throw err;
+        });
+
+    }
+
+
+//  Open/Close dialog.
+    $(fabricCatalogButtonSelector).on("click", function (){
+
+        if ( !$EditorPanel.active ) {
+            if ( !target ) return;
+
+            fetchCatalogPanelItems("catalog-texture-items");
+
+        } else {
+
+            $EditorPanel.dialog("close");
+
+        }
+    });
+
+
+//  Alert target error.
+    $(fabricCatalogButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active && !target ){
+            bootboxErrorAlert("Error: target not defined.");
+        }
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,961 @@
+<h4>Avatar Editor:</h4>
+
+<li id="avatar-body-button" class="helpers"><a>Body</a></li>
+<li id="avatar-gender-button" class="helpers non-ready"><a>Gender</a></li>
+<li id="avatar-skin-button" class="helpers"><a>Skin</a></li>
+<li id="avatar-tattoo-button" class="helpers non-ready"><a>Tattoo</a></li>
+<li id="avatar-bodypaint-button" class="helpers non-ready"><a>Bodypaint</a></li>
+<li id="avatar-eyes-button" class="helpers unisex-asset"><a>Eyes</a></li>
+<li id="avatar-eyelashes-button" class="helpers non-ready"><a>Eyelashes</a></li>
+<li id="avatar-makeup-button" class="helpers non-ready"><a>Makeup</a></li>
+<li id="avatar-hairs-button" class="helpers unisex-asset"><a>Hairs</a></li>
+<li id="avatar-beard-button" class="helpers non-ready"><a>Beard</a></li>
+
+
+<h4>Outfit Editor:</h4>
+
+<li id="avatar-outfit-button" class="helpers unisex-asset"><a>Outfit</a></li>
+<li id="outfit-bra-button" class="helpers female-asset"><a>Bra</a></li>
+<li id="outfit-panties-button" class="helpers female-asset"><a>Panties</a></li>
+<li id="outfit-lingerie-button" class="helpers non-ready"><a>Lingerie</a></li>
+<li id="outfit-nightwear-button" class="helpers non-ready"><a>Nightwear</a></li>
+<li id="outfit-boxers-button" class="helpers male-asset"><a>Boxers</a></li>
+<li id="outfit-tshirt-button" class="helpers unisex-asset"><a>Tshirt</a></li>
+<li id="outfit-tshirt-stamp-button" class="helpers unisex-asset"><a>Tshirt (front)</a></li>
+<li id="outfit-shirt-button" class="helpers non-ready"><a>Shirt</a></li>
+<li id="outfit-jacket-button" class="helpers non-ready"><a>Jacket</a></li>
+<li id="outfit-suit-button" class="helpers non-ready"><a>Suit</a></li>
+<li id="outfit-skirt-button" class="helpers female-asset"><a>Skirt</a></li>
+<li id="outfit-dress-button" class="helpers female-asset"><a>Dress</a></li>
+<li id="outfit-trousers-button" class="helpers unisex-asset"><a>Trousers</a></li>
+<li id="outfit-shoes-button" class="helpers unisex-asset"><a>Shoes</a></li>
+<li id="outfit-coat-button" class="helpers non-ready"><a>Coat</a></li>
+
+<!-- 
+<h4>Accessories:</h4>
+
+<li id="outfit-earings-button" class="helpers non-ready"><a>Earrings</a></li>
+<li id="outfit-necklace-button" class="helpers non-ready"><a>Necklace</a></li>
+<li id="outfit-bracelet-button" class="helpers non-ready"><a>Bracelet</a></li>
+<li id="outfit-jewelry-button" class="helpers non-ready"><a>Jewelery</a></li>
+<li id="outfit-rings-button" class="helpers non-ready"><a>Rings</a></li>
+
+ 
+<h4>Private parts:</h4>
+
+<li id="outfit-penis-button" class="helpers non-ready"><a>Penis</a></li>
+<li id="outfit-vagina-button" class="helpers non-ready"><a>Vagina</a></li>
+ -->
+
+<script>
+
+//  OutfitEditorManager.js
+
+    var maleAssetSelector   = ".male-asset";
+    var femaleAssetSelector = ".female-asset";
+    var unisexAssetSelector = ".unisex-asset";
+    var helpersSelector     = ".helpers";
+    var menuHelperSelector  = ".menu-helper";
+    var modeHelperSelector  = ".mode-helper";
+
+    var outfitLingerieButtonSelector = "#outfit-lingerie-button";
+    var outfitNightwearButtonSelector = "#outfit-nightwear-button";
+    var outfitShirtButtonSelector = "#outfit-shirt-button";
+    var outfitJacketButtonSelector = "#outfit-jacket-button";
+    var outfitSuitButtonSelector = "#outfit-suit-button";
+    var outfitCoatButtonSelector = "#outfit-coat-button";
+
+    var avatarHairsButtonSelector = "#avatar-hairs-button";
+    var outfitBraButtonSelector = "#outfit-bra-button";
+    var outfitPantiesButtonSelector = "#outfit-panties-button";
+    var outfitBoxersButtonSelector = "#outfit-boxers-button";
+    var outfitTshirtButtonSelector = "#outfit-tshirt-button";
+    var outfitTshirtStampButtonSelector = "#outfit-tshirt-stamp-button";
+    var outfitSkirtButtonSelector = "#outfit-skirt-button";
+    var outfitTrousersButtonSelector = "#outfit-trousers-button";
+    var outfitDressButtonSelector = "#outfit-dress-button";
+    var outfitShoesButtonSelector = "#outfit-shoes-button";
+
+
+//  1.Show avaliable outfit options.
+
+    $(helpersSelector).on("click", function(){
+        showAvaliableOutfitOptions();
+    });
+
+
+//  2.Reset color and active of all helpers.
+
+    $OutfitEditorPanel.on( "dialogclose", function( event, ui ) {
+        $OutfitEditorPanel.active = false;
+        $(helpersSelector).find("a").css("color", "");
+        for (var i = 0; i < $(helpersSelector).length; i++){
+            $(helpersSelector)[i].active = false;
+        }
+    });
+
+
+//  3.Toggle current helper active and reset others active.
+
+    $(helpersSelector).on("click", function(){
+        for (var i = 0; i < $(helpersSelector).length; i++){
+            if ( $(helpersSelector)[i] == this ) {
+                 this.active = !this.active;
+            } else {
+                $(helpersSelector)[i].active = false;
+            }       
+        }
+    });
+
+
+//  4.Reset all helpers color.
+
+    $(helpersSelector).on("click", function(){
+        $(helpersSelector).find("a").css("color", "");
+    });
+
+
+//  5.Close outfit editor panel.
+
+    $(helpersSelector).on("click", function(){
+        if ( !this.active ) 
+            $OutfitEditorPanel.dialog("close");
+        else 
+            $OutfitEditorPanel.contents().remove();
+    });
+
+
+//  6.Finaly color active helper.
+
+    $(helpersSelector).on("click", function(){
+        if (this.active) $(this).find("a").css("color", "limegreen");
+    });
+
+
+//  7.Show avaliable outfit options.
+
+//    $(helpersSelector).on("click", function(){
+//        showAvaliableOutfitOptions();
+//    });
+
+    function showAvaliableOutfitOptions(){
+    //  version: webspaces-0.1.5-v0.1
+
+        if ( localPlayer.outfit.getGender("male") ){
+
+            $(maleAssetSelector).show();
+            $(femaleAssetSelector).hide();
+            $(unisexAssetSelector).show();
+
+        } else if ( localPlayer.outfit.getGender("female") ){
+
+            $(maleAssetSelector).hide();
+            $(femaleAssetSelector).show();
+            $(unisexAssetSelector).show();
+
+        } else {
+        
+            $(maleAssetSelector).hide();
+            $(femaleAssetSelector).hide();
+            $(unisexAssetSelector).hide();
+        }
+
+    //  Show avaliable buttons.
+        
+        if ( !!localPlayer.outfit.hairs ) 
+             $(avatarHairsButtonSelector).show();
+        else $(avatarHairsButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.bra ) 
+             $(outfitBraButtonSelector).show();
+        else $(outfitBraButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.panties ) 
+             $(outfitPantiesButtonSelector).show();
+        else $(outfitPantiesButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.boxers )
+             $(outfitBoxersButtonSelector).show();
+        else $(outfitBoxersButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.tshirt )
+             $(outfitTshirtButtonSelector).show();
+        else $(outfitTshirtButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.tshirt
+          && !!localPlayer.outfit.tshirt.material 
+          && !!localPlayer.outfit.tshirt.material.materials 
+          && localPlayer.outfit.tshirt.material.materials.length > 1 )
+             $(outfitTshirtStampButtonSelector).show();
+        else $(outfitTshirtStampButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.skirt )
+             $(outfitSkirtButtonSelector).show();
+        else $(outfitSkirtButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.trousers )
+             $(outfitTrousersButtonSelector).show();
+        else $(outfitTrousersButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.dress )
+             $(outfitDressButtonSelector).show();
+        else $(outfitDressButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.shoes )
+             $(outfitShoesButtonSelector).show();
+        else $(outfitShoesButtonSelector).hide();
+
+    }
+
+</script>
+
+<!-- 
+    BE CAREFULL: !!!IMPORTANT!!!
+    Avoid calling the script tag in $.load functions
+    because it calls the scripts synchronously.
+    The async keyword does not work in $.load() functions.
+-->
+
+<!-- OUTFIT EDITOR MANAGER -->
+
+<!-- script src="/js/OutfitEditorManager.js"></script>
+
+    <!-- AVATAR EDITOR -->
+
+<!-- script src="/js/avatar-body-panel.js"></script>
+<!-- script src="/js/avatar-eyes-panel.js"></script>
+<!-- script src="/js/avatar-hair-panel.js"></script>
+<!-- script src="/js/avatar-skin-panel.js"></script>
+
+    <!-- OUTFIT EDITOR -->
+
+<!-- script src="/js/outfit-panel.js"></script>
+<!-- script src="/js/outfit-boxers-panel.js"></script>
+<!-- script src="/js/outfit-bra-panel.js"></script>
+<!-- script src="/js/outfit-dress-panel.js"></script>
+<!-- script src="/js/outfit-panties-panel.js"></script>
+<!-- script src="/js/outfit-shoes-panel.js"></script>
+<!-- script src="/js/outfit-skirt-panel.js"></script>
+<!-- script src="/js/outfit-trousers-panel.js"></script>
+<!-- script src="/js/outfit-tshirt-panel.js"></script>
+<!-- script src="/js/outfit-tshirt-stamp-panel.js"></script -->
+
+
+<script>
+
+    function loadMaterialPanel(title, size){
+
+        if ( target instanceof THREE.MeshStandardMaterial ) {
+            var standardMaterialPanelComponent = componentsFolder + "standard-material-panel.html";        
+            $OutfitEditorPanel.load(standardMaterialPanelComponent, function(resoponse, status, xhr){
+                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+                if (status == "success") debugMode && console.log("Standard Material Panel:", status);
+                $OutfitEditorPanel.dialog( "option", {title: title + " (standard)"} );
+            //  Settings.
+                textureSize = size || 256;
+            });
+            return;
+        }
+    
+        if ( target instanceof THREE.MeshLambertMaterial ) {
+            var lambertMaterialPanelComponent = componentsFolder + "lambert-material-panel.html";        
+            $OutfitEditorPanel.load(lambertMaterialPanelComponent, function(resoponse, status, xhr){
+                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+                if (status == "success") debugMode && console.log("Lambert Material Panel:", status);
+                $OutfitEditorPanel.dialog( "option", {title:  title + " (lambert)"} );
+            //  Settings.
+                textureSize = size || 256;
+            });
+            return;
+        }
+
+        if ( target instanceof THREE.MeshPhongMaterial ) {
+            var phongMaterialPanelComponent = componentsFolder + "phong-material-panel.html";        
+            $OutfitEditorPanel.load(phongMaterialPanelComponent, function(resoponse, status, xhr){
+                if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+                if (status == "success") debugMode && console.log("Phong Material Panel:", status);
+                $OutfitEditorPanel.dialog( "option", {title:  title + " (phong)"} );
+            //  Settings.
+                textureSize = size || 256;
+            });
+            return;
+        }
+
+    }
+
+</script>
+
+
+<script>
+
+//  Using the same dialog panel: $(#outfit-editor-panel).
+
+//  avatar-body-panel.js
+
+    var avatarBodyButtonSelector = "#avatar-body-button";
+
+    $(avatarBodyButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is the local player: object.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.body 
+        ){
+
+            target = localPlayer.outfit.body;
+
+        } else {
+
+            return;
+        }
+
+        var outfitBodyPanelComponent = componentsFolder + "outfit-body-panel.html";
+        $OutfitEditorPanel.load(outfitBodyPanelComponent, function(resoponse, status, xhr){
+            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+            if (status == "success") debugMode && console.log("Outfit Body Panel:", status);
+            $OutfitEditorPanel.dialog( "option", {title: "Avatar Body"} );
+        });
+    });
+
+</script>
+
+<script>
+/*
+//  avatar-gender-panel.js
+
+    var avatarGenderButtonSelector = "#avatar-gender-button";
+
+    $(avatarGenderButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is the local player outfit: object.
+
+        if ( !!localPlayer && !!localPlayer.outfit ) {
+
+            target = localPlayer.outfit;
+
+        } else {
+
+            return;
+        }
+
+        var outfitGenderPanelComponent = componentsFolder + "outfit-gender-panel.html";        
+        $OutfitEditorPanel.load(outfitGenderPanelComponent, function(resoponse, status, xhr){
+            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+            if (status == "success") debugMode && console.log("Outfit Gender Panel:", status);
+            $OutfitEditorPanel.dialog( "option", {title: "Avatar Gender"} );
+        });
+    });
+*/
+</script>
+
+<script>
+
+//  avatar-skin-panel.js
+
+    var avatarSkinButtonSelector = "#avatar-skin-button";
+
+    $(avatarSkinButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshLambertMaterial.
+    
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.body
+          && !!localPlayer.outfit.body.material
+        ){
+
+            if ( !!localPlayer.outfit.body.material.materials ){
+                target = localPlayer.outfit.body.material.materials[0]; // IMPORTANT //
+            } else { 
+                target = localPlayer.outfit.body.material;              // IMPORTANT //
+            }
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Avatar Skin", 512);
+
+    });
+
+</script>
+
+<script>
+
+//  avatar-eyes-panel.js
+
+    var avatarEyesButtonSelector = "#avatar-eyes-button";
+
+    $(avatarEyesButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+    
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.body
+          && !!localPlayer.outfit.body.material
+          && !!localPlayer.outfit.body.material.materials
+          && localPlayer.outfit.body.material.materials.length > 1 
+        ){
+
+            target = localPlayer.outfit.body.material.materials[1]; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Avatar Eyes", 128);
+
+    });
+
+</script>
+
+<script>
+
+//  avatar-hair-panel.js
+
+    var avatarHairsButtonSelector = "#avatar-hairs-button";
+
+    $(avatarHairsButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.hairs
+          && !!localPlayer.outfit.hairs.material
+        ){
+
+            target = localPlayer.outfit.hairs.material; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Avatar Hairs", 256);
+
+    });
+
+</script>
+
+
+    <!-- OUTFIT EDITOR -->
+
+
+<script>
+
+//  outfit-panel.js
+
+    var avatarOutfitButtonSelector = "#avatar-outfit-button";
+
+    $(avatarOutfitButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is the local player outfit: object.
+
+        if ( !!localPlayer && !!localPlayer.outfit ) {
+
+            target = localPlayer.outfit;
+
+        } else {
+
+            return;
+        }
+
+        var outfitEditorPanelComponent = componentsFolder + "outfit-editor-panel.html";        
+        $OutfitEditorPanel.load(outfitEditorPanelComponent, function(resoponse, status, xhr){
+            if (status == "error")   console.error( status, xhr.status, xhr.statusText );
+            if (status == "success") debugMode && console.log("Outfit Editor Panel:", status);
+            $OutfitEditorPanel.dialog( "option", {title: "Outfit Editor"} );
+            showAvaliableOutfitOptions();  // IMPORTANT //
+        });
+
+    });
+
+</script>
+
+<script>
+
+//  outift-bra-panel.js
+
+    var outfitBraButtonSelector = "#outfit-bra-button";
+
+    $(outfitBraButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.bra
+          && !!localPlayer.outfit.bra.material
+        ){
+
+            target = localPlayer.outfit.bra.material; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Outfit Bra", 256);
+
+    });
+
+</script>
+
+<script>
+
+//  outift-panties-panel.js
+
+    var outfitPantiesButtonSelector = "#outfit-panties-button";
+
+    $(outfitPantiesButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.panties
+          && !!localPlayer.outfit.panties.material
+        ){
+
+            target = localPlayer.outfit.panties.material; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Outfit Panties", 256);
+
+    });
+
+</script>
+
+<script>
+
+//  outift-boxers-panel.js
+
+    var outfitBoxersButtonSelector = "#outfit-boxers-button";
+
+    $(outfitBoxersButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.boxers
+          && !!localPlayer.outfit.boxers.material
+        ){
+
+            target = localPlayer.outfit.boxers.material; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Outfit Boxers", 256);
+
+    });
+
+</script>
+
+<script>
+
+//  outift-tshirt-panel.js
+
+    var outfitTshirtButtonSelector = "#outfit-tshirt-button";
+
+    $(outfitTshirtButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.tshirt
+          && !!localPlayer.outfit.tshirt.material
+        ){
+            if ( !!localPlayer.outfit.tshirt.material.materials ){
+                target = localPlayer.outfit.tshirt.material.materials[0]; // IMPORTANT //
+            } else {
+                target = localPlayer.outfit.tshirt.material; // IMPORTANT //
+            }
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Outfit Tshirt", 512);
+
+    });
+
+</script>
+
+<script>
+
+//  outift-tshirt-stamp-panel.js
+
+    var outfitTshirtStampButtonSelector = "#outfit-tshirt-stamp-button";
+
+    $(outfitTshirtStampButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.tshirt
+          && !!localPlayer.outfit.tshirt.material
+          && !!localPlayer.outfit.tshirt.material.materials
+          && localPlayer.outfit.tshirt.material.materials.length > 1
+        ){
+
+            target = localPlayer.outfit.tshirt.material.materials[1]; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Outfit TshirtStamp", 256);
+
+    });
+
+</script>
+
+<script>
+
+//  outift-skirt-panel.js
+
+    var outfitSkirtButtonSelector = "#outfit-skirt-button";
+
+    $(outfitSkirtButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.skirt
+          && !!localPlayer.outfit.skirt.material
+        ){
+
+            target = localPlayer.outfit.skirt.material; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Outfit Skirt", 512);
+
+    });
+
+</script>
+
+<script>
+
+//  outift-dress-panel.js
+
+    var outfitDressButtonSelector = "#outfit-dress-button";
+
+    $(outfitDressButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.dress
+          && !!localPlayer.outfit.dress.material
+        ){
+
+            target = localPlayer.outfit.dress.material; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Outfit Dress", 512);
+
+    });
+
+</script>
+
+<script>
+
+//  outift-trousers-panel.js
+
+    var outfitTrousersButtonSelector = "#outfit-trousers-button";
+
+    $(outfitTrousersButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.trousers
+          && !!localPlayer.outfit.trousers.material
+        ){
+
+            target = localPlayer.outfit.trousers.material; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Outfit Trousers", 512);
+
+    });
+
+</script>
+
+<script>
+
+//  outift-shoes-panel.js
+
+    var outfitShoesButtonSelector = "#outfit-shoes-button";
+
+    $(outfitShoesButtonSelector).on("click", function(){
+
+    //  Open outfit editor panel 
+    //  dialog only if this is active.
+
+        if (!this.active) return;
+
+    //  Define the dialog target. 
+    //  Here target is material: MeshStandardMaterial.
+
+        if ( !!localPlayer 
+          && !!localPlayer.outfit 
+          && !!localPlayer.outfit.shoes
+          && !!localPlayer.outfit.shoes.material
+        ){
+
+            target = localPlayer.outfit.shoes.material; // IMPORTANT //
+
+        } else {
+
+            return;
+        }
+
+        loadMaterialPanel("Outfit Shoes", 128);
+
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+<script>
+/*
+//  OutfitEditorManager.js
+
+//  Show avaliable outfit options.
+    $(helpersSelector).on("click", function(){
+        showAvaliableOutfitOptions();
+    });
+
+//  Reset color and active of all helpers.
+    $OutfitEditorPanel.on( "dialogclose", function( event, ui ) {
+        $OutfitEditorPanel.active = false;
+        $(helpersSelector).find("a").css("color", "");
+        for (var i = 0; i < $(helpersSelector).length; i++){
+            $(helpersSelector)[i].active = false;
+        }
+    });
+
+//  Toggle current helper active and reset others active.
+    $(helpersSelector).on("click", function(){
+        for (var i = 0; i < $(helpersSelector).length; i++){
+            if ( $(helpersSelector)[i] == this ) {
+                 this.active = !this.active;
+            } else {
+                $(helpersSelector)[i].active = false;
+            }       
+        }
+    });
+
+//  Reset all helpers color.
+    $(helpersSelector).on("click", function(){
+        $(helpersSelector).find("a").css("color", "");
+    });
+
+//  Close outfit editor panel.
+    $(helpersSelector).on("click", function(){
+        if ( !this.active ) $OutfitEditorPanel.dialog("close");
+    });
+
+//  Debug.
+    $(helpersSelector).on("click", function(){
+        debugMode && console.log( "active:", this.active );
+    });
+
+//  Finaly color active helper.
+    $(helpersSelector).on("click", function(){
+        if (this.active) $(this).find("a").css("color", "limegreen");
+    });
+
+    function showAvaliableOutfitOptions(){
+
+        if ( localPlayer.outfit.getGender("male") ){
+
+            $(maleAssetSelector).show();
+            $(femaleAssetSelector).hide();
+            $(unisexAssetSelector).show();
+
+        } else if ( localPlayer.outfit.getGender("female") ){
+
+            $(maleAssetSelector).hide();
+            $(femaleAssetSelector).show();
+            $(unisexAssetSelector).show();
+
+        } else {
+        
+            $(maleAssetSelector).hide();
+            $(femaleAssetSelector).hide();
+            $(unisexAssetSelector).hide();
+        }
+
+    //  Show avaliable buttons.
+        
+        if ( !!localPlayer.outfit.hairs ) 
+             $(avatarHairsButtonSelector).show();
+        else $(avatarHairsButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.bra ) 
+             $(outfitBraButtonSelector).show();
+        else $(outfitBraButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.panties ) 
+             $(outfitPantiesButtonSelector).show();
+        else $(outfitPantiesButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.boxers )
+             $(outfitBoxersButtonSelector).show();
+        else $(outfitBoxersButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.tshirt )
+             $(outfitTshirtButtonSelector).show();
+        else $(outfitTshirtButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.tshirt
+          && !!localPlayer.outfit.tshirt.material 
+          && !!localPlayer.outfit.tshirt.material.materials 
+          && localPlayer.outfit.tshirt.material.materials.length > 1 )
+             $(outfitTshirtStampButtonSelector).show();
+        else $(outfitTshirtStampButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.skirt )
+             $(outfitSkirtButtonSelector).show();
+        else $(outfitSkirtButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.trousers )
+             $(outfitTrousersButtonSelector).show();
+        else $(outfitTrousersButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.dress )
+             $(outfitDressButtonSelector).show();
+        else $(outfitDressButtonSelector).hide();
+
+        if ( !!localPlayer.outfit.shoes )
+             $(outfitShoesButtonSelector).show();
+        else $(outfitShoesButtonSelector).hide();
+
+    }
+*/
+</script>

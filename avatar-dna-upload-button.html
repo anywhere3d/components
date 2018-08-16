@@ -1,0 +1,95 @@
+<!-- avatar-dna-upload-button.html (v1.0) -->
+
+<h4>Upload Avatar:</h4>
+<div id="avatar-upload-button" class="form-control btn btn-info btn-white-outline">Upload Current Avatar</div>
+
+<script>
+
+    var avatarUploadButtonSelector = "#avatar-upload-button";
+
+    $(avatarUploadButtonSelector)[0].uploadOptions = {
+        editor  : "avatar", // editor name.
+    //  entry.
+        kind    : "avatar",
+        type    : "dna",
+        category: "avatar",
+        tags    : ["avatar", "dna"],
+    //  imgur.
+        clientid: "95e1ecaf14ca5e6",
+        endpoint: "https://api.imgur.com/3/image",
+    //  mongodb.
+        method: "POST",
+        snapshotEndpoint: "/snapshots/insert",  // post url.
+        collectionEndpoint: "/avatars/insert",  // post url.
+    //  zargodb.
+        collection: "outfits",
+    //  Replace sourceFiles only.
+        scrOnly: true, //  replace sourceFiles only.
+    };
+
+
+//  Outfit body is not avaliable.
+    $(avatarUploadButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit.body ) {
+            var msg = "Outfit body is not defined.";
+            bootboxErrorAlert(msg);
+        }
+
+    });
+
+
+//  Define button holder.
+    $(avatarUploadButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit.body ) return;
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(avatarUploadButtonSelector).on("click", function(){
+
+        if ( !localPlayer.outfit.body ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Avatar Upload Form",
+            }
+
+            var component = "avatar-dna-upload-form.html";
+            $EditorPanel.loadComponent(component, option);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(avatarUploadButtonSelector).on("click", function(){
+
+        if ( !$EditorPanel.active ) {
+            if ( !localPlayer.outfit.body ) return;
+
+            $EditorPanel.dialog("open");
+
+        } else {
+
+            $EditorPanel.dialog("close");
+
+        }
+    });
+
+</script>

@@ -1,0 +1,64 @@
+<!-- avatar-eyes-editor-button.html -->
+
+<h4>Eyes Editor:</h4>
+<div id="avatar-eyes-editor-button" class="form-control btn btn-info btn-white-outline">Open eyes editor panel</div>
+
+
+<script>
+
+    var eyesEditorButtonSelector = "#avatar-eyes-editor-button";
+
+//  Target asset is not avaliable.
+    $(eyesEditorButtonSelector).on("click", function (){
+        if (!localPlayer.outfit.body) {
+            bootboxErrorAlert("Outfit body is not avaliable.");
+        }
+    });
+
+//  Define target.
+    $(eyesEditorButtonSelector).on("click", function (){
+        if (!localPlayer.outfit.body) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.body.material.materials[1];
+        } else {
+            target = undefined;
+        }
+    });
+
+//  Import dialog components.
+    $(eyesEditorButtonSelector).on("click", function (){
+        if (!localPlayer.outfit.body) return;
+
+        if (!!target && !$EditorPanel.active){
+
+            $EditorPanel.dialog( "option", {
+                width: 616,
+                minWidth: 616,
+                maxWidth: 616,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600
+            });
+
+            var size = [128, 128];
+            var title = "Eyes Editor";
+            $EditorPanel.loadMaterialPanel(title, size);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(eyesEditorButtonSelector).on("click", function (){
+        if (!localPlayer.outfit.body) return;
+
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+
+    });
+
+</script>

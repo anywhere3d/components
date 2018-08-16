@@ -1,0 +1,476 @@
+<style>
+    .anim-btn    { width:21%; padding:0.5rem 0; }
+    .anim-btn + .anim-btn { margin-left:0.5rem; }
+    .turn-cw, .turn-ccw { width:45%; }
+    .turn-cw + .turn-ccw { margin-left:0.5rem; } /* float:right; */
+    .action-controls-output { 
+        width:50px; outline:none; /* margin-right:10px; */
+        color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+        font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
+    }
+    .step-output { width:42px; }
+</style>
+
+<div class="slider-row" style="font-size:1.5em;">
+    <h4>Action Controls:</h4>
+</div>
+
+<div class="slider-row" style="width:90%; margin-bottom:10px;">
+    <div class="btn btn-danger btn-white-outline anim-btn animation-control" id="idle">idle</div>
+    <div class="btn btn-success btn-white-outline anim-btn animation-control" id="walk">walk</div>
+    <div class="btn btn-success btn-white-outline anim-btn animation-control" id="run">run</div>
+    <div class="btn btn-info btn-white-outline anim-btn animation-control" id="jump">jump</div>
+</div>
+
+<div class="slider-row" style="font-size:1.5em;">
+    <h4>Direction Controls:</h4>
+</div>
+
+<div class="slider-row" style="width:90%; margin-bottom:10px;">
+    <div class="btn btn-primary btn-white-outline anim-btn direction-control" id="left-view-btn">left</div>
+    <div class="btn btn-primary btn-white-outline anim-btn direction-control" id="front-view-btn">back</div>
+    <div class="btn btn-primary btn-white-outline anim-btn direction-control" id="back-view-btn">front</div>
+    <div class="btn btn-primary btn-white-outline anim-btn direction-control" id="right-view-btn">right</div>
+</div>
+
+<div class="slider-row" style="width:90%; margin-bottom:10px; display:inline-block">
+    <li>
+        <label for="turn-ctrl-output" title="hold pressed to turn">Direction:</label>
+        <input type="number" id="turn-ctrl-output" class="action-controls-output" value="0" step="1">
+        <input type="number" id="turn-step-output" class="action-controls-output step-output pull-right" min="1" max="10" value="1" step="1">
+        <label for="turn-step-output" class="pull-right" title="Direction step">Step:</label>
+    </li>
+    <li>
+        <label for="camera-offset-output" title="Camera vertial offset">Vertical offset:</label>
+        <input type="number" id="camera-offset-output" class="action-controls-output" min="0" max="30" value="15" step="0.1">
+        
+        <input type="number" id="offset-step-output" class="action-controls-output step-output pull-right" min="0.01" max="0.1" value="0.1" step="0.01">
+        <label for="offset-step-output" class="pull-right" title="Camera vertical offset step">Step:</label>
+    </li>
+</div>
+
+
+
+<!-- script src="/webspaces/v/0.1.4/js/AnimationPanelControls.js"></script -->
+
+<script>
+
+//  AnimationPanelControls.js
+
+    var idleButtonSelector     = "#idle";
+    var walkButtonSelector     = "#walk";
+    var runButtonSelector      = "#run";
+    var jumpButtonSelector     = "#jump";
+    var frontViewBtnSelector   = "#front-view-btn";
+    var backViewBtnSelector    = "#back-view-btn";
+    var leftViewBtnSelector    = "#left-view-btn";
+    var rightViewBtnSelector   = "#right-view-btn";
+    var animButtonSelector     = ".anim-btn";
+    var turnCWButtonSelector   = ".turn-cw";
+    var turnCCWButtonSelector  = ".turn-ccw";
+    var turnCtrlOutputSelector = "#turn-ctrl-output";
+    var cameraOffsetSelector   = "#camera-offset-output";
+    
+    var degStep = 1.5; // avatar rotation step in deg //
+
+    var AnimationPanelControls = {
+
+        isActive: false,
+        turnCW: false,
+        turnCCW: false,
+
+        rotateCW: function(){
+        //  localPlayer.outfit.direction.rotation.y -= THREE.Math.degToRad( degStep );  // rad. (turn avatar degStep degrees cw)
+            localPlayer.controller.direction -= THREE.Math.degToRad( degStep );         // number rad.
+        //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+        },
+        
+        rotateCCW: function(){
+        //  localPlayer.outfit.direction.rotation.y += THREE.Math.degToRad( degStep );  // rad. (turn avatar degStep degrees ccw)
+            localPlayer.controller.direction += THREE.Math.degToRad( degStep );         // number rad.
+        //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+        },
+        
+        turn: function(deg){
+            var rad = THREE.Math.degToRad( deg );
+            localPlayer.controller.direction += rad;
+        //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+        },
+
+        update: function(){
+            
+        //  if ( this.turnCW ) this.rotateCW();
+        //  else if ( this.turnCCW ) this.rotateCCW();
+
+            if (this.isActive) {
+
+            //  Send move player message to server when position is updating.
+                if ( !!controlsChannel ) controlsChannel.publish({ 
+                    playerid : socket.id,
+                    direction: localPlayer.outfit.direction.rotation.y,
+                    position : localPlayer.outfit.direction.position.toArray(),
+                });
+            }
+
+        },
+        
+        toIdle: function( player ){
+            
+            var player = player || localPlayer;
+        //  Update player controller direction.
+            player.outfit.AnimationsHandler.stop();
+            player.controller.isRunning = false;
+            player.controller.isWalking = false;
+            player.controller.isIdling  = true;
+            player.controller.movementSpeed = 0;
+            player.outfit.AnimationsHandler.play("idle");
+        //  player.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+            player.controller.dispatchEvent({type:"startIdling"});
+
+        },
+        
+        publish: function( action ){
+            if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
+                var data = { 
+                    playerid : socket.id,
+                    direction: localPlayer.outfit.direction.rotation.y,
+                    position : localPlayer.outfit.direction.position.toArray(),
+                };
+                if ( !!action ) data.action = action;
+                controlsChannel.publish( data );
+            }
+        },
+
+    };
+
+//  Example: How to insert a value in a input element by coding.
+    //  var turnCtrlOutput = $(turnCtrlOutputSelector)[0];
+    //  turnCtrlOutput.value = 0; 
+    //  var input = new Event("input");
+    //  turnCtrlOutput.dispatchEvent( input );
+//
+
+//  Camera offset slider.
+
+    $(cameraOffsetSelector).on("input", function(){
+        if ( !cameraControls ) return;
+        if ( isNaN( this.value ) ) return;
+        cameraControls.offset.y = parseFloat( this.value );
+    });
+
+    var offsetStepOutputSelector = "#offset-step-output";
+    $(offsetStepOutputSelector).on("input", function(){
+        $(cameraOffsetSelector)[0].step = this.value;
+    });
+
+//  Avatar turn slider.
+
+    $(turnCtrlOutputSelector).on("mousedown", function(){
+        this.value = THREE.Math.radToDeg( localPlayer.controller.direction ).toFixed(0); // string deg.
+    //  Send move player mesasge to server.
+        if ( !!controlsChannel ) controlsChannel.publish({ 
+            playerid : socket.id,
+            direction: localPlayer.outfit.direction.rotation.y,
+            position : localPlayer.outfit.direction.position.toArray(),
+        });
+    });
+
+    $(turnCtrlOutputSelector).on("input", function(){
+        if ( isNaN( this.value ) ) return;
+        var angle = THREE.Math.degToRad( parseInt(this.value) ); // number rad.
+        localPlayer.controller.direction = angle;
+    //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+    //  Send move player mesasge to server.
+        if ( !!controlsChannel ) controlsChannel.publish({ 
+            playerid : socket.id,
+            direction: localPlayer.outfit.direction.rotation.y,
+            position : localPlayer.outfit.direction.position.toArray(),
+        });
+    });
+
+    var turnStepOutputSelector = "#turn-step-output";
+    $(turnStepOutputSelector).on("input", function(){
+        $(turnCtrlOutputSelector)[0].step = this.value;
+    });
+
+//  Direction control buttons.
+
+    $(frontViewBtnSelector).on("click", function(){
+        var frontAngle = Math.PI - cameraControls.getFrontAngle();
+        localPlayer.controller.direction = frontAngle + Math.PI;
+        localPlayer.outfit.update(); // IMPORTANT //
+    //  Send move player mesasge to server.
+        if ( !!controlsChannel ) controlsChannel.publish({ 
+            playerid : socket.id,
+            direction: localPlayer.outfit.direction.rotation.y,
+            position : localPlayer.outfit.direction.position.toArray(),
+        });
+    });
+
+    $(backViewBtnSelector).on("click", function(){
+        var frontAngle = Math.PI - cameraControls.getFrontAngle();
+        localPlayer.controller.direction = frontAngle;
+        localPlayer.outfit.update(); // IMPORTANT //
+    //  Send move player mesasge to server.
+        if ( !!controlsChannel ) controlsChannel.publish({ 
+            playerid : socket.id,
+            direction: localPlayer.outfit.direction.rotation.y,
+            position : localPlayer.outfit.direction.position.toArray(),
+        });
+    });
+
+    $(leftViewBtnSelector).on("click", function(){
+        var frontAngle = Math.PI - cameraControls.getFrontAngle();
+        localPlayer.controller.direction = frontAngle - Math.PI/2;
+        localPlayer.outfit.update(); // IMPORTANT //
+    //  Send move player mesasge to server.
+        if ( !!controlsChannel ) controlsChannel.publish({ 
+            playerid : socket.id,
+            direction: localPlayer.outfit.direction.rotation.y,
+            position : localPlayer.outfit.direction.position.toArray(),
+        });
+    });
+
+    $(rightViewBtnSelector).on("click", function(){
+        var frontAngle = Math.PI - cameraControls.getFrontAngle();
+        localPlayer.controller.direction = frontAngle + Math.PI/2;
+        localPlayer.outfit.update(); // IMPORTANT //
+    //  Send move player mesasge to server.
+        if ( !!controlsChannel ) controlsChannel.publish({ 
+            playerid : socket.id,
+            direction: localPlayer.outfit.direction.rotation.y,
+            position : localPlayer.outfit.direction.position.toArray(),
+        });
+    });
+
+//  Animation control buttons.
+
+    $(idleButtonSelector).on("click", function onMoveOff(){
+
+        if (  localPlayer.controller.isJumping 
+          || !localPlayer.controller.isGrounded 
+          ||  localPlayer.controller.isOnSlope ) {
+            return;
+        }
+
+    //  Update player controller direction.
+        localPlayer.outfit.AnimationsHandler.stop();
+        localPlayer.controller.isRunning = false;
+        localPlayer.controller.isWalking = false;
+        localPlayer.controller.isIdling  = true;
+        localPlayer.controller.movementSpeed = 0;
+        localPlayer.outfit.AnimationsHandler.play("idle");
+    //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+        localPlayer.controller.dispatchEvent({type:"startIdling"});
+
+    //  Send move player mesasge to server.
+        if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
+            controlsChannel.publish({ 
+                playerid : socket.id,
+                direction: localPlayer.outfit.direction.rotation.y,
+                position : localPlayer.outfit.direction.position.toArray(),
+                action   : "idle",
+            });
+        }
+
+        $(runButtonSelector)[0].active = false;
+        $(walkButtonSelector)[0].active = false;
+
+    });
+
+    $(walkButtonSelector).on("click", function onMoveOn(){
+
+        if (  localPlayer.controller.isJumping 
+          || !localPlayer.controller.isGrounded 
+          ||  localPlayer.controller.isOnSlope ) {
+            return;
+        }
+
+        this.active = !this.active;
+
+        if (this.active){
+
+        //  Update player controller direction.
+            localPlayer.outfit.AnimationsHandler.stop();
+            localPlayer.controller.isRunning = true; 
+            localPlayer.controller.isWalking = true;
+            localPlayer.controller.movementSpeed = 28;
+            localPlayer.outfit.AnimationsHandler.play("walk");
+        //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+    
+        //  Send move player mesasge to server.
+            if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
+                controlsChannel.publish({ 
+                    playerid : socket.id,
+                    direction: localPlayer.outfit.direction.rotation.y,
+                    position : localPlayer.outfit.direction.position.toArray(),
+                    action   : "walk",
+                });
+            }
+        }
+
+        if (!this.active){
+
+            AnimationPanelControls.toIdle( localPlayer );
+        //  Send move player mesasge to server.
+            AnimationPanelControls.publish( "idle" );
+
+        }
+
+        $(runButtonSelector)[0].active = false;
+
+    });
+
+    $(runButtonSelector).on("click", function onMoveOn(){
+
+        if (  localPlayer.controller.isJumping 
+          || !localPlayer.controller.isGrounded 
+          ||  localPlayer.controller.isOnSlope ) {
+            return;
+        }
+
+        this.active = !this.active;
+
+        if (this.active){
+
+        //  Update player controller direction.
+            localPlayer.outfit.AnimationsHandler.stop();
+            localPlayer.controller.isRunning = true; 
+            localPlayer.controller.isWalking = true;
+            localPlayer.controller.movementSpeed = 28;
+            localPlayer.outfit.AnimationsHandler.play("run");
+        //  localPlayer.outfit.update(); // duplicate: becomes once at every frame by the main update() function.
+    
+        //  Send move player mesasge to server.
+            if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
+                controlsChannel.publish({
+                    playerid : socket.id,
+                    direction: localPlayer.outfit.direction.rotation.y,
+                    position : localPlayer.outfit.direction.position.toArray(),
+                    action   : "run",
+                });
+            }
+        }
+
+        if (!this.active){
+
+            AnimationPanelControls.toIdle( localPlayer );
+        //  Send move player mesasge to server.
+            AnimationPanelControls.publish( "idle" );
+
+        }
+
+        $(walkButtonSelector)[0].active = false;
+
+    });
+
+    $(jumpButtonSelector).on("click", function onJump(){
+
+        if (  localPlayer.controller.isJumping 
+          || !localPlayer.controller.isGrounded 
+          ||  localPlayer.controller.isOnSlope ) {
+            return;
+        }
+
+    //  Send startJumping message to server.
+        if ( !!controlsChannel  && controlsChannel.state == "subscribed") {
+            controlsChannel.publish({
+                playerid : socket.id,
+                action   : "jump",
+            });
+        }
+
+    //  Player controller jump.
+        localPlayer.controller.jump();
+        localPlayer.outfit.AnimationsHandler.jump();
+
+    });
+
+//  Animation controls active.
+
+    $(animButtonSelector).on("click", function(){
+        AnimationPanelControls.isActive = localPlayer.controller.isRunning;
+    //  var direction = parseInt( THREE.Math.radToDeg( localPlayer.controller.direction ) ); // string deg.
+        $(turnCtrlOutputSelector).val( degIntDirection() );                                  // string deg.
+    });
+
+    function degIntDirection(){
+        return parseInt( THREE.Math.radToDeg( localPlayer.controller.direction ) );
+    }
+
+    function updateDirectionOutputValue(){
+        $(turnCtrlOutputSelector).val( degIntDirection() );
+    }
+
+</script>
+
+<script>
+
+//  Update direction output value.
+    $(joystick1).on("update", function(){
+        $(turnCtrlOutputSelector).val( degIntDirection() );
+    });
+
+    $(keyInputControls).on( "movekeyon movekeyoff movekeychange jumpkeypress", function(){
+        $(turnCtrlOutputSelector).val( degIntDirection() );
+    });
+
+</script>
+
+<script>
+
+//  Update vertical offset output value on startup.
+    $(cameraOffsetSelector).val( cameraControls.offset.y );
+
+</script>
+
+<script>
+
+//  Animation Panel Controls updater.(jquery-update-engine.js)
+    var bodySelector = "body";
+    var updatesSelector = "#updates";
+    $(updatesSelector).append('<input type="hidden" id="AnimationPanelControls">');
+    var AnimationPanelControlsSelector = "#AnimationPanelControls";
+    var $actionsPanelUpdater = $(AnimationPanelControlsSelector)[0];
+    $(AnimationPanelControlsSelector).toggleClass("update");
+    $actionsPanelUpdater.update = function(delta){ AnimationPanelControls.update(); };
+
+</script>
+
+<script>
+/*
+    $(joystick1).on("update", function(){
+        debugMode && console.log("joystick update event");
+        $(turnCtrlOutputSelector).val( degIntDirection() );
+    });
+
+    $(keyInputControls).on("update", function(){
+        debugMode && console.log("keyInputControls update event");
+        $(turnCtrlOutputSelector).val( degIntDirection() );
+    });
+
+    $(keyInputControls).on( "movekeyon", function(){
+        $(turnCtrlOutputSelector).val( degIntDirection() );
+    });
+
+    $(keyInputControls).on( "movekeyoff", function(){
+        $(turnCtrlOutputSelector).val( degIntDirection() );
+    });
+
+    $(keyInputControls).on( "jumpkeypress", function(){
+        $(turnCtrlOutputSelector).val( degIntDirection() );
+    });
+
+    $(keyInputControls).on( "movekeychange", function(){
+        $(turnCtrlOutputSelector).val( degIntDirection() );
+    });
+*/
+</script>
+
+
+
+
+
+
+
+

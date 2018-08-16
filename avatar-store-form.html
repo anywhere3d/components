@@ -1,0 +1,213 @@
+<!-- avatar-store-form.html -->
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+        z-index:1040 !important;
+    }
+
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .form-header {
+        margin-top:10px;
+        height:auto;
+        color: #ffffff;
+    }
+
+    .form-body {
+        padding:20px;
+        height:220px;
+        color: #ffffff;
+    }
+
+    #item-description {
+        min-width:100%;
+        max-width:100%;
+        min-height:35px;
+        max-height:75px;
+        color:#000000;
+    }
+
+    .form-footer {
+        padding:20px;
+        height:70px;
+        color: #ffffff;
+    }
+
+    .modal-dialog {
+        width:fit-content;
+    }
+
+</style>
+
+<h4>Save avatar outfit:</h4>
+
+<div class="form-body">
+    <div>Title:</div>
+    <input type="text" id="item-title" class="form-control">
+    <div class="label">Description (optional):</div>
+    <textarea id="item-description" cols="33" rows="1" maxlength="600" class="form-control"></textarea>
+    <div class="label">Tags (optional - comma, delimiter):</div>
+    <input type="text" id="item-tags" class="form-control">
+</div>
+
+<div id="form-snapshots-holder">
+    <script>
+        var formSnapshotsHolderSelector = "#form-snapshots-holder";
+        var formSnapshotsComponents = componentsFolder + "form-snapshots.html";
+        $(formSnapshotsHolderSelector).load(formSnapshotsComponents, function(response, status, xhr){
+            debugMode && console.log("form-snapshots:", status);
+        });
+    </script>
+</div>
+
+<div class="form-footer">
+    <input type=button id="form-upload-button" class="btn btn-success btn-white-outline pull-right" value="Save avatar">
+    <div id="form-cancel-button" class="btn btn-default btn-white-outline">Cancel</div>
+</div>
+
+
+<script>
+
+    $.getScript("/scripts/encode.js");
+    
+</script>
+
+<script>
+
+//  Form Cancel button.
+
+    var formCancelButtonSelector = "#form-cancel-button";
+    $(formCancelButtonSelector).on("click", function(){
+        $EditorPanel.dialog("close");
+    });
+
+</script>
+
+<script>
+
+//  Form Upload button.
+
+    var itemTitleSelector         = "#item-title";
+    var outfitSnapshotsSelector   = "#outfit-snapshots";
+    var itemSnapshotSelector      = ".item-snapshot";
+    var snapshotContainerSelector = ".snapshot-container";
+    var snapshotImageSelector     = ".snapshot-image";
+    var formSpinnerSelector       = ".form-spinner";
+    var itemDescriptionSelector   = "#item-description";
+    var itemTagsSelector          = "#item-tags";
+    var formUploadButtonSelector  = "#form-upload-button";
+
+//  Store avatar to zargodb outfits collection.
+    $(formUploadButtonSelector).on("click", function(){
+
+        var button = this;
+        this.disabled = true;
+
+    //  Validate title.
+        if ( $(itemTitleSelector).val().length < 4 ){
+            var msg = "You must type a title for this outfit.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+
+    //  Validate textures.
+    //  TODO: checkout if every material texture is img with a valid img.src url.
+    //  TODO: checkout if every material texture has a valid sourceFile url.
+    //  TODO: checkout if any of material textures is canvas, or img.src is dataURL.
+
+    /*
+        var spinner = [ 
+            '<div class="form-spinner"', 
+            'style="position:absolute; left:0px; top:0px; height:600px; width:100%;',
+            'background-size:10%; background-position:50% 50%; background-repeat:no-repeat;',
+            'background-image:url(https://i.imgur.com/7qG1W04.gif);"></div>' 
+        ].join(" ");
+    */
+
+    //  Collect form data.
+        var entry = {};
+        var snapshots = [];
+        var gender = target.getGender();
+        var title = $(itemTitleSelector).val();
+        var description = $(itemDescriptionSelector).val();
+        var tags = $(itemTagsSelector).val().split(",");
+
+        debugMode && console.log( "target:", target );
+
+        var json = target.toJSON();
+    //  debugMode && console.log( "json:", json );
+        var dna  = target.toDNA();
+    //  debugMode && console.log( "dna:", dna );
+        var pose = target.getPose("body");
+    //  debugMode && console.log( "pose:", pose );
+
+    //  Collect form snapshots.
+        var formSnapshots = $(outfitSnapshotsSelector).find(".snapshot-container").toArray();
+        debugMode && console.log( "formSnapshots:", formSnapshots );
+
+    //  zargodb.
+
+        db.open(function(err, database){
+            if (err) console.error( err );
+            debugMode && console.log( "%s opened!", db.name )
+        }).then( function(){
+
+            entry.kind = "avatar";
+            entry.type = "dna";
+            entry.category = "avatar";
+            entry.title = title;
+            entry.gender = gender;
+            entry.description = description;
+            entry.snapshots = snapshots;
+            entry.avatar = dna;
+            entry.pose = encode( JSON.stringify(pose) );    // pose dna.
+            entry._id  = (Date.now() * 1000).toString(16);  // 13 character length _id;
+
+            return entry;
+
+        }).then( function(entry){
+            debugMode && console.log( "entry:", entry );
+
+            var collection = db.collection("outfits");
+            collection.insert( entry, function(err){
+                if (err) throw err;
+            }).then(function(){
+
+            //  Success.
+                $(".form-spinner").remove();
+                var msg = "Avatar " + entry.title + " has saved successfully.";
+                debugMode && console.log( msg );
+                $EditorPanel.dialog("close");
+                bootboxSuccessAlert( msg );
+
+            }).catch( function(err){
+                console.error("IndexedDB InsertError:", err); 
+                bootboxErrorAlert(err);
+                throw err;
+            }); 
+
+            // end collection.insert.
+
+        }).catch(function (err) {
+        //  IMPORTANT: zargodb does not throw  
+        //  an error if you explictly not catch it.
+            console.error("IndexedDB Error:", err);
+            bootboxErrorAlert(err);
+            throw err;
+        });
+
+    });
+
+</script>

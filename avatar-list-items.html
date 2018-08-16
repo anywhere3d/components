@@ -1,0 +1,97 @@
+<!-- avatar-list-items.html (v1.0) -->
+
+<style>
+
+    .ui-dialog {
+        z-index:9999 !important;
+    }
+
+    #editor-panel,
+    #catalog-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:550px !important;
+        max-height:550px !important; 
+        background-color:#000000;
+    }
+    .catalog-item {
+        width:100px;
+        height:100px;
+        margin:4px;
+        background-size: contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat;
+    }
+    .list-item {
+        margin-bottom: 5px;
+    }
+    .panel-container {
+        height:auto; 
+        padding:0px;
+        margin:0px;
+        color:#ffffff;
+    }
+    .pager {
+        padding-right:20px;
+    }
+
+</style>
+
+<div id="avatar-list-items" class="panel-container">
+    <h4>Select avatar to load:</h4>
+    <li id={{_id}} class="btn btn-info btn-white-outline form-control list-item" w3-repeat="success" onclick="listItemClickHandler(this);">{{title}}</li>
+</div>
+
+<!-- 
+<div id="catalog-items" class="panel-container">
+    <h4>Select item:</h4>
+    <li id={{id}} class="btn btn-default btn-white-outline catalog-item" w3-repeat="success"
+    title={{title}} data-mtl-index={{material_index}} data-img-ext={{ext}} onclick="catalogItemClickHandler(this);"
+    style="background-image:url('https://i.imgur.com/{{master_snapshot}}s.jpg');"></li>
+</div>
+ -->
+
+<script>
+
+    var listItemSelector = ".list-item";
+
+//  zargodb.
+
+    function listItemClickHandler( self ){
+
+        var _id = self.id;
+
+        db.open(function(err, database){
+            if (err) throw err;
+        }).then( function(){
+            debugMode && console.log( "%s: opened!", db.name )
+
+            db.collection("outfits")
+            .findOne({_id:_id},{avatar:1}, 
+            function(err, result){
+                if (err) throw err;
+            }).then( function( result ){
+                debugMode && console.log( "result:", result )
+
+                target.fromDNA(result.avatar);
+
+            }).catch(function (err) {
+            //  IMPORTANT: zargodb does not throw  
+            //  an error if you explictly not catch it.
+                console.error("Error:", err);
+                bootboxErrorAlert(err);
+            });
+
+
+        }).catch(function (err) {
+        //  IMPORTANT: zargodb does not throw  
+        //  an error if you explictly not catch it.
+            console.error("IndexedDB Error:", err);
+            bootboxErrorAlert(err);
+            throw err;
+        });
+
+    }
+
+</script>
