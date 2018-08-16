@@ -1,0 +1,474 @@
+<!-- skybox-upload-form.html -->
+
+<form id="skybox-upload-form" name="skybox-upload-form">
+    <h4>Skybox Upload form</h4>
+    <div class="field-label">Skybox name:</div>
+    <input type="text" class="form-control text-field" id="form-name" name="name" placeholder="(required)" required>
+    <div class="field-label">Skybox title:</div>
+    <input type="text" class="form-control text-field" id="form-title" name="title">
+
+    <input type="hidden" class="img-data" id="data-pos-x" name="data-pos-x">
+    <input type="hidden" class="img-data" id="data-neg-x" name="data-neg-x">
+    <input type="hidden" class="img-data" id="data-pos-y" name="data-pos-y">
+    <input type="hidden" class="img-data" id="data-neg-y" name="data-neg-y">
+    <input type="hidden" class="img-data" id="data-pos-z" name="data-pos-z">
+    <input type="hidden" class="img-data" id="data-neg-z" name="data-neg-z">
+
+    <div class="field-label">Skybox insert:</div>
+    <div id="background-insert-button" class="form-control btn btn-primary btn-white-outline">Open skybox insert panel</div>
+
+    <input type="button" class="btn btn-danger btn-white-outline" id="form-reset" value="Reset">
+    <input type="button" class="btn btn-success btn-white-outline pull-right" id="upload-button" value="Upload" disabled>
+    <input type="submit" class="hidden" id="form-submit">
+</form>
+
+
+<script>
+/*
+//  form-panel.js
+
+//  Every dialoge form panel point to a formTarget
+//  that is a form and deals with this target only.
+
+    var target; // IMPORTANT //
+
+    var formPanelHtml = '<div id="form-panel" title="Form Panel">';
+
+    var $FormPanel = $(formPanelHtml).dialog({ 
+        autoOpen: false, 
+        show: { effect: 'fade', duration: 500 },
+        hide: { effect: 'fade', duration: 500 },
+    });
+
+    $FormPanel.on( "dialogopen", function( event, ui ) {
+
+        $FormPanel.active = true;
+        debugMode && console.log( "target:", !!target );
+        debugMode && console.log( "dialog opened:", $FormPanel.active );
+        
+    });
+
+    $FormPanel.on( "dialogclose", function( event, ui ) {
+
+        target = undefined;
+        $FormPanel.active = false;
+        $FormPanel.contents().remove();
+
+        debugMode && console.log( "target:", target );
+        debugMode && console.log( "dialog closed:", !$FormPanel.active );
+
+    });
+
+    $FormPanel.loadForm = function(component, option){
+        var formComponent = componentsFolder + component; 
+        $FormPanel.load(formComponent, function(resoponse, status, xhr){
+            debugMode && console.log("form loaded:", status);
+            if (!!option) $FormPanel.dialog( "option", option );
+        });
+    }
+*/
+</script>
+
+
+<script>
+
+//  Controls.
+    $FormPanel.on( "dialogopen", function( event, ui ) {
+        if (!!window.controls) controls.enabled = false;
+    });
+
+    $FormPanel.on( "dialogclose", function( event, ui ) {
+        if (!!window.controls) controls.enabled = true;
+    });
+
+</script>
+
+
+<script>
+
+//  background-insert-button.html.
+
+    var backgroundInsertButtonSelector = "#background-insert-button";
+
+//  Define target.
+    $(backgroundInsertButtonSelector).on("click", function (){
+        if ( !$FormPanel.active ){
+            target = scene.background; // cube texture.
+        } else {
+            target = undefined;
+        }
+    });
+
+//  Import dialog components.
+    $(backgroundInsertButtonSelector).on("click", function (){
+        if ( !$FormPanel.active ){
+
+            $FormPanel.dialog( "option", {
+                width    : 600,
+                minWidth : 600,
+                maxWidth : 600,
+                height   : 600,
+                minHeight: 600,
+                maxHeight: 600,
+                title: "Skybox Insert Form"
+            });
+
+        }
+
+    });
+
+//  Load form.
+//  $FormPanel.loadForm("scene-background-insert-form.html");
+    $(backgroundInsertButtonSelector).on("click", function(){
+        if ( !$FormPanel.active ){
+            var skyboxInsertFormComponent = componentsFolder + "skybox-insert-form.html";
+            $FormPanel.load(skyboxInsertFormComponent, function(resoponse, status, xhr){
+                debugMode && console.log("skybox-insert-form:", status);
+            });
+        }
+    });
+
+//  Open/Close dialog (always last).
+    $(backgroundInsertButtonSelector).on("click", function (){
+        if ( !$FormPanel.active ){
+            $FormPanel.dialog("open");
+        } else {
+            $FormPanel.dialog("close");
+        }
+    });
+
+
+</script>
+
+
+<script>
+
+//  skybox-upload-form.html
+
+    var imgDataSelector  = ".img-data";
+    var posxDataSelector = "#data-pos-x";
+    var posyDataSelector = "#data-pos-y";
+    var poszDataSelector = "#data-pos-z";
+    var negxDataSelector = "#data-neg-x";
+    var negyDataSelector = "#data-neg-y";
+    var negzDataSelector = "#data-neg-z";
+
+    var skyboxUploadFormSelector = "#skybox-upload-form";
+    var skyboxUploadForm = $(skyboxUploadFormSelector)[0];
+
+    var formNameSelector     = "#form-name";
+    var formTitleSelector    = "#form-title";
+    var formResetSelector    = "#form-reset";
+    var formSubmitSelector   = "#form-submit";
+    var uploadButtonSelector = "#upload-button";    
+
+    $(formResetSelector).on("click", function(){
+        debugMode && console.log( formResetSelector, "reset" );
+        $(uploadButtonSelector)[0].disabled = true;
+        $(imgDataSelector).val("");
+        skyboxUploadForm.reset();
+    });
+
+    $(uploadButtonSelector).one("click", function(){
+        debugMode && console.log( uploadButtonSelector, "click");
+        $(skyboxUploadFormSelector).submit();
+    });
+
+</script>
+
+
+<script>
+
+//  skybox-upload-form-submit.js
+
+    $(skyboxUploadFormSelector).on("submit", function (e){
+
+        e.preventDefault();
+        $(uploadButtonSelector)[0].disabled = true;
+        debugMode && console.log( skyboxUploadFormSelector, "submit");
+
+    //  Validate form.
+        if ( !this.checkValidity() ) {
+            this.reportValidity();
+        }
+
+        var entry = {};
+        entry.type  = "skybox";
+        entry.name  = $(formNameSelector).val();
+        entry.title = $(formTitleSelector).val();
+        entry.IDs  = {};
+        entry.URLs = {};
+        entry.ids  = [];
+        entry.urls = [];
+
+        Promise.all([
+
+            new Promise( function(resolve, reject){
+                var file = dataURLtoBlob( $(posxDataSelector).val() );
+                uploadToImgur( file, function(res){
+                    debugMode && console.log( "posx res:", res.data);
+                    resolve( res.data );
+                });
+            }),
+
+            new Promise( function(resolve, reject){
+                var file = dataURLtoBlob( $(negxDataSelector).val() );
+                uploadToImgur( file, function(res){
+                    debugMode && console.log( "negx res:", res.data);
+                    resolve( res.data );
+                });
+            }),
+    
+            new Promise( function(resolve, reject){
+                var file = dataURLtoBlob( $(posyDataSelector).val() );
+                uploadToImgur( file, function(res){
+                    debugMode && console.log( "posy res:", res.data);
+                    resolve( res.data );
+                });
+            }),
+    
+            new Promise( function(resolve, reject){
+                var file = dataURLtoBlob( $(negyDataSelector).val() );
+                uploadToImgur( file, function(res){
+                    debugMode && console.log( "negy res:", res.data);
+                    resolve( res.data );
+                });
+            }),
+    
+            new Promise( function(resolve, reject){
+                var file = dataURLtoBlob( $(poszDataSelector).val() );
+                uploadToImgur( file, function(res){
+                    debugMode && console.log( "posz res:", res.data);
+                    resolve( res.data );
+                });
+            }),
+    
+            new Promise( function(resolve, reject){
+                var file = dataURLtoBlob( $(negzDataSelector).val() );
+                uploadToImgur( file, function(res){
+                    debugMode && console.log( "negz res:", res.data);
+                    resolve( res.data );
+                });
+            })
+
+        ]).then( function(results){
+            console.log("results:", results);
+
+            for (var i=0; i < results.length; i++){
+                var data = results[i];
+                var key = ["", "textures", "skybox", entry.name, i, data.id].join("/");
+                AW3D_db.setItem(key, data).then(function(result){
+                    debugMode && console.log( "result:", result );
+                });
+            }
+
+        }).then( function(){
+
+            // insert entry //
+
+        }).then( function(){
+
+            // reset form //
+
+        }).catch(function(err){
+            console.error(err);
+        });
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+    
+            return new Blob([u8arr], {type:mime});
+        }
+    
+        function uploadToImgur(file, callback) {
+    
+            var clientid = "95e1ecaf14ca5e6";
+            var endpoint = "https://api.imgur.com/3/image";
+    
+            var formdata = new FormData();
+            formdata.append("image", file);
+    
+            var xhttp = new XMLHttpRequest();
+    
+            xhttp.open('POST', endpoint, true);
+            xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4) {
+    
+                    var response = "";
+    
+                    if (this.status >= 200 && this.status < 300) {
+    
+                        try {
+                            response = JSON.parse(this.responseText);
+                        } catch (err) {
+                            response = this.responseText;
+                        }
+    
+                        callback.call(window, response);
+    
+                    } else {
+    
+                        try {
+                            response = JSON.parse(this.responseText);
+                            debugMode && console.log( "Error response:", response );
+                            var error = response.data.error;
+                            var code = error.code || response.status;
+                            var message = error.message || error;
+                            debugMode && console.error( "Error status:", this.status, "- error.code:", error.code, "- error:", error );
+                            bootboxErrorAlert( "<b>Error code: " + code + "</b><br>" + message );
+                        } catch (err) {
+                            var error = this.responseText;
+                            debugMode && console.error( "Error:" + this.status, error );
+                        }
+    
+                    //  $("#spin").remove();
+    
+                    }
+    
+                }
+            };
+    
+            xhttp.send(formdata);
+            xhttp = null;
+        }
+
+    });
+
+/*
+        var file = dataURLtoBlob( $(posxDataSelector).val() );
+        debugMode && console.log( "posx file:", posxfile);
+        uploadToImgur( posxfile, function(res){
+            debugMode && console.log( "%s response: %o", posxDataSelector, res.data);
+        
+            var data = res.data;
+            var id = data.id;
+            var url = data.link;
+
+            entry.ids[0]    = data.id;
+            entry.urls[0]   = data.link
+            entry.IDs["posx"]  = data.id;
+            entry.URLs["posx"] = data.link;
+
+            entry.thumb = "https://i.imgur.com/" + data.id + "m" + ".jpg"; // TODO: to get extention from data.
+
+            var key = "/textures/skybox/" + data.id;
+            AW3D_db.setItem(key, data).then(function(result){
+                debugMode && console.log( "result:", result );
+            });
+
+        });
+*/
+
+</script>
+
+
+
+
+
+
+
+<script>
+
+    var clouds = {
+
+        type: "skybox",
+        name: "clouds",
+        title: "Clouds",
+        thumb: "https://i.imgur.com/Wq5hNgpm.jpg",
+        
+        ids: [
+            "Wq5hNgp", "miDjkfE",        // posx, negx.
+            "uqV1m3t", "fNegTKZ",        // posy, negy.
+            "BIMqAp8", "wJFiTpM",        // posz, negz.
+        ],
+
+        urls: [
+            "https://i.imgur.com/Wq5hNgp.jpg", // posx.
+            "https://i.imgur.com/miDjkfE.jpg", // negx.
+            "https://i.imgur.com/uqV1m3t.jpg", // posy.
+            "https://i.imgur.com/fNegTKZ.jpg", // negy.
+            "https://i.imgur.com/BIMqAp8.jpg", // posz.
+            "https://i.imgur.com/wJFiTpM.jpg", // negz.
+        ],
+
+        IDs: {
+            posx: "Wq5hNgp",
+            negx: "miDjkfE",
+            posy: "uqV1m3t",
+            negy: "fNegTKZ",
+            posz: "BIMqAp8",
+            negz: "wJFiTpM",
+        },
+
+        URLs: {
+            posx: "https://i.imgur.com/Wq5hNgp.jpg",
+            negx: "https://i.imgur.com/miDjkfE.jpg",
+            posy: "https://i.imgur.com/uqV1m3t.jpg",
+            negy: "https://i.imgur.com/fNegTKZ.jpg",
+            posz: "https://i.imgur.com/BIMqAp8.jpg",
+            negz: "https://i.imgur.com/wJFiTpM.jpg",
+        },
+    };
+
+    var space4 = {
+
+        type: "skybox",
+        name: "space4",
+        title: "Space4",
+        thumb: "https://i.imgur.com/v6bjQLbm.jpg",
+        
+        ids: [
+            "v6bjQLb", "lwrlr6P",        // posx, negx.
+            "kKUKBJg", "N0oZlJR",        // posy, negy.
+            "x9q8z0K", "HYcK7Ii",        // posz, negz.
+        ],
+
+        urls: [
+            "https://i.imgur.com/v6bjQLb.jpg", // posx.
+            "https://i.imgur.com/lwrlr6P.jpg", // negx.
+            "https://i.imgur.com/kKUKBJg.jpg", // posy.
+            "https://i.imgur.com/N0oZlJR.jpg", // negy.
+            "https://i.imgur.com/x9q8z0K.jpg", // posz.
+            "https://i.imgur.com/HYcK7Ii.jpg", // negz.
+        ],
+
+        IDs: {
+            posx: "v6bjQLb",
+            negx: "lwrlr6P",
+            posy: "kKUKBJg",
+            negy: "N0oZlJR",
+            posz: "x9q8z0K",
+            negz: "HYcK7Ii",
+        },
+
+        URLs: {
+            posx: "https://i.imgur.com/v6bjQLb.jpg",
+            negx: "https://i.imgur.com/lwrlr6P.jpg",
+            posy: "https://i.imgur.com/kKUKBJg.jpg",
+            negy: "https://i.imgur.com/N0oZlJR.jpg",
+            posz: "https://i.imgur.com/x9q8z0K.jpg",
+            negz: "https://i.imgur.com/HYcK7Ii.jpg",
+        },
+    };
+
+</script>
+
+
+
+
+
+
+
+
+
+
+

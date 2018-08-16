@@ -1,0 +1,197 @@
+<!-- tshirt-stamp-batch-update-snapshots-button.html -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Stamp Batch Update:</li>
+<div id="tshirt-stamp-batch-update-snapshots-button" class="form-control btn btn-primary btn-white-outline gradient-btn">Open stamp batch update</div>
+
+
+<script>
+
+//  tshirt-stamp-update-button.html
+
+    var tshirtStampBatchUpdateButtonSelector = "#tshirt-stamp-batch-update-snapshots-button";
+
+    $(tshirtStampBatchUpdateButtonSelector)[0].fetchOptions = {
+        endpoint: "/textures/find/selectors/options",
+        selectors: {
+            kind: "texture",
+            type: "map",
+            outfit: "tshirt",
+            category: "stamp",
+        },
+        options: {
+            skip: 0,
+            limit: 16,
+            sort: {_id: -1 },
+            fields: {  
+                "id":1,
+                "ext":1,
+                "title":1, // "kind":1, "type":1, "outfit":1, 
+                "material_index":1, // "geometry_name":1, 
+                "master_snapshot":1, // "snapshots":1, 
+            //  "size":1, "width":1, "height":1, "mimeType":1,
+            },
+        },
+    };
+
+/*
+//  Target texture is not avaliable.
+    $(tshirtStampBatchUpdateButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.tshirt.material.materials[1].map.img_id ) {
+            var msg = "Open stamp library panel and choose an item for this outfit first.";
+            bootboxErrorAlert(msg);
+        }
+    });
+*/
+
+//  Define holder.
+    $(tshirtStampBatchUpdateButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit.tshirt.material.materials[1] ) return;
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+
+    });
+
+/*
+//  Define target.
+//  Will defined when panel opened.
+    $(tshirtStampBatchUpdateButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit.tshirt.material.materials[1] ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.tshirt.material.materials[1];
+        } else {
+            target = undefined;
+        }
+
+    });
+*/
+
+//  Import dialog form component and apply dialog option.
+    $(tshirtStampBatchUpdateButtonSelector).on("click", function(){
+
+        if ( !localPlayer.outfit.tshirt.material.materials[1] ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 500,
+                minWidth: 500,
+                maxWidth: 500,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Stamp Batch Update Form",
+            };
+
+            var component = "tshirt-stamp-batch-update-form.html";
+            $EditorPanel.loadComponent(component, option);
+
+        }
+
+    });
+
+//  Open/Close dialog.
+    $(tshirtStampBatchUpdateButtonSelector).on("click", function(){
+
+        if ( !localPlayer.outfit.tshirt.material.materials[1] ) return;
+
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+
+    });
+
+</script>
+
+
+<script>
+
+/*
+//  Get img_id data.
+    $(tshirtStampBatchUpdateButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.tshirt.material.materials[1] ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var endpoint = "/textures/imgur/id/" + target;
+            var jqxhr = $.post(endpoint, function(result, status, xhr){
+                debugMode && console.log("post%s: %s", endpoint, status);
+            }).then( function(result, status, xhr){
+
+            //  Error.
+                if (!!result.error) {
+                    console.log("Error:", result.error);
+                    throw Error(result.error);
+                }
+
+            //  Success.
+                if (!!result.success) {
+                    debugMode && console.log("Success:", result.success);
+                    return result.success;
+                }
+
+            }).then( function( data ){
+                debugMode && console.log("data:", data);
+
+                var itemTitleSelector         = "#item-title";
+                var outfitSnapshotsSelector   = "#outfit-snapshots";
+                var itemSnapshotSelector      = ".item-snapshot";
+                var snapshotContainerSelector = ".snapshot-container";
+                var snapshotImageSelector     = ".snapshot-image";
+                var itemDescriptionSelector   = "#item-description";
+                var itemTagsSelector          = "#item-tags";
+
+                $(itemTitleSelector).val(data.title);
+                $(itemDescriptionSelector).val(data.description);
+                $(itemTagsSelector).val(data.tags);
+
+                if (!!data.snapshots) data.snapshots.forEach( function( id, index ){
+
+                    var $itemSnapshot = $([
+                        '<div class="item-snapshot snapshot-container">',
+                        '<img class="thumbnail snapshot-image">',
+                        '<div class="btn btn-default snapshot-inner-btn snapshot-remove"></div>',
+                        '<input type="checkbox" class="btn btn-default snapshot-inner-btn snapshot-master">',
+                        '</div>'
+                    ].join("") );
+
+                    $itemSnapshot.find("img")[0].src = "https://i.imgur.com/" + id + ".jpg";
+
+                    $(outfitSnapshotsSelector).append( $itemSnapshot );
+
+                    $itemSnapshot.find(".snapshot-remove").on("click", function(){
+                        $itemSnapshot.remove();
+                    });
+
+                    $itemSnapshot.find(".snapshot-master").on("click", function(){
+                        $(".snapshot-master").attr("checked", false);
+                        this.checked = true;
+                    });
+
+                });
+
+            });
+            
+            jqxhr.done( function(){
+                $EditorPanel.dialog("open");
+            });
+            
+            jqxhr.fail(function ( err ) {
+                console.error(err);
+            });
+
+        }
+
+    });
+*/
+
+</script>

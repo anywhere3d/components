@@ -1,0 +1,82 @@
+<!-- texture-target-map-options-button.html (v1.1) -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Target Map Texture:</li>
+<div id="target-map-options-button" class="form-control btn btn-danger btn-white-outline gradient-btn">Open texture options panel</div>
+
+
+<script>
+
+    var targetMapOptionsButtonSelector = "#target-map-options-button";
+
+    $(targetMapOptionsButtonSelector)[0].options = {
+    //  name: null,     // outfits name N/A.
+        index: 0,       // materials index.
+        map: "map",     // materials texture.
+        title: "Texture Map Options", // panel title.
+        component: "texture-map-options-panel.html"
+    };
+
+
+//  Define holder.
+    $(targetMapOptionsButtonSelector).on("click", function (){
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(targetMapOptionsButtonSelector).on("click", function(){
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 300,
+                minWidth: 300,
+                maxWidth: 300,
+                height: 450,
+                minHeight: 450,
+                maxHeight: 450,
+                title: this.options.title,
+            }
+
+            var component = "texture-map-options-panel.html";
+            $EditorPanel.loadComponent(component, option);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(targetMapOptionsButtonSelector).on("click", function(){
+
+        if ( !$EditorPanel.active ) {
+
+            $EditorPanel.dialog("open");
+
+        //  Stop outfit animation.
+            localPlayer.outfit.AnimationsHandler.stop();
+
+        } else {
+
+            $EditorPanel.dialog("close");
+
+        }
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+

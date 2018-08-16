@@ -1,0 +1,298 @@
+<!-- skybox-background-panel.html -->
+
+<style>
+
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:450px !important;
+        max-height:450px !important;
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .skybox-btn { 
+        margin-bottom:15px; 
+        margin-right:10px; 
+        width:115px; 
+        height:115px; 
+        border-radius:8px;
+        background-size:contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat; 
+    }
+
+</style>
+
+<h4>Select skybox:</h4>
+
+<div id="skybox-background-panel">
+    <li id={{ids}} class="btn btn-default btn-white-outline skybox-btn" w3-repeat="success"
+    style="background-image:url('{{icon}}');" title={{name}}>{{title}}</li>
+</div>
+
+<!-- 
+<a id="space4-skybox" name="space4" class="nav-link btn btn-default btn-white-outline texture-btn" 
+style="background-image: url('https://i.imgur.com/v6bjQLbs.jpg'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Space4"></a>
+
+<a id="clouds-skybox" name="clouds" class="nav-link btn btn-default btn-white-outline texture-btn" 
+style="background-image: url('https://i.imgur.com/Wq5hNgps.jpg'); background-size: 
+contain; background-position:50% 50%; background-repeat:no-repeat;" title="Clouds"></a>
+ -->
+
+<script>
+
+//  skyboxBackground.js
+
+    function skyboxBackground( urls ){
+        if (!scene || Number(THREE.REVISION) < 78) return;
+        var loader = new THREE.CubeTextureLoader();
+        loader.load( urls, function(texture){
+            scene.background = texture;
+            scene.background.needsUpdate = true;
+        });
+    }
+
+//  deallocateTextures.js
+
+    function deallocateTextures(){
+        var deallocate = {};
+
+        for (var arg in arguments){
+            deallocate[arg] = arguments[arg];
+            arguments[arg] = null;
+        }
+
+        debugMode && console.log( "deallocate:", deallocate );
+
+        for (var name in deallocate){
+            if (!deallocate[name]) continue;
+            deallocate[name].dispose();
+            deallocate[name] = null;
+            delete deallocate[name];
+        }
+
+    }
+
+</script>
+
+<script>
+
+//  Reset skybox.
+    var resetSkyboxSelector = "#reset-skybox";
+    $(resetSkyboxSelector).on("click", function(){
+        skyboxBackground([
+            "https://i.imgur.com/v6bjQLb.jpg", // "posx",
+            "https://i.imgur.com/lwrlr6P.jpg", // "negx", 
+            "https://i.imgur.com/kKUKBJg.jpg", // "posy", 
+            "https://i.imgur.com/N0oZlJR.jpg", // "negy", 
+            "https://i.imgur.com/x9q8z0K.jpg", // "posz", 
+            "https://i.imgur.com/HYcK7Ii.jpg", // "negz"
+        ]);
+    });
+
+</script>
+
+
+<script>
+
+    var skyboxes = {}; // IMPORTANT //
+    skyboxes.success = [
+//  results demo:
+        {
+            kind: "skybox",
+            type: "CubeTexture",
+            category: ["skybox"],
+            name:  "space4",
+            title: "Space4",
+            tags: [],
+            ext: "jpg",
+            host: "https://i.imgur.com/",
+            ids: [
+                "v6bjQLb", "lwrlr6P",        // posx, negx.
+                "kKUKBJg", "N0oZlJR",        // posy, negy.
+                "x9q8z0K", "HYcK7Ii",        // posz, negz.
+            ],
+            icon:    "https://i.imgur.com/v6bjQLbs.jpg",
+            thumb:   "https://i.imgur.com/v6bjQLbt.jpg",
+            preview: "https://i.imgur.com/v6bjQLbm.jpg",
+        },
+        /*
+            links:[
+                "https://i.imgur.com/v6bjQLb.jpg", // posx.
+                "https://i.imgur.com/lwrlr6P.jpg", // negx.
+                "https://i.imgur.com/kKUKBJg.jpg", // posy.
+                "https://i.imgur.com/N0oZlJR.jpg", // negy.
+                "https://i.imgur.com/x9q8z0K.jpg", // posz.
+                "https://i.imgur.com/HYcK7Ii.jpg", // negz.
+            ],
+        */
+        {
+            kind: "skybox",
+            type: "CubeTexture",
+            category: ["skybox"],
+            name:  "clouds",
+            title: "Clouds",
+            tags: [],
+            ext: "jpg",
+            host: "https://i.imgur.com/",
+            ids: [
+                "Wq5hNgp", "miDjkfE",        // posx, negx.
+                "uqV1m3t", "fNegTKZ",        // posy, negy.
+                "BIMqAp8", "wJFiTpM",        // posz, negz.
+            ],
+            icon:    "https://i.imgur.com/Wq5hNgps.jpg",
+            thumb:   "https://i.imgur.com/Wq5hNgpt.jpg",
+            preview: "https://i.imgur.com/Wq5hNgpm.jpg",
+        },
+        /*
+            links:[
+                "https://i.imgur.com/Wq5hNgp.jpg", // posx.
+                "https://i.imgur.com/miDjkfE.jpg", // negx.
+                "https://i.imgur.com/uqV1m3t.jpg", // posy.
+                "https://i.imgur.com/fNegTKZ.jpg", // negy.
+                "https://i.imgur.com/BIMqAp8.jpg", // posz.
+                "https://i.imgur.com/wJFiTpM.jpg", // negz.
+            ],
+        */
+
+    ];
+
+    var skyboxBackgroundPanelSelector = "#skybox-background-panel";
+
+    w3.displayObject("skybox-background-panel", skyboxes);
+
+
+    $(".skybox-btn").on("click", function(){
+        if (!scene || Number(THREE.REVISION) < 78) return;
+
+    //  Dispose skybox.
+        if ( !!!scene.background && scene.background instanceof THREE.Texture ){
+            scene.background.dispose();
+            scene.background = null;
+        }
+
+    //  debugMode && console.log( this.id.split(",") );
+
+        var ids = this.id.split(",");
+        debugMode && console.log( "skybox ids:", ids );
+        if ( ids.length < 6 ) return;
+
+        var urls = [];
+        for (var i=0; i < ids.length; i++){
+            urls.push( ["https://i.imgur.com/", ids[i], ".", "jpg"].join("") );
+        }
+        debugMode && console.log( "skybox urls:", urls );
+/*
+    //  Create texture.
+        var loader = new THREE.CubeTextureLoader();
+        loader.load( urls, function(texture){
+            scene.background = texture;
+            scene.background.needsUpdate = true;
+        });
+*/
+    //  Save current skybox links to urer settings.
+        var path = "/user/settings/skybox/current";
+    //  var path = userSettings.skybox;
+        var old_value = store.set( path, urls );
+    //  debugMode && console.log( "old value:", old_value );
+
+    });
+
+    $(".skybox-btn").on("click", function(){
+        if (!scene || Number(THREE.REVISION) < 78) return;
+
+        var path = "/user/settings/skybox/current";
+    //  var path = userSettings.skybox;
+        var new_value = store.get( path );
+    //  var new_value = userSettings.getValue("skybox");
+        debugMode && console.log( "new value:", new_value );
+
+    //  Create texture.
+        var loader = new THREE.CubeTextureLoader();
+        loader.load( new_value, function(texture){
+            scene.background = texture;
+            scene.background.needsUpdate = true;
+        });
+
+    });
+
+    function getSkyboxBackgrounds( options ){
+        return new Promise( function(resolve, reject){
+            var url = query( options );
+            $.get( url, function(data, status, xhr){
+                debugMode && console.log("get %s: %s", url, status);
+            }).then( function( data ){
+                debugMode && console.log("data:", data);
+        
+                if (!!data.error) {
+                    var error = data.error;
+                    debugMode && console.log("error:", error);
+                    throw Error(error);
+                }
+    
+                if (!!data.success) {
+                    if ( data.success.length == 0 ) console.warn("None data returned.");
+                }
+
+                resolve(data);
+            });
+        });
+
+        function query(options){
+            if ( !options.url ) return;
+            var route = options.url;
+            for (var name in options.params){
+                route += options.params[name];
+            }
+            debugMode && console.log("query route:", route);
+            return route;
+        }
+
+    }
+
+//    var options = {};
+//    options.url = "/skyboxes/skip/";
+//    options.params = {};
+//    options.params.skip = 0;
+//    debugMode && console.log("options:", options);
+
+/*
+//  Load from skyboxes.success.
+    getSkyboxBackgrounds({
+    //  options:
+        url: "/skyboxes/skip/", // "/skyboxes/skip/:skip"
+        params: { skip:0 },
+    }).then(function( data ){
+
+        if ( !!data.success && data.success.length > 0) {
+            skyboxes.success = skyboxes.success.concat( data.success );
+            w3.displayObject("skybox-background-panel", skyboxes);
+        }
+
+    }).catch( function(err){
+        console.error( err );
+    });
+*/
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

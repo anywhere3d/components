@@ -1,0 +1,72 @@
+<!-- skybox-background-button.html -->
+
+<h4>Skybox helpers:</h4>
+<li id="skybox-background-button" class="helpers"><a>Open skyboxes panel</a></li>
+<!-- div id="skybox-background-button" class="form-control btn btn-info btn-white-outline" style="margin-bottom:30px;">Open skyboxes panel</div -->
+<li id="background-helper" class="helpers"><a>Remove skybox background</a>
+    <script>
+    //  Background helper.
+        var backgroundHelperSelector = "#background-helper";
+        $(backgroundHelperSelector).on("click", function(){
+            if ( !!scene.background && scene.background instanceof THREE.Texture ){
+                scene.background.dispose();
+                scene.background = null;
+            }
+        });
+    </script>
+</li>
+<hr>
+
+<script>
+
+    var target;
+    var $EditorPanel;
+
+    var skyboxBackgroundButtonSelector = "#skybox-background-button";
+
+    $(skyboxBackgroundButtonSelector).on("click", function(){
+        if ( !$EditorPanel.active ){
+            target = scene.background;
+        } else {
+            target = undefined;
+        }
+    });
+
+    $(skyboxBackgroundButtonSelector).on("click", function(){
+        if (!$EditorPanel.active){
+
+            $EditorPanel.dialog( "option", {
+                width    : 316,
+                minWidth : 316,
+                maxWidth : 316,
+                height   : 500,
+                minHeight: 500,
+                maxHeight: 500,
+                title: "Skyboxes panel"
+            });
+
+            var component = componentsFolder + "skybox-background-panel.html";
+            $EditorPanel.load(component, function(response, status, xhr){
+                debugMode && console.log("skybox-background-panel:", status);
+            });
+
+        }
+    });
+
+//    $(skyboxBackgroundButtonSelector).on("click", function(){
+//        if (!$EditorPanel.active){
+//            var component = componentsFolder + "skybox-background-panel.html";
+//            $EditorPanel.load( component );
+//        }
+//    });
+
+//  Open/Close dialog.
+    $(skyboxBackgroundButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+</script>

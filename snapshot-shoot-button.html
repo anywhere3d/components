@@ -1,0 +1,240 @@
+<!-- snapshot-shoot-button.html -->
+
+<style>
+/* spinner.css */
+    .snapshot-spinner { position:absolute; left:0px; top:0px; width:100%; height:100%; text-align:center; }
+    .img-helper { display:inline-block; height:100%; vertical-align:middle; }
+    .spin-img { height:128px; vertical-align:middle; }
+</style>
+
+<a id="snapshot-shoot-button" class="btn btn-primary pull-right">Take snapshot</a>
+
+<script>
+
+//  Snapshot-take-button.js
+
+    var debugMode;
+
+    var snapshot;
+    var dialogAnimationFrameRequestID;
+    var snapshotShootButtonSelector = "#snapshot-shoot-button";
+
+    var snapshotSpinner = [
+        '<div class="spinner spinner-loading">',
+            '<span class="img-helper"></span><img class="spin-img" src="https://i.imgur.com/7qG1W04.gif" />',
+        '</div>'
+    ].join("");
+
+    $(snapshotShootButtonSelector).on( "click", function(){
+
+        $SnapshotPanel.append( snapshotSpinner );
+
+    //  Take snapshot.
+        var snapshotdata = snapshot.renderer.domElement.toDataURL("image/jpeg");
+
+    //  watermark.js
+
+        try {
+
+        //  Create new object instance.
+            var wm = new Watermark();
+
+            var wmOptions = {
+                position: [1,1], // right bottom  
+                scale: 0.8,      // Default is 1.0
+                opacity: 1.0,    // Default is 1.0
+            };
+
+            wm.setPicture( snapshotdata );                  // Base picture: Url or data-url.
+            wm.addWatermark("https://i.imgur.com/MrEaeSc.png", wmOptions);  // Url or data-url.
+
+        //  Do something when watermarking ends.            
+            wm.render( function(){
+                debugMode && console.log( "watermark.getImgs:", wm.getImgs( 'image/jpeg', 0.9 ) );
+                saveSnapshotDialog( wm.getDataUrls( 'image/jpeg', 0.9 )[0] );
+            });
+
+        } catch(err) {
+        //  Open a new boobox confirm dialog with 
+        //  the snapshot preview to save or cancel.
+            saveSnapshotDialog( snapshotdata );
+        }
+
+    //  shot button: "return false", 
+    //  prevents dialog modal to close.
+        return false; 
+
+    });
+
+
+    function saveSnapshotDialog( data ){
+
+        $(".snapshot-spinner").remove();
+
+        var snapshot_dialog = bootbox.dialog({
+
+        //  size: "small",
+            message: '<img src="' + data + '" id="snapshot-preview" class="img-thumbnail">',
+            buttons: {
+
+                cancel: {
+                    label: 'Cancel',
+                    className: 'btn-default',
+                    callback: function(){},
+                },
+            /*
+                pinterest: {
+                    label: 'Pin',
+                    className: 'btn-danger',
+                //  callback: function(){},
+                },
+            */
+                imgur: {
+                    label: 'Imgur',
+                    className: 'btn-warning',
+                    callback: upload,
+                },
+            /*
+                tweet: {
+                    label: 'Tweet',
+                    className: 'btn-info',
+                //  callback: shareInTwitter,
+                },
+            */
+                save: {
+                    label: 'Save',
+                    className: 'btn-success',
+                    callback: saveToDesktop,
+                }
+            }
+
+        });
+
+
+        function saveToDesktop(){
+        //  Save image to desktop.
+            data.replace("image/jpeg", "image/octet-stream");
+            var a = document.createElement("a");
+            $(a).one("click", function(){ 
+                $(this).remove();
+            });
+            a.download = ["snapshot", Date.now().toString(36)].join("-") + ".jpg";
+            a.href = data;
+            a.click();
+        }
+
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+
+            return new Blob([u8arr], {type:mime});
+        }
+
+
+        function upload(){
+
+            $SnapshotPanel.append( snapshotSpinner );
+
+            var id = Date.now().toString(36);
+            var blob = dataURLtoBlob( data );
+            var size = blob.size;
+            var mimeType = blob.type;
+            var filename = id + ".jpg";
+            var file = new File([blob], filename, { type: mimeType });
+
+        //  imgurUpload.js
+
+            new Promise( function(resolve, reject){
+
+                var clientid = "95e1ecaf14ca5e6";
+                var endpoint = "https://api.imgur.com/3/image";
+
+                var formdata = new FormData();
+                formdata.append("image", file);
+                formdata.append("name",  filename);
+                formdata.append("title", "anywhere3d snapshot");
+                formdata.append("description", "Avatar editor snapshot direct from http://anywhere3d.com");
+                formdata.append("tags", "anywhere3d" );
+
+                var xhttp = new XMLHttpRequest();
+                xhttp.open('POST', endpoint, true);
+                xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState === 4) {
+                        var response = "";
+                        if (this.status >= 200 && this.status < 300) {
+                            response = JSON.parse(this.responseText);
+                            resolve( response );
+                        } else {
+                            var error = this.responseText;
+                            throw Error( error );
+                        }
+                    }
+                };
+                xhttp.send(formdata);
+                xhttp = null;
+
+            }).then( function( response ){
+                debugMode && console.log("imgur response:", response.data);
+
+                var data = response.data;
+
+            //  Store in gallery storage.
+                GalleryStorage.ready().then(function() {
+                    GalleryStorage.setItem("/snapshot/" + id, data).then(function( result ){
+                        debugMode && console.log( "gallery result:", result );
+                        successCallback( result.link );
+                        $(".snapshot-spinner").remove();
+                    });
+                }).catch(function (err) {
+                    console.error("Gallery Storage Error:", err); 
+                });
+
+            }).catch(function (err) {
+                console.error("Snapshot Uploader Error:", err); 
+            });
+
+        } // end upload;
+
+
+        function successCallback( url ){
+            bootbox.confirm({
+                size: "small",
+                title: '<div class="alert-icon icon-success"></div><b>Snapshot uploaded successfully.</b>',
+                message: [
+                    ['<b>url: </b><span><a href="', url, '"'].join(""), 
+                    ['target="_blank">', url, '</a></span>'].join(""), 
+                ].join(" "),
+
+                buttons: {
+
+                    cancel: {
+                        label: 'Close',
+                        className: 'btn-default',
+                    },
+                    
+                    confirm: {
+                        label: 'Open image',
+                        className: 'btn-primary',
+                    }
+                },
+
+                callback: function ( result ) {
+                    if ( result ) window.open( url );
+                }
+
+            });
+
+        } // end successCallback;
+
+    } // end saveSnapshotDialog;
+
+</script>

@@ -1,0 +1,190 @@
+<!-- texture-editor-panel.html -->
+
+<style>
+
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:400px !important;
+        max-height:400px !important; 
+        background-color:#000000;
+    }
+
+    .col-panel {
+        height:auto; 
+        padding-top:0px; padding-bottom:0px;
+        color:#ffffff;
+    }
+    
+    .sub-panel {
+        height:auto; 
+        border:white 1px solid;
+        border-radius:8px;
+        padding:15px;
+        padding-top:0px;
+        margin-bottom:15px;
+        color:#ffffff;
+    }
+
+    .col-panel a { color:#ffffff; }
+    .col-panel h4 { margin-top:20px; }
+    .col-panel input, 
+    .col-panel label{ font-family: Arial, sans-serif; font-size:14px; }
+
+    .sp-container { width:100%; background-color:#000000; border:none; }
+    .sp-input { color:#ffffff; border:none; }
+    .sp-picker-container { width:90%; border:none; }
+
+    .texture-btn { margin-bottom:15px; }
+
+    .panel-controls-output { 
+        width:50px; outline:none;
+        color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+        font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
+    }
+
+    .ui-widget-overlay { 
+        background:none;
+        opacity:0;
+    }
+
+</style>
+
+
+<div id="texture-editor-left-col" class="col-md-12 col-panel">
+
+    <h4>Options:</h4>
+
+    <li>
+        <label for="anisotropy" title="The number of samples taken along the axis through the pixel that has the highest density of texels">Anisotropy:</label>
+        <input type="number" id="anisotropy" class="panel-controls-output pull-right" min="1" value="1" step="1">
+    </li>
+
+    <li>Offset</li>
+    <ul>
+        <li>
+            <label for="offset-output-x" title="Set width offset">offset-x:</label>
+            <input type="number" id="offset-output-x" class="panel-controls-output pull-right" value="0" step="0.01">
+        </li>
+        <li>
+            <label for="offset-output-y" title="Set height offset">offset-y:</label>
+            <input type="number" id="offset-output-y" class="panel-controls-output pull-right" value="0" step="0.01">
+        </li>
+    </ul>
+
+    <li>Repeat</li>
+    <ul>
+        <li>
+            <label for="repeat-output-x" title="Set width repeat">repeat-x:</label>
+            <input type="number" id="repeat-output-x" class="panel-controls-output pull-right" value="1" step="0.01">
+        </li>
+        <li>
+            <label for="repeat-output-y" title="Set height repeat">repeat-y:</label>
+            <input type="number" id="repeat-output-y" class="panel-controls-output pull-right" value="1" step="0.01">
+        </li>
+    </ul>
+
+    <li>
+        <label for="needsUpdate" title="Particularly important for setting the wrap mode.">Needs Update:</label>
+        <input type="checkbox" id="needsUpdate" class="panel-controls-output pull-right">
+    </li>
+
+    <li>
+        <label for="generateMipmaps" title="Whether to generate mipmaps (if possible) for a texture.">Generate Mipmaps:</label>
+        <input type="checkbox" id="generateMipmaps" class="panel-controls-output pull-right">
+    </li>
+
+    <li>
+        <label for="premultiplyAlpha" title="Set to true if the RGB values have been stored premultiplied by alpha.">Premultiply alpha:</label>
+        <input type="checkbox" id="premultiplyAlpha" class="panel-controls-output pull-right">
+    </li>
+
+    <li>
+        <label for="flipY" title="Flips the image's Y axis to match the WebGL texture coordinate space.">Flip-Y:</label>
+        <input type="checkbox" id="flipY" class="panel-controls-output pull-right">
+    </li>
+
+</div>
+
+<!-- 
+    <ul class="hidden">
+        <li>WarpS</li>
+        <li>WarpT</li>
+        <li>Mapping</li>
+        <li>MagFilter</li>
+        <li>MinFilter</li>
+        <li>Format</li>
+        <li>Type</li>
+        <li>Encoding</li>
+    </ul>
+ -->
+
+<script>
+
+    var flipYSelector         = "#flipY";
+    var anisotropySelector    = "#anisotropy";
+    var offsetOutputXSelector = "#offset-output-x";
+    var offsetOutputYSelector = "#offset-output-y";
+    var repeatOutputXSelector = "#repeat-output-x";
+    var repeatOutputYSelector = "#repeat-output-y";
+    var needsUpdateSelector   = "#needsUpdate";
+    var generateMipmapsSelector  = "#generateMipmaps";
+    var premultiplyAlphaSelector = "#premultiplyAlpha";
+
+//  Initialize (target must be texture).
+
+    target.wrapS = 1000; // THREE.RepeatWrapping;
+    target.wrapT = 1000; // THREE.RepeatWrapping;
+    target.needsUpdate = true; // IMPORTANT //
+
+    $(anisotropySelector).val( target.anisotropy );
+    $(anisotropySelector).attr( "max", renderer.getMaxAnisotropy() );
+
+    $(offsetOutputXSelector).val( target.offset.x );
+    $(offsetOutputYSelector).val( target.offset.y );
+
+    $(repeatOutputXSelector).val( target.repeat.x );
+    $(repeatOutputYSelector).val( target.repeat.y );
+
+    $(flipYSelector)[0].checked = target.flipY;
+    $(needsUpdateSelector)[0].checked = true;
+    $(generateMipmapsSelector)[0].checked = target.generateMipmaps;
+    $(premultiplyAlphaSelector)[0].checked = target.premultiplyAlpha;
+
+</script>
+
+
+<script>
+
+//  Event Handlers.
+
+    $(anisotropySelector).on("change", function(){
+        target.anisotropy = parseInt( this.value );
+        target.needsUpdate = true; // IMPORTANT //
+    });
+
+    $(repeatOutputXSelector).on("input change", function(){
+        target.repeat.x = parseFloat( this.value );
+        target.needsUpdate = true; // IMPORTANT //
+    });
+
+    $(repeatOutputYSelector).on("input change", function(){
+        target.repeat.y = parseFloat( this.value );
+        target.needsUpdate = true; // IMPORTANT //
+    });
+
+    $(offsetOutputXSelector).on("input change", function(){
+        target.offset.x = parseFloat( this.value );
+        target.needsUpdate = true; // IMPORTANT //
+    });
+
+    $(offsetOutputYSelector).on("input change", function(){
+        target.offset.y = parseFloat( this.value );
+        target.needsUpdate = true; // IMPORTANT //
+    });
+
+</script>
+
+
+

@@ -1,0 +1,386 @@
+<!-- tshirt-stamp-update-form.html (v1.2)-->
+
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+        z-index:9999 !important;
+    }
+
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .form-header {
+        margin-top:10px;
+        height:auto;
+        color: #ffffff;
+    }
+
+    .form-body {
+        padding:20px;
+        height:220px;
+        color: #ffffff;
+    }
+
+    #item-description {
+        min-width:100%;
+        max-width:100%;
+        min-height:40px;
+        max-height:75px;
+        color:#000000;
+    }
+
+    .form-footer {
+        padding:20px;
+        height:70px;
+        color: #ffffff;
+    }
+
+    .modal-dialog {
+        width:fit-content;
+    }
+
+</style>
+
+<h4>Update stamp form:</h4>
+
+<div class="form-body">
+    <div>Title:</div>
+    <input type="text" id="item-title" class="form-control" readonly>
+    <div class="label">Description (optional):</div>
+    <textarea id="item-description" cols="33" rows="3" maxlength="600" class="form-control" readonly></textarea>
+    <div class="label">Tags (optional - comma, delimiter):</div>
+    <input type="text" id="item-tags" class="form-control" readonly>
+</div>
+
+<div id="form-snapshots-holder">
+    <script>
+        var formSnapshotsHolderSelector = "#form-snapshots-holder";
+        var formSnapshotsComponents = componentsFolder + "form-snapshots.html";
+        $(formSnapshotsHolderSelector).load(formSnapshotsComponents, function(response, status, xhr){
+            debugMode && console.log("form-snapshots:", status);
+        });
+    </script>
+</div>
+
+<div class="form-footer">
+    <input type=button id="form-update-button" class="btn btn-success btn-white-outline pull-right hidden" value="Update stamp" disabled>
+    <input type=button id="snapshots-replace-button" class="btn btn-success btn-white-outline pull-right" value="Replace snapshots">
+    <div id="form-cancel-button" class="btn btn-default btn-white-outline">Cancel</div>
+</div>
+
+
+<script>
+
+//  Form Cancel button.
+
+    var formCancelButtonSelector = "#form-cancel-button";
+    $(formCancelButtonSelector).on("click", function(){
+        $EditorPanel.dialog("close");
+    });
+
+</script>
+
+
+<script>
+
+//  Form Update button.
+
+    var itemTitleSelector         = "#item-title";
+    var outfitSnapshotsSelector   = "#outfit-snapshots";
+    var itemSnapshotSelector      = ".item-snapshot";
+    var snapshotContainerSelector = ".snapshot-container";
+    var snapshotImageSelector     = ".snapshot-image";
+    var formSpinnerSelector       = ".form-spinner";
+    var itemDescriptionSelector   = "#item-description";
+    var itemTagsSelector          = "#item-tags";
+    var formUpdateButtonSelector  = "#form-update-button";
+
+    var snapshotsReplaceButtonSelector = "#snapshots-replace-button";
+    $(snapshotsReplaceButtonSelector).on("click", function(){
+
+        var button = this;
+        this.disabled = true;
+    
+    //  Validate snapshots.
+        if ( $(outfitSnapshotsSelector).find(snapshotImageSelector).toArray().length == 0 ){
+            var msg = "You must add one snapshot at least.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+
+        var title = $(itemTitleSelector).val();
+        var description = $(itemDescriptionSelector).val();
+
+    //  Collect form snapshots.
+        var formSnapshots = $(outfitSnapshotsSelector).find(".snapshot-container").toArray();
+        debugMode && console.log( "formSnapshots:", formSnapshots );
+
+        var deferreds = [];
+
+    //  Upload form snapshots.
+        formSnapshots.forEach(function( snapshotContainer, index ){
+            debugMode && console.log( "snapshotContainer:", snapshotContainer );
+            var image = $(snapshotContainer).find(snapshotImageSelector)[0];
+        //  debugMode && console.log( "image:", image );
+
+            var spinner = [ 
+                '<div class="form-spinner" style="position:relative; top:-162px; height:100%;',
+                'background-size:25%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"><div>' 
+            ].join(" ");
+
+            deferreds.push(
+            //  uploadToImgur.js  //
+                new Promise( function(resolve, reject){
+                    $(snapshotContainer).append( spinner );
+
+                    var data = image.src;
+                    var blob = dataURLtoBlob( data );
+                    var size = blob.size;
+                    var name = Date.now().toString(36);
+                    var mimeType = blob.type;
+
+                    var extension;
+                    switch (mimeType){
+                        case "image/jpeg": { extension = "jpg"; break; }
+                        case "image/png":  { extension = "png"; break; }
+                    }
+                    var filename = name + "." + extension;
+                    var file = new File([blob], filename, { type: mimeType });
+
+                //  imgurUpload.js
+
+                    var formdata = new FormData();
+                    formdata.append("image", file);
+                    formdata.append("name",  filename);
+                    formdata.append("title", title);
+                    formdata.append("description", description);
+
+                    var clientid = "95e1ecaf14ca5e6";                // form options variable.
+                    var endpoint = "https://api.imgur.com/3/image";  // form options variable.
+
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open('POST', endpoint, true);
+                    xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState === 4) {
+                            var response = "";
+                            if (this.status >= 200 && this.status < 300) {
+                                response = JSON.parse(this.responseText);
+                                resolve( response ); // resolve Promise.
+                            } else {
+                                var error = JSON.parse(this.responseText).data.error;
+                                console.error( "error:", error );
+                                bootboxErrorAlert(error.message, function(){ 
+                                    $(snapshotContainer).find(".form-spinner").remove();
+                                    button.disabled = false;
+                                });
+                                throw Error( this.responseText );
+                            }
+                        }
+                    };
+                    xhttp.send(formdata);
+                    xhttp = null;
+
+                }).then( function( response ){
+
+                    var data = response.data;
+                    debugMode && console.log("imgur data:", data);
+
+                //  mongodb.
+
+                    var json = JSON.stringify( data );
+                    var endpoint = "/snapshots/insert";  // form options variable.
+                    
+                    var jqxhr = $.post(endpoint, {data:json}, function(result, status, xhr){
+                        debugMode && console.log("post %s: %s", endpoint, status);
+                    }).then( function(result, status, xhr){
+
+                        if (!!result.error) {
+                            throw result.error;
+                        }
+
+                        if (!!result.success) {
+                            debugMode && console.log("insert result:", result);
+                            return result.success;
+                        }
+
+                    });
+
+                //  zargodb.
+
+                    jqxhr.done(function ( results ) {
+
+                        data._id = results.insertedIds[0];
+                        db.open(function(err, database){
+                            if (err) console.error( err );
+                        }).then( function(){
+                            var collection = db.collection("snapshots");
+                            collection.insert( data, function(err){
+                                if (err) throw err;
+                            }).then(function(){
+                                $(snapshotContainer).remove();
+                            }).catch(function (err) {
+                                console.error("IndexedDB InsertError:", err);
+                                throw err;
+                            });
+                        }).catch(function (err) {
+                        //  IMPORTANT: zargodb does not throw  
+                        //  an error if you explictly not catch it.
+                            console.error("IndexedDB Error:", err);
+                            throw err;
+                        });
+
+                    });
+
+                //  mongodb errors.
+
+                    jqxhr.fail(function (err) {
+                        console.error("Snapshot InsertError:", err);
+                        throw err;
+                    });
+
+                    return data; // IMPORTANT //
+
+            //  Catch errors until here.
+                }).catch(function (err) {
+                    $(snapshotContainer).find(".form-spinner").remove();
+                    console.error("Snapshot UploadError:", err); 
+                    throw err;
+                })
+                
+            //  end promise. 
+
+            ); 
+            
+        //  end push.
+
+        }); 
+        
+    //  end forEach.
+
+        debugMode && console.log( "deferreds:", deferreds );
+
+    //  Update snapshots.
+
+        Promise.all(deferreds).then( function(results){
+            debugMode && console.log( "deferreds results:", results );
+/*
+            var spinner = [ 
+                '<div class="form-spinner"', 
+                'style="position:absolute; left:0px; top:0px; height:600px; width:100%;',
+                'background-size:10%; background-position:50% 50%; background-repeat:no-repeat;',
+                'background-image:url(https://i.imgur.com/7qG1W04.gif);"></div>' 
+            ].join(" ");
+
+            $("#editor-panel").append( spinner );
+*/
+        //  Collect snapshots ids.
+
+            var snapshots = [];
+
+            results.forEach( function( data, index ){
+                snapshots.push(data.id);
+            });
+
+            return snapshots;
+
+        }).then( function( snapshots ){
+            debugMode && console.log( "snapshots:", snapshots );
+
+            var selectors = { "id": target };
+            var updates = { 
+                $set: {
+                    "snapshots": snapshots, 
+                    "master_snapshot": snapshots[0],
+                } 
+            };
+            var options = { w: 1, multi: false };
+
+            var data = {
+                updates  : JSON.stringify(updates),
+                options  : JSON.stringify(options),
+                selectors: JSON.stringify(selectors),
+            };
+
+            return data;
+
+        }).then( function( data ){
+            debugMode && console.log( "data:", data );
+
+        //  mongodb.
+
+        //  Update snapshots to mongodb.
+            var endpoint = "/textures/update/selectors/updates/options";  // form options variable.
+            var jqxhr = $.post(endpoint, data, function(result, status, xhr){
+                debugMode && console.log("post%s: %s", endpoint, status);
+                debugMode && console.log("update result:", result);
+            }).then( function(result, status, xhr){
+
+                if (!!result.error) {
+                    console.error("update error:", result.error);
+                    throw result.error;
+                }
+
+                if (!!result.success) {
+                    debugMode && console.log("update success:", result.success);
+                    return result.success;
+                }
+
+            });
+
+        //  zargodb.
+
+            jqxhr.done(function (result) {
+                debugMode && console.log("result:", result);
+
+            //  TODO: Update zargodb.
+            
+            });
+
+            jqxhr.done(function () {
+                $EditorPanel.dialog("close");
+                var msg = "Snapshots replaced successfully!";
+                bootboxSuccessAlert( msg );
+            });
+
+        //  mongodb errors.
+            jqxhr.fail(function (err) {
+                console.error("Stamp UpdateError:", err);
+                bootboxErrorAlert( err );
+                throw err;
+            });
+
+            jqxhr.always(function () {
+                $(".form-spinner").remove();
+            });
+
+        //  end mongodb.
+
+        }).catch(function (err) {
+            $(".form-spinner").remove();
+            console.error("Form Error:", err); 
+            bootboxErrorAlert(err);
+        }); 
+
+    //  end Promise.all.
+
+    });
+
+</script>
+
+
+
+
+

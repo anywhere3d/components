@@ -1,0 +1,50 @@
+<!-- texture-size-output.html -->
+
+<style>
+
+    .action-controls-output { 
+        width:50px; 
+        outline:none; 
+        color:#ffffff; 
+        border:none; 
+        background-color:rgba(255,255,255,0); 
+        font-weight:bold; 
+        font-size:1em; 
+        text-align:right; 
+        font-family:Arial;
+    }
+
+    .power-output { 
+        width:15px;
+    }
+
+</style>
+
+
+<span>size:</span><span id="size-output"></span>
+<input type="number" id="texture-power" class="action-controls-output power-output" index-tab="-1">
+
+
+<script>
+
+    var power = 9;
+    var sizeOutputSelector = "#size-output";
+    var texturePowerSelector = "#texture-power";
+
+//  Initialize texture size input.
+
+//  textureSize: $EditorPanel global variable --> 512.
+    textureSize = Math.pow(2, power);
+    $(sizeOutputSelector).text( textureSize );
+
+    $(texturePowerSelector).attr({
+        min:7, max:11, step:1, value:power
+    });
+
+    $(texturePowerSelector).on("input change", function(){
+        power = parseInt( this.value );
+        textureSize = Math.pow(2, power);
+        $(sizeOutputSelector).text( textureSize );
+    });
+
+</script>

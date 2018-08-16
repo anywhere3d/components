@@ -1,0 +1,417 @@
+<!-- skybox-insert-form.html -->
+
+<style>
+
+    #form-panel,
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:550px !important;
+        max-height:550px !important; 
+        background-color:#000000;
+    }
+
+    h4, 
+    .field-label { color:#ffffff; }
+
+    .img-preview, 
+    .canvas-preview {
+        margin-bottom: 10px;
+    }
+
+    .canvas-preview {
+        border:1px solid white;
+    }
+
+    .img-preview {
+        width: 155px;
+        height: 155px;
+    }
+
+</style>
+
+<h4>Import Skybox sides:</h4>
+
+<div class="col-md-4 col-panel" style="margin-top:0px; margin-bottom:20px;">
+    <img id="pos-x-preview" width="150" height="150" class="img-preview">
+    <div class="btn btn-default btn-white-outline form-control import-btn" id="pos-x-button">Skybox side: posx </div>
+    <input type="file" class="hidden texture-input" id="pos-x-input">
+</div>
+
+<div class="col-md-4 col-panel" style="margin-top:0px; margin-bottom:20px;">
+    <img id="pos-y-preview" width="150" height="150" class="img-preview">
+    <div class="btn btn-default btn-white-outline form-control import-btn" id="pos-y-button">Skybox side: posy </div>
+    <input type="file" class="hidden texture-input" id="pos-y-input">
+</div>
+
+<div class="col-md-4 col-panel" style="margin-top:0px; margin-bottom:20px;">
+    <img id="pos-z-preview" width="150" height="150" class="img-preview">
+    <div class="btn btn-default btn-white-outline form-control import-btn" id="pos-z-button">Skybox side: posz </div>
+    <input type="file" class="hidden texture-input" id="pos-z-input">
+</div>
+
+<div class="col-md-4 col-panel" style="margin-top:0px; margin-bottom:20px;">
+    <img id="neg-x-preview" width="150" height="150" class="img-preview">
+    <div class="btn btn-default btn-white-outline form-control import-btn" id="neg-x-button">Skybox side: negx </div>
+    <input type="file" class="hidden texture-input" id="neg-x-input">
+</div>
+
+<div class="col-md-4 col-panel" style="margin-top:0px; margin-bottom:20px;">
+    <img id="neg-y-preview" width="150" height="150" class="img-preview">
+    <div class="btn btn-default btn-white-outline form-control import-btn" id="neg-y-button">Skybox side: negy </div>
+    <input type="file" class="hidden texture-input" id="neg-y-input">
+</div>
+
+<div class="col-md-4 col-panel" style="margin-top:0px; margin-bottom:20px;">
+    <img id="neg-z-preview" width="150" height="150" class="img-preview">
+    <div class="btn btn-default btn-white-outline form-control import-btn" id="neg-z-button">Skybox side: negz </div>
+    <input type="file" class="hidden texture-input" id="neg-z-input">
+</div>
+
+<div class="col-md-12 col-panel" style="margin-top:0px; margin-bottom:10px;">
+    <div class="btn btn-danger btn-white-outline" id="reset">Reset</div>
+    <div class="btn btn-default btn-white-outline pull-right" id="close">Close</div>
+</div>
+
+<!-- 
+<div class="col-md-12 form-group">
+    <div class="field-label">Name:</div>
+    <input type="text" class="form-control text-field" id="name" name="name" placeholder="(required)" required>
+</div>
+
+<div class="col-md-12 form-group">
+    <div class="field-label">Title</div>
+    <input type="text" class="form-control text-field" id="title" name="title">
+</div>
+
+<div class="col-md-12 col-panel" style="margin-top:0px; margin-bottom:10px;">
+    <div class="btn btn-danger btn-white-outline" id="reset">Reset</div>
+    <input type="submit" class="btn btn-success btn-white-outline pull-right" id="upload-button" value="Upload" disabled>
+</div>
+ -->
+<script>
+
+//  var emptyUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJsAAACbCAYAAAB1YemMAAACt0lEQVR4Xu3SMQ0AAAzDsJU/6bHI5RKoFHlnCkQFFv24UeBggyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgKwZakdwcZAVgC2LLUj2BjICsCWpXYEGwNZAdiy1I5gYyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgKwZakdwcZAVgC2LLUj2BjICsCWpXYEGwNZAdiy1I5gYyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgKwZakdwcZAVgC2LLUj2BjICsCWpXYEGwNZAdiy1I5gYyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgKwZakdwcZAVgC2LLUj2BjICsCWpXYEGwNZAdiy1I5gYyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgKwZakdwcZAVgC2LLUj2BjICsCWpXYEGwNZAdiy1I5gYyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgKwZakdwcZAVgC2LLUj2BjICsCWpXYEGwNZAdiy1I5gYyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgKwZakdwcZAVgC2LLUj2BjICsCWpXYEGwNZAdiy1I5gYyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgKwZakdwcZAVgC2LLUj2BjICsCWpXYEGwNZAdiy1I5gYyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgKwZakdwcZAVgC2LLUj2BjICsCWpXYEGwNZAdiy1I5gYyArAFuW2hFsDGQFYMtSO4KNgawAbFlqR7AxkBWALUvtCDYGsgIPDn0AnAlPO10AAAAASUVORK5CYII="
+
+    var images = [];
+
+    var skyboxEntry = {};
+    skyboxEntry.type = "skybox";
+
+//  Images.
+    $FormPanel.one( "dialogopen", function( event, ui ) {
+        images.length = 0;
+    });
+
+    $FormPanel.one( "dialogclose", function( event, ui ) {
+        images.length = 0;
+    });
+
+    var textfieldSelector    = ".text-field";
+    var imgPreviewSelector   = ".img-preview";
+    var textureInputSelector = ".texture-input";
+    var importButtonSelector = ".import-button";
+
+    var closeSelector = "#close";
+    var resetSelector = "#reset";
+
+    $(closeSelector).on("click", function(){
+        $FormPanel.dialog("close");
+    });
+
+    $(resetSelector).on("click", function(){
+
+    //  Reset images array.
+        images.length = 0;
+    
+    //  Reset inputs files.
+        $(textureInputSelector).val("");
+
+    //  Reset text fields.
+        $(textfieldSelector).val("");
+
+    //  Reset preview images.
+        $(imgPreviewSelector).removeAttr("src");
+
+    //  Dispose skybox.
+        disposeSkybox();
+
+    //  Restore default skybox.
+        sceneBackground([
+            "https://i.imgur.com/v6bjQLb.jpg", // "posx",
+            "https://i.imgur.com/lwrlr6P.jpg", // "negx", 
+            "https://i.imgur.com/kKUKBJg.jpg", // "posy", 
+            "https://i.imgur.com/N0oZlJR.jpg", // "negy", 
+            "https://i.imgur.com/x9q8z0K.jpg", // "posz", 
+            "https://i.imgur.com/HYcK7Ii.jpg", // "negz",
+        ]);
+
+        function disposeSkybox(){
+            if (!!scene.background) {
+                scene.background.dispose();
+                scene.background = null;
+                target = undefined;
+            }
+        }
+    });
+
+    var posxPreviewSelector = "#pos-x-preview";
+    var posyPreviewSelector = "#pos-y-preview";
+    var poszPreviewSelector = "#pos-z-preview";
+    var negxPreviewSelector = "#neg-x-preview";
+    var negyPreviewSelector = "#neg-y-preview";
+    var negzPreviewSelector = "#neg-z-preview";
+
+    var posxButtonSelector = "#pos-x-button";
+    var posyButtonSelector = "#pos-y-button";
+    var poszButtonSelector = "#pos-z-button";
+    var negxButtonSelector = "#neg-x-button";
+    var negyButtonSelector = "#neg-y-button";
+    var negzButtonSelector = "#neg-z-button";
+
+    var posxInputSelector = "#pos-x-input";
+    var posyInputSelector = "#pos-y-input";
+    var poszInputSelector = "#pos-z-input";
+    var negxInputSelector = "#neg-x-input";
+    var negyInputSelector = "#neg-y-input";
+    var negzInputSelector = "#neg-z-input";
+
+    var posxDataSelector = "#data-pos-x";
+    var posyDataSelector = "#data-pos-y";
+    var poszDataSelector = "#data-pos-z";
+    var negxDataSelector = "#data-neg-x";
+    var negyDataSelector = "#data-neg-y";
+    var negzDataSelector = "#data-neg-z";
+
+    $(posxButtonSelector).on("click", posxOnClickEventHandler);
+    $(posxPreviewSelector).on("click", posxOnClickEventHandler);
+    function posxOnClickEventHandler(){
+
+    //  Add input event listener.
+        skyboxInputOneChangeEventListener({
+            dataSelector   : posxDataSelector,
+            inputSelector  : posxInputSelector,
+            previewSelector: posxPreviewSelector,
+            position: 0,
+            callback: applySkybox,
+        });
+
+    //  Reset input.
+        $(posxInputSelector).val(""); // reset input.
+        $(posxInputSelector).click();
+    }
+
+
+    $(negxButtonSelector).on("click", negxOnClickEventHandler);
+    $(negxPreviewSelector).on("click", negxOnClickEventHandler);
+    function negxOnClickEventHandler(){
+
+    //  Add input event listener.
+        skyboxInputOneChangeEventListener({
+            dataSelector   : negxDataSelector,
+            inputSelector  : negxInputSelector,
+            previewSelector: negxPreviewSelector,
+            position: 1,
+            callback: applySkybox,
+        });
+
+    //  Reset input.
+        $(negxInputSelector).val(""); // reset input.
+        $(negxInputSelector).click();
+    }
+
+
+    $(posyButtonSelector).on("click", posyOnClickEventHandler);
+    $(posyPreviewSelector).on("click", posyOnClickEventHandler);
+    function posyOnClickEventHandler(){
+
+    //  Add input event listener.
+        skyboxInputOneChangeEventListener({
+            dataSelector   : posyDataSelector,
+            inputSelector  : posyInputSelector,
+            previewSelector: posyPreviewSelector,
+            position: 2,
+            callback: applySkybox,
+        });
+
+    //  Reset input.
+        $(posyInputSelector).val(""); // reset input.
+        $(posyInputSelector).click();
+    }
+
+
+    $(negyButtonSelector).on("click", negyOnClickEventHandler);
+    $(negyPreviewSelector).on("click", negyOnClickEventHandler);
+    function negyOnClickEventHandler(){
+
+    //  Add input event listener.
+        skyboxInputOneChangeEventListener({
+            dataSelector   : negyDataSelector,
+            inputSelector  : negyInputSelector,
+            previewSelector: negyPreviewSelector,
+            position: 3,
+            callback: applySkybox,
+        });
+
+    //  Reset input.
+        $(negyInputSelector).val(""); // reset input.
+        $(negyInputSelector).click();
+    }
+
+
+    $(poszButtonSelector).on("click", poszOnClickEventHandler);
+    $(poszPreviewSelector).on("click", poszOnClickEventHandler);
+    function poszOnClickEventHandler(){
+
+    //  Add input event listener.
+        skyboxInputOneChangeEventListener({
+            dataSelector   : poszDataSelector,
+            inputSelector  : poszInputSelector,
+            previewSelector: poszPreviewSelector,
+            position: 4,
+            callback: applySkybox,
+        });
+
+    //  Reset input.
+        $(poszInputSelector).val(""); // reset input.
+        $(poszInputSelector).click();
+    }
+
+
+    $(negzButtonSelector).on("click", negzOnClickEventHandler);
+    $(negzPreviewSelector).on("click", negzOnClickEventHandler);
+    function negzOnClickEventHandler(){
+
+    //  Add input event listener.
+        skyboxInputOneChangeEventListener({
+            dataSelector   : negzDataSelector,
+            inputSelector  : negzInputSelector,
+            previewSelector: negzPreviewSelector,
+            position: 5,
+            callback: applySkybox,
+        });
+
+    //  Reset input.
+        $(negzInputSelector).val(""); // reset input.
+        $(negzInputSelector).click();
+    }
+
+    function skyboxInputOneChangeEventListener(options){
+    /*  options: {
+     *      dataSelector   : hidden input jquery selector.
+     *      inputSelector  : file input jquery selector,
+     *      previewSelector: preview image jquery selector,
+     *      position       : cube texture images position,
+     *      callback       : callback function,
+     *  }
+     */
+        var dataSelector    = options.dataSelector;
+        var inputSelector   = options.inputSelector;
+        var previewSelector = options.previewSelector;
+        var position        = options.position; // IMPORTANT //
+        var callback        = options.callback;
+
+        $(inputSelector).one("change", function(e){
+            if ( !e.target.files.length ) return;
+
+            var img = $(previewSelector)[0];
+            $(img).one("load", function(){
+                images[ position ] = img;
+                if (!!callback) callback();
+            });
+
+            var file = e.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function(event){
+                img.src = reader.result;
+            //  $(dataSelector).val( this.result );
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function applySkybox(){
+        debugMode && console.log("images:", images);
+
+        if (!scene || Number(THREE.REVISION) < 78) return;
+
+        if (!!images[0] && !!images[1] && !!images[2]
+         && !!images[3] && !!images[4] && !!images[5] ){
+
+        //  Create cube texture.
+            scene.background = new THREE.CubeTexture(images);
+            scene.background.needsUpdate = true;
+            target = scene.background;
+
+        //  Parse data to form.
+            $(posxDataSelector).val( images[0].src );
+            $(negxDataSelector).val( images[1].src );
+            $(posyDataSelector).val( images[2].src );
+            $(negyDataSelector).val( images[3].src );
+            $(poszDataSelector).val( images[4].src );
+            $(negzDataSelector).val( images[5].src );
+        }
+    }
+
+</script>
+
+<script>
+/*
+    scene.background.sourceFile = [
+        images[0].src,
+        images[1].src,
+        images[2].src,
+        images[3].src, 
+        images[4].src,
+        images[5].src
+    ]
+*/
+
+/*
+    var images = [
+        $("#pos-x-preview")[0],
+        $("#neg-x-preview")[0],
+        $("#pos-y-preview")[0],
+        $("#neg-y-preview")[0],
+        $("#pos-z-preview")[0],
+        // $("#neg-z-preview")[0],
+    ];
+*/
+
+/*
+    function sceneBackground( urls ){
+        if (!scene || Number(THREE.REVISION) < 78) return;
+        var loader = new THREE.CubeTextureLoader();
+        loader.load( urls, function(texture){
+            scene.background = texture;
+            scene.background.needsUpdate = true;
+        });
+    }
+*/
+/*
+    $(posxInputSelector).on("change", function(e){
+        if ( !e.target.files.length ) return;
+        
+        var img = $(posxPreviewSelector)[0];
+        $(img).one("load", function(){
+            // callback...
+        });
+
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function(event){
+            img.src = this.result;
+        });
+    
+        reader.readAsDataURL(file);
+    });
+*/
+</script>
+
+
+
+
+
+

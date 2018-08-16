@@ -1,0 +1,1249 @@
+<!-- standard-material-panel.html (v1.1) -->
+
+<style>
+
+    #editor-panel,
+    #asset-editor-panel,
+    #avatar-editor-panel,
+    #outfit-editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:550px !important;
+        max-height:550px !important; 
+        background-color:#000000;
+    }
+
+    .col-panel {
+        height:auto; 
+        padding-top:0px; padding-bottom:0px;
+        color:#ffffff;
+    }
+    
+    .sub-panel {
+        height:auto; 
+        border:white 1px solid;
+        border-radius:8px;
+        padding:15px;
+        padding-top:0px;
+        margin-bottom:15px;
+        color:#ffffff;
+    }
+
+    .col-panel a { color:#ffffff; }
+    .col-panel h4 { margin-top:20px; }
+    .col-panel input, 
+    .col-panel label{ font-family: Arial, sans-serif; font-size:14px; }
+
+    .sp-container { width:100%; background-color:#000000; border:none; }
+    .sp-input { color:#ffffff; border:none; }
+    .sp-picker-container { width:90%; border:none; }
+
+    .texture-btn { margin-bottom:15px; }
+
+    .panel-controls-output { 
+        width:50px; outline:none;
+        color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+        font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
+    }
+
+    .ui-widget-overlay { 
+        background:none;
+        opacity:0;
+    }
+
+</style>
+
+<!-- MeshStantardMaterial options -->
+
+<div id="standard-material-panel-left-col" class="col-md-6 col-panel">
+
+    <h4><input type="checkbox" id="check-emissiveMap" class="one-4-all"> Emissive map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-emissiveMap-btn">Import emissive map</div>
+
+    <a id="library-emissiveMap" name="library-emissiveMap" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-emissiveMap" name="internet-emissiveMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-emissiveMap" name="desktop-emissiveMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-emissiveMap" name="remove-emissiveMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+
+
+
+    <h4><input type="checkbox" id="check-bumpMap" class="one-4-all"> Bump map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-bumpMap-btn">Import Bump Map</div>
+
+    <a id="library-bumpMap" name="library-bumpMap" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-bumpMap" name="internet-bumpMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-bumpMap" name="desktop-bumpMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-bumpMap" name="remove-bumpMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+    <h4>Bump:</h4>
+    <li>
+        <label for="bumpMapScale-output" title="Edit material bumpMapScale">Bump Map Scale:</label>
+        <input type="number" id="bumpMapScale-output" class="panel-controls-output pull-right" value="0.05" step="0.01">
+    </li>
+
+
+
+
+    <h4><input type="checkbox" id="check-roughnessMap" class="one-4-all"> Roughness Map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-roughnessMap-btn">Import Roughness Map</div>
+
+    <a id="library-roughnessMap" name="library-roughnessMap" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-roughnessMap" name="internet-roughnessMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-roughnessMap" name="desktop-roughnessMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-roughnessMap" name="remove-roughnessMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+    <h4>Roughness:</h4>
+    <li>
+        <label for="roughness-output" title="Edit material roughtness">Roughness:</label>
+        <input type="number" id="roughness-output" class="panel-controls-output pull-right" value="0.5" step="0.01">
+    </li>
+
+
+
+
+    <h4><input type="checkbox" id="check-metalnessMap" class="one-4-all"> Metalness Map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-metalnessMap-btn">Import Metalness Map</div>
+
+    <a id="library-metalnessMap" name="library-metalnessMap" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-metalnessMap" name="internet-metalnessMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-metalnessMap" name="desktop-metalnessMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-metalnessMap" name="remove-metalnessMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+    <h4>Metalness:</h4>
+    <li>
+        <label for="metalness-output" title="Edit material metalness">Metalness:</label>
+        <input type="number" id="metalness-output" class="panel-controls-output pull-right" value="0.5" step="0.01">
+    </li>
+
+
+
+
+    <h4><input type="checkbox" id="check-normalMap" class="one-4-all"> Normal map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-normalMap-btn">Import Normal Map</div>
+
+    <a id="library-normalMap" name="library-normalMap" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-normalMap" name="internet-normalMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-normalMap" name="desktop-normalMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-normalMap" name="remove-normalMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+    <h4>Normal:</h4>
+    <li>
+        <label for="normalMapScaleX-output" title="Edit material normal map scale x">Normal Map Scale x:</label>
+        <input type="number" id="normalMapScaleX-output" class="panel-controls-output pull-right" value="1" step="0.01">
+    </li>
+    <li>
+        <label for="normalMapScaleY-output" title="Edit material normal map scale y">Normal Map Scale y:</label>
+        <input type="number" id="normalMapScaleY-output" class="panel-controls-output pull-right" value="1" step="0.01">
+    </li>
+
+
+
+
+    <h4><input type="checkbox" id="check-displacementMap" class="one-4-all"> Displacement map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-displacementMap-btn">Import Displacement Map</div>
+
+    <a id="library-displacementMap" name="library-displacementMap" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-displacementMap" name="internet-displacementMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-displacementMap" name="desktop-displacementMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-displacementMap" name="remove-displacementMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+    <h4>Displacement:</h4>
+    <li>
+        <label for="displacementScale-output" title="Edit material displacementScale">Displacement Scale:</label>
+        <input type="number" id="displacementScale-output" class="panel-controls-output pull-right" value="1" step="0.01">
+    </li>    
+    <li>
+        <label for="displacementBias-output" title="Edit material displacementBias">Displacement Bias:</label>
+        <input type="number" id="displacementBias-output" class="panel-controls-output pull-right" value="0" step="0.01">
+    </li>
+
+
+
+
+    <h4><input type="checkbox" id="check-alphaMap" class="one-4-all"> Alpha Map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-alphaMap-btn">Import Alpha Map</div>
+
+    <a id="library-alphaMap" name="library-alphaMap" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-alphaMap" name="internet-alphaMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-alphaMap" name="desktop-alphaMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-alphaMap" name="remove-alphaMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+
+
+
+    <h4><input type="checkbox" id="check-lightMap" class="one-4-all"> Light Map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-lightMap-btn">Import LigthMap</div>
+
+    <a id="library-lightMap" name="library-lightMap" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-lightMap" name="internet-lightMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-lightMap" name="desktop-lightMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-lightMap" name="remove-lightMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+    <h4>Lightmap:</h4>
+    <li>
+        <label for="lightMapIntensity-output" title="Edit material lightMapIntensity">Light Map Intensity:</label>
+        <input type="number" id="lightMapIntensity-output" class="panel-controls-output pull-right" value="1" step="0.01">
+    </li>
+
+
+
+
+    <h4><input type="checkbox" id="check-aoMap" class="one-4-all"> AO Map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-aoMap-btn">Import AOMap</div>
+
+    <a id="library-aoMap" name="library-aoMap" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-aoMap" name="internet-aoMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-aoMap" name="desktop-aoMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-aoMap" name="remove-aoMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+    <h4>Ambient Occlusion:</h4>
+
+    <li>
+        <label for="aoMapIntensity-output" title="Edit material aoMapIntensity">AO Map Intensity:</label>
+        <input type="number" id="aoMapIntensity-output" class="panel-controls-output pull-right" value="1" step="0.01">
+    </li>
+
+    <hr>
+
+    <input type="file" class="hidden" id="roughnessMap-input">
+    <input type="file" class="hidden" id="metalnessMap-input">
+    <input type="file" class="hidden" id="bumpMap-input">
+    <input type="file" class="hidden" id="normalMap-input">
+    <input type="file" class="hidden" id="displacementMap-input">
+    <input type="file" class="hidden" id="envMap-input">
+    <input type="file" class="hidden" id="lightMap-input">
+    <input type="file" class="hidden" id="alphaMap-input">
+    <input type="file" class="hidden" id="aoMap-input">
+    <input type="file" class="hidden" id="map-input">
+    <input type="file" class="hidden" id="emissiveMap-input">
+
+</div>
+
+
+
+<div id="standard-material-panel-emissive-col" class="col-md-6 col-panel">
+
+    <h4>Emissive color:</h4>
+
+    <li>
+        <label for="emissiveIntensity-output" title="Edit material emissiveIntensity">Emissive Intensity:</label>
+        <input type="number" id="emissiveIntensity-output" class="panel-controls-output pull-right" value="1" step="0.01">
+    </li>
+
+    <input type="hidden" id="sp-target-emissive">
+
+</div>
+
+
+
+<div id="standard-material-map-right-col" class="col-md-6 col-panel">
+
+    <h4 style="margin-top:8px;"><input type="checkbox" id="check-map" class="one-4-all"> Diffuse map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-map-btn">Import map</div>
+
+    <a id="library-map" name="library-map" class="nav-link btn btn-default btn-white-outline import-texture-btn catalog-panel-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-map" name="internet-map" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-map" name="desktop-map" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-map" name="remove-map" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+</div>
+
+
+
+<div id="standard-material-panel-diffuse-col" class="col-md-6 col-panel">
+
+    <h4>Diffuse Color:</h4>
+
+    <input type="hidden" id="sp-target-color">
+
+</div>
+
+
+
+<div id="standard-material-options-right-col" class="col-md-6 col-panel">
+
+    <h4 style="margin-top:8px;">Options:</h4>
+
+    <ul>
+        <li>
+            <label for="shininess-output" title="Indicate shininess of material">Shininess:</label>
+            <input type="number" id="shininess-output" class="panel-controls-output pull-right" value="0" step="1">
+        </li>
+        <li>
+            <label for="refractionRatio-output" title="Set refraction ratio">Refraction Ratio:</label>
+            <input type="number" id="refractionRatio-output" class="panel-controls-output pull-right" value="0.98" step="0.01">
+        </li>
+        <li>
+            <label for="opacity-output" title="Indicate transparent of material.">Opacity:</label>
+            <input type="number" id="opacity-output" class="panel-controls-output pull-right" min="0" max="1" value="1" step="0.01">
+        </li>
+        <li>
+            <label for="transparent-checkbox" title="Defines whether material is transparent.">Transparent:</label>
+            <input type="checkbox" id="transparent-checkbox" class="panel-controls-output pull-right">
+        </li>
+        <li>
+            <label for="skinning-checkbox" title="Material uses skinning">Skinning:</label>
+            <input type="checkbox" id="skinning-checkbox" class="panel-controls-output pull-right" checked disabled>
+        </li>
+        <li>
+            <label for="depthTest-checkbox" title="Whether to have depth test enabled">Depth Test:</label>
+            <input type="checkbox" id="depthTest-checkbox" class="panel-controls-output pull-right" checked>
+        </li>
+        <li>
+            <label for="depthWrite-checkbox" title="Whether rendering this material has any effect on the depth buffer">Depth Write:</label>
+            <input type="checkbox" id="depthWrite-checkbox" class="panel-controls-output pull-right" checked>
+        </li>
+        <li>
+            <label for="visible-checkbox" title="Defines whether this material is visible">Visible:</label>
+            <input type="checkbox" id="visible-checkbox" class="panel-controls-output pull-right" checked>
+        </li>        
+        <li>
+            <label for="side-checkbox" title="Defines which of the face sides will be rendered on both sides">Both sides:</label>
+            <input type="checkbox" id="side-checkbox" class="panel-controls-output pull-right">
+        </li>
+    </ul>
+
+</div>
+
+
+
+<div id="standard-material-environment-right-col" class="col-md-6 col-panel">
+
+    <h4>Environment map:</h4>
+
+    <div class="btn btn-primary btn-white-outline form-control texture-btn" id="import-envMap-btn">Import Environment Map</div>
+
+    <a id="library-envMap" name="library-envMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/Fi1O5YL.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from library"></a>
+
+    <a id="internet-envMap" name="internet-envMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/m8ZMtd5.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="desktop-envMap" name="desktop-envMap" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/vfpmSfl.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="remove-envMap" name="remove-envMap" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('https://i.imgur.com/R7Iu9bW.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove texture"></a>
+
+    <h4>Environment:</h4>
+
+    <li>
+        <label for="envMapIntensity-output" title="Edit material envMapIntensity">Environment Intensity:</label>
+        <input type="number" id="envMapIntensity-output" class="panel-controls-output pull-right" value="1" step="0.01">
+    </li>   
+
+    <hr>
+
+</div>
+
+<script>
+/*
+    var dialogTargetEventListenersScript = "/js/dialogTargetEventListeners.js";
+    $.getScript(dialogTargetEventListenersScript, function(script, status, xhr){
+        debugMode && console.log("dialogTargetEventListeners:", status);
+    });
+*/
+</script>
+
+    <!-- LOAD SCRIPT FUNCTIONS -->
+
+<script>
+
+    var makePowerOfTwoScript = scriptsFolder + "makePowerOfTwo.js";
+    $.getScript(makePowerOfTwoScript, function(script, status, xhr){
+        if (status == "error") console.error( status, xhr.status, xhr.statusText );
+        if (status == "success") debugMode && console.log( "makePowerOfTwo:", status );
+    });
+
+    var deallocateTexturesScript = scriptsFolder + "deallocateTextures.js";
+    $.getScript(deallocateTexturesScript, function(script, status, xhr){
+        if (status == "error") console.error( status, xhr.status, xhr.statusText );
+        if (status == "success") debugMode && console.log( "deallocateTextures:", status );
+    });
+
+</script>
+
+
+<script>
+
+//  Dialog panel control elements.
+
+//  Every dialoge panel point to a target object that can be 
+//  mesh, geometry, face, vertex, object3d, material, texture
+//  or whatever and deals with this target only.
+
+//  Maps.
+
+    var roughnessSelector = "#roughness-output";
+    var metalnessSelector = "#metalness-output";
+    var bumpMapScaleSelector = "#bumpMapScale-output";
+    var normalMapScaleXSelector = "#normalMapScaleX-output";
+    var normalMapScaleYSelector = "#normalMapScaleY-output";
+    var displacementScaleSelector = "#displacementScale-output";
+    var displacementBiasSelector = "#displacementBias-output";
+    var envMapIntensitySelector = "#envMapIntensity-output";
+    var lightMapIntensitySelector = "#lightMapIntensity-output";
+    var aoMapIntensitySelector = "#aoMapIntensity-output";
+    var emissiveIntensitySelector = "#emissiveIntensity-output";
+
+//  Options.
+
+    var shininessSelector = "#shininess-output";
+    var refractionRatioSelector = "#refractionRatio-output";
+    var opacitySelector = "#opacity-output";
+    var transparentSelector = "#transparent-checkbox";
+    var depthTestSelector = "#depthTest-checkbox";
+    var depthWriteSelector = "#depthWrite-checkbox";
+    var visibleSelector = "#visible-checkbox";
+    var bothSideSelector = "#side-checkbox";
+
+    if ( !!target ) {
+
+    //  Maps.
+
+        $(roughnessSelector).val(target.roughness);
+        targetInputEventListener(roughnessSelector, "roughness");
+
+        $(metalnessSelector).val(target.metalness);
+        targetInputEventListener(metalnessSelector, "metalness");
+
+        $(bumpMapScaleSelector).val(target.bumpScale);
+        targetInputEventListener(bumpMapScaleSelector, "bumpScale");
+
+        $(normalMapScaleXSelector).val(target.normalScale["x"]);
+        $(normalMapScaleXSelector).on("input", function(){
+            target.normalScale["x"] = parseFloat( this.value );
+        });
+
+        $(normalMapScaleYSelector).val(target.normalScale["y"]);
+        $(normalMapScaleYSelector).on("input", function(){
+            target.normalScale["y"] = parseFloat( this.value );
+        });
+
+        $(displacementScaleSelector).val(target.displacementScale);
+        targetInputEventListener(displacementScaleSelector, "displacementScale");
+
+        $(displacementBiasSelector).val(target.displacementBias);
+        targetInputEventListener(displacementBiasSelector, "displacementBias");
+
+        $(envMapIntensitySelector).val(target.envMapIntensity);
+        targetInputEventListener(envMapIntensitySelector, "envMapIntensity");
+
+        $(lightMapIntensitySelector).val(target.lightMapIntensity);
+        targetInputEventListener(lightMapIntensitySelector, "lightMapIntensity");
+
+        $(aoMapIntensitySelector).val(target.aoMapIntensity);
+        targetInputEventListener(aoMapIntensitySelector, "aoMapIntensity");
+
+        $(emissiveIntensitySelector).val(target.emissiveIntensity);
+        targetInputEventListener(emissiveIntensitySelector, "emissiveIntensity");
+
+    }
+
+    if ( !!target ) {
+
+    //  Options.
+
+        $(shininessSelector).val(target.shininess);
+        targetInputEventListener(shininessSelector, "shininess");
+
+        $(refractionRatioSelector).val(target.refractionRatio);
+        targetInputEventListener(refractionRatioSelector, "refractionRatio");
+
+        $(opacitySelector).val(target.opacity);
+        targetInputEventListener(opacitySelector, "opacity");
+
+        $(transparentSelector)[0].checked = target.transparent;
+        targetCheckedEventListener(transparentSelector, "transparent");
+
+        $(depthTestSelector)[0].checked = target.depthTest;
+        targetCheckedEventListener(depthTestSelector, "depthTest");
+
+        $(depthWriteSelector)[0].checked = target.depthWrite;
+        targetCheckedEventListener(depthWriteSelector, "depthWrite");
+
+        $(visibleSelector)[0].checked = target.visible;
+        targetCheckedEventListener(visibleSelector, "visible");
+
+        $(bothSideSelector)[0].checked = (target.side == 2);
+        $(bothSideSelector).on("click", function(){
+            if ( this.checked ) 
+                target.side = 2;
+            else
+                target.side = 0;
+        });
+
+    }
+
+</script>
+
+<!-- 
+    <input type="file" class="hidden" id="roughnessMap-input">
+    <input type="file" class="hidden" id="metalnessMap-input">
+    <input type="file" class="hidden" id="bumpMap-input">
+    <input type="file" class="hidden" id="normalMap-input">
+    <input type="file" class="hidden" id="displacementMap-input">
+    <input type="file" class="hidden" id="envMap-input">
+    <input type="file" class="hidden" id="lightMap-input">
+    <input type="file" class="hidden" id="alphaMap-input">
+    <input type="file" class="hidden" id="aoMap-input">
+    <input type="file" class="hidden" id="map-input">
+    <input type="file" class="hidden" id="emissiveMap-input">
+ -->
+
+<script>
+
+//  StandardMaterialTextureMapsImport.js
+
+    var roughnessMapImportSelector = "#import-roughnessMap-btn";
+    var metalnessMapImportSelector = "#import-metalnessMap-btn";
+    var bumpMapImportSelector = "#import-bumpMap-btn";
+    var normalMapImportSelector = "#import-normalMap-btn";
+    var displacementMapImportSelector = "#import-displacementMap-btn";
+    var envMapImportSelector = "#import-envMap-btn";
+    var lightMapImportSelector = "#import-lightMap-btn";
+    var alphaMapImportSelector = "#import-alphaMap-btn";
+    var aoMapImportSelector = "#import-aoMap-btn";
+    var mapImportSelector = "#import-map-btn";
+    var emissiveMapImportSelector = "#import-emissiveMap-btn";
+
+    var roughnessMapInputSelector = "#roughnessMap-input";
+    var metalnessMapInputSelector = "#metalnessMap-input";
+    var bumpMapInputSelector = "#bumpMap-input";
+    var normalMapInputSelector = "#normalMap-input";
+    var displacementMapInputSelector = "#displacementMap-input";
+    var envMapInputSelector = "#envMap-input";
+    var lightMapInputSelector = "#lightMap-input";
+    var alphaMapInputSelector = "#alphaMap-input";
+    var aoMapInputSelector = "#aoMap-input";
+    var mapInputSelector = "#map-input";
+    var emissiveMapInputSelector = "#emissiveMap-input";
+
+    var checkRoughnessMapSelector    = "#check-roughnessMap";
+    var libraryRoughnessMapSelector  = "#library-roughnessMap";
+    var internetRoughnessMapSelector = "#internet-roughnessMap";
+    var desktopRoughnessMapSelector  = "#desktop-roughnessMap";
+    var removeRoughnessMapSelector   = "#remove-roughnessMap";
+
+    var checkMetalnessMapSelector    = "#check-metalnessMap";
+    var libraryMetalnessMapSelector  = "#library-metalnessMap";
+    var internetMetalnessMapSelector = "#internet-metalnessMap";
+    var desktopMetalnessMapSelector  = "#desktop-metalnessMap";
+    var removeMetalnessMapSelector   = "#remove-metalnessMap";
+
+    var checkBumpMapSelector    = "#check-bumpMap";
+    var libraryBumpMapSelector  = "#library-bumpMap";
+    var internetBumpMapSelector = "#internet-bumpMap";
+    var desktopBumpMapSelector  = "#desktop-bumpMap";
+    var removeBumpMapSelector   = "#remove-bumpMap";
+
+    var checkNormalMapSelector    = "#check-normalMap";
+    var libraryNormalMapSelector  = "#library-normalMap";
+    var internetNormalMapSelector = "#internet-normalMap";
+    var desktopNormalMapSelector  = "#desktop-normalMap";
+    var removeNormalMapSelector   = "#remove-normalMap";
+
+    var checkDisplacementMapMapSelector = "#check-displacementMap";
+    var libraryDisplacementMapSelector  = "#library-displacementMap";
+    var internetDisplacementMapSelector = "#internet-displacementMap";
+    var desktopDisplacementMapSelector  = "#desktop-displacementMap";
+    var removeDisplacementMapSelector   = "#remove-displacementMap";
+
+    var checkLightMapSelector    = "#check-lightMap";
+    var libraryLightMapSelector  = "#library-lightMap";
+    var internetLightMapSelector = "#internet-lightMap";
+    var desktopLightMapSelector  = "#desktop-lightMap";
+    var removeLightMapSelector   = "#remove-lightMap";
+
+    var checkAlphaMapSelector    = "#check-alphaMap";
+    var libraryAlphaMapSelector  = "#library-alphaMap";
+    var internetAlphaMapSelector = "#internet-alphaMap";
+    var desktopAlphaMapSelector  = "#desktop-alphaMap";
+    var removeAlphaMapSelector   = "#remove-alphaMap";
+
+    var checkAOMapSelector    = "#check-aoMap";
+    var libraryAOMapSelector  = "#library-aoMap";
+    var internetAOMapSelector = "#internet-aoMap";
+    var desktopAOMapSelector  = "#desktop-aoMap";
+    var removeAOMapSelector   = "#remove-aoMap";
+
+    var checkMapSelector    = "#check-map";
+    var libraryMapSelector  = "#library-map";
+    var internetMapSelector = "#internet-map";
+    var desktopMapSelector  = "#desktop-map";
+    var removeMapSelector   = "#remove-map";
+
+    var checkEmissiveMapSelector    = "#check-emissiveMap";
+    var libraryEmissiveMapSelector  = "#library-emissiveMap";
+    var internetEmissiveMapSelector = "#internet-emissiveMap";
+    var desktopEmissiveMapSelector  = "#desktop-emissiveMap";
+    var removeEmissiveMapSelector   = "#remove-emissiveMap";
+
+    var libraryEnvMapSelector  = "#library-envMap";
+    var internetEnvMapSelector = "#internet-envMap";
+    var desktopEnvMapSelector  = "#desktop-envMap";
+    var removeEnvMapSelector   = "#remove-envMap";
+
+
+//  One for all checked textures.
+    $(checkMapSelector)[0].checked = true;
+    $(checkEmissiveMapSelector)[0].checked = true;
+
+
+    if ( !!target ) {
+
+        targetClickFileInputEventListener(roughnessMapImportSelector, roughnessMapInputSelector);
+        targetClickFileInputEventListener(metalnessMapImportSelector, metalnessMapInputSelector);
+        targetClickFileInputEventListener(bumpMapImportSelector, bumpMapInputSelector);
+        targetClickFileInputEventListener(normalMapImportSelector, normalMapInputSelector);
+        targetClickFileInputEventListener(displacementMapImportSelector, displacementMapInputSelector);
+        targetClickFileInputEventListener(envMapImportSelector, envMapInputSelector);
+        targetClickFileInputEventListener(lightMapImportSelector, lightMapInputSelector);
+        targetClickFileInputEventListener(alphaMapImportSelector, alphaMapInputSelector);
+        targetClickFileInputEventListener(aoMapImportSelector, aoMapInputSelector);
+        targetClickFileInputEventListener(mapImportSelector, mapInputSelector);
+        targetClickFileInputEventListener(emissiveMapImportSelector, emissiveMapInputSelector);
+
+    }
+
+    if ( !!target ) {
+
+        targetDesktopMapFileInputEventListener(roughnessMapInputSelector, "roughnessMap", function(){
+            toggleImportRemoveButton(desktopRoughnessMapSelector, removeRoughnessMapSelector, "roughnessMap");
+        });
+
+        targetDesktopMapFileInputEventListener(metalnessMapInputSelector, "metalnessMap", function(){
+            toggleImportRemoveButton(desktopMetalnessMapSelector, removeMetalnessMapSelector, "metalnessMap");
+        });
+
+        targetDesktopMapFileInputEventListener(bumpMapInputSelector, "bumpMap", function(){
+            toggleImportRemoveButton(desktopBumpMapSelector, removeBumpMapSelector, "bumpMap");
+        });
+
+        targetDesktopMapFileInputEventListener(normalMapInputSelector, "normalMap", function(){
+            toggleImportRemoveButton(desktopNormalMapSelector, removeNormalMapSelector, "normalMap");
+        });
+
+        targetDesktopMapFileInputEventListener(displacementMapInputSelector, "displacementMap", function(){
+            toggleImportRemoveButton(desktopDisplacementMapSelector, removeDisplacementMapSelector, "displacementMap");
+        });
+
+        targetDesktopMapFileInputEventListener(envMapInputSelector, "envMap", function(){
+            toggleImportRemoveButton(desktopEnvMapSelector, removeEnvMapSelector, "envMap");
+        });
+
+        targetDesktopMapFileInputEventListener(lightMapInputSelector, "lightMap", function(){
+            toggleImportRemoveButton(desktopLightMapSelector, removeLightMapSelector, "lightMap");
+        });
+
+        targetDesktopMapFileInputEventListener(alphaMapInputSelector, "alphaMap", function(){
+            toggleImportRemoveButton(desktopAlphaMapSelector, removeAlphaMapSelector, "alphaMap");
+        });
+
+        targetDesktopMapFileInputEventListener(aoMapInputSelector, "aoMap", function(){
+            toggleImportRemoveButton(desktopAOMapSelector, removeAOMapSelector, "aoMap");
+        });
+
+        targetDesktopMapFileInputEventListener(emissiveMapInputSelector, "emissiveMap", function(){
+            if ( !!target["emissiveMap"] && $("#check-emissiveMap")[0].checked ){
+                var texture = target["emissiveMap"];
+
+            //  Dispose textures.
+                var repeatedMaps = [];
+
+                if ( $("#check-map")[0].checked ) repeatedMaps.push( target[ "map" ] );
+                if ( $("#check-bumpMap")[0].checked ) repeatedMaps.push( target[ "bumpMap" ] );
+            //  if ( $("#check-emissiveMap")[0].checked ) repeatedMaps.push( target[ "emissiveMap" ] );
+                if ( $("#check-aoMap")[0].checked ) repeatedMaps.push( target[ "aoMap" ] );
+                if ( $("#check-alphaMap")[0].checked ) repeatedMaps.push( target[ "alphaMap" ] );
+                if ( $("#check-lightMap")[0].checked ) repeatedMaps.push( target[ "lightMap" ] );
+                if ( $("#check-normalMap")[0].checked ) repeatedMaps.push( target[ "normalMap" ] );
+                if ( $("#check-metalnessMap")[0].checked ) repeatedMaps.push( target[ "metalnessMap" ] );
+                if ( $("#check-roughnessMap")[0].checked ) repeatedMaps.push( target[ "roughnessMap" ] );
+                if ( $("#check-displacementMap")[0].checked ) repeatedMaps.push( target[ "displacementMap" ] );
+
+                deallocateTextures.apply( null, repeatedMaps );
+
+            //  Apply texture.
+                if ( $("#check-map")[0].checked ) target[ "map" ] = texture;
+                if ( $("#check-bumpMap")[0].checked ) target[ "bumpMap" ] = texture;
+            //  if ( $("#check-emissiveMap")[0].checked ) target[ "emissiveMap" ] = texture;
+                if ( $("#check-aoMap")[0].checked ) target[ "aoMap" ] = texture;
+                if ( $("#check-alphaMap")[0].checked ) target[ "alphaMap" ] = texture;
+                if ( $("#check-lightMap")[0].checked ) target[ "lightMap" ] = texture;
+                if ( $("#check-normalMap")[0].checked ) target[ "normalMap" ] = texture;
+                if ( $("#check-metalnessMap")[0].checked ) target[ "metalnessMap" ] = texture;
+                if ( $("#check-roughnessMap")[0].checked ) target[ "roughnessMap" ] = texture;
+                if ( $("#check-displacementMap")[0].checked ) target[ "displacementMap" ] = texture;
+
+            //  Update import/remove button.
+                toggleImportRemoveButton(desktopMapSelector, removeMapSelector, "map");
+                toggleImportRemoveButton(desktopEmissiveMapSelector, removeEmissiveMapSelector, "emissiveMap");
+                toggleImportRemoveButton(desktopAOMapSelector, removeAOMapSelector, "aoMap");
+                toggleImportRemoveButton(desktopAlphaMapSelector, removeAlphaMapSelector, "alphaMap");
+                toggleImportRemoveButton(desktopLightMapSelector, removeLightMapSelector, "lightMap");
+                toggleImportRemoveButton(desktopEnvMapSelector, removeEnvMapSelector, "envMap");
+                toggleImportRemoveButton(desktopDisplacementMapSelector, removeDisplacementMapSelector, "displacementMap");
+                toggleImportRemoveButton(desktopNormalMapSelector, removeNormalMapSelector, "normalMap");
+                toggleImportRemoveButton(desktopBumpMapSelector, removeBumpMapSelector, "bumpMap");
+                toggleImportRemoveButton(desktopMetalnessMapSelector, removeMetalnessMapSelector, "metalnessMap");
+                toggleImportRemoveButton(desktopRoughnessMapSelector, removeRoughnessMapSelector, "roughnessMap");
+
+            //  Update material.
+                target.needsUpdate = true;
+
+            } else {
+                toggleImportRemoveButton(desktopEmissiveMapSelector, removeEmissiveMapSelector, "emissiveMap");
+            }
+        });
+
+        targetDesktopMapFileInputEventListener(mapInputSelector, "map", function(){
+            if ( !!target["map"] && $("#check-map")[0].checked ){
+                var texture = target["map"];
+
+            //  Dispose textures.
+                var repeatedMaps = [];
+
+            //  if ( $("#check-map")[0].checked ) repeatedMaps.push( target[ "map" ] );
+                if ( $("#check-bumpMap")[0].checked ) repeatedMaps.push( target[ "bumpMap" ] );
+                if ( $("#check-emissiveMap")[0].checked ) repeatedMaps.push( target[ "emissiveMap" ] );
+                if ( $("#check-aoMap")[0].checked ) repeatedMaps.push( target[ "aoMap" ] );
+                if ( $("#check-alphaMap")[0].checked ) repeatedMaps.push( target[ "alphaMap" ] );
+                if ( $("#check-lightMap")[0].checked ) repeatedMaps.push( target[ "lightMap" ] );
+                if ( $("#check-normalMap")[0].checked ) repeatedMaps.push( target[ "normalMap" ] );
+                if ( $("#check-metalnessMap")[0].checked ) repeatedMaps.push( target[ "metalnessMap" ] );
+                if ( $("#check-roughnessMap")[0].checked ) repeatedMaps.push( target[ "roughnessMap" ] );
+                if ( $("#check-displacementMap")[0].checked ) repeatedMaps.push( target[ "displacementMap" ] );
+
+                deallocateTextures.apply( null, repeatedMaps );
+
+            //  Apply texture.
+            //  if ( $("#check-map")[0].checked ) target[ "map" ] = texture;
+                if ( $("#check-bumpMap")[0].checked ) target[ "bumpMap" ] = texture;
+                if ( $("#check-emissiveMap")[0].checked ) target[ "emissiveMap" ] = texture;
+                if ( $("#check-aoMap")[0].checked ) target[ "aoMap" ] = texture;
+                if ( $("#check-alphaMap")[0].checked ) target[ "alphaMap" ] = texture;
+                if ( $("#check-lightMap")[0].checked ) target[ "lightMap" ] = texture;
+                if ( $("#check-normalMap")[0].checked ) target[ "normalMap" ] = texture;
+                if ( $("#check-metalnessMap")[0].checked ) target[ "metalnessMap" ] = texture;
+                if ( $("#check-roughnessMap")[0].checked ) target[ "roughnessMap" ] = texture;
+                if ( $("#check-displacementMap")[0].checked ) target[ "displacementMap" ] = texture;
+
+            //  Update import/remove button.
+                toggleImportRemoveButton(desktopMapSelector, removeMapSelector, "map");
+                toggleImportRemoveButton(desktopEmissiveMapSelector, removeEmissiveMapSelector, "emissiveMap");
+                toggleImportRemoveButton(desktopAOMapSelector, removeAOMapSelector, "aoMap");
+                toggleImportRemoveButton(desktopAlphaMapSelector, removeAlphaMapSelector, "alphaMap");
+                toggleImportRemoveButton(desktopLightMapSelector, removeLightMapSelector, "lightMap");
+                toggleImportRemoveButton(desktopEnvMapSelector, removeEnvMapSelector, "envMap");
+                toggleImportRemoveButton(desktopDisplacementMapSelector, removeDisplacementMapSelector, "displacementMap");
+                toggleImportRemoveButton(desktopNormalMapSelector, removeNormalMapSelector, "normalMap");
+                toggleImportRemoveButton(desktopBumpMapSelector, removeBumpMapSelector, "bumpMap");
+                toggleImportRemoveButton(desktopMetalnessMapSelector, removeMetalnessMapSelector, "metalnessMap");
+                toggleImportRemoveButton(desktopRoughnessMapSelector, removeRoughnessMapSelector, "roughnessMap");
+
+            //  Update material.
+                target.needsUpdate = true;
+
+            } else {
+                toggleImportRemoveButton(desktopMapSelector, removeMapSelector, "map");
+            }
+
+        });
+
+
+    }
+
+    if ( !!target ) {
+
+        targetClickFileInputEventListener(desktopRoughnessMapSelector, roughnessMapInputSelector);
+        targetRemoveTextureEventListener(desktopRoughnessMapSelector, removeRoughnessMapSelector, "roughnessMap");
+        toggleImportRemoveButton(desktopRoughnessMapSelector, removeRoughnessMapSelector, "roughnessMap");
+
+        targetClickFileInputEventListener(desktopMetalnessMapSelector, metalnessMapInputSelector);
+        targetRemoveTextureEventListener(desktopMetalnessMapSelector, removeMetalnessMapSelector, "metalnessMap");
+        toggleImportRemoveButton(desktopMetalnessMapSelector, removeMetalnessMapSelector, "metalnessMap");
+
+        targetClickFileInputEventListener(desktopBumpMapSelector, bumpMapInputSelector);
+        targetRemoveTextureEventListener(desktopBumpMapSelector, removeBumpMapSelector, "bumpMap");
+        toggleImportRemoveButton(desktopBumpMapSelector, removeBumpMapSelector, "bumpMap");
+
+        targetClickFileInputEventListener(desktopNormalMapSelector, normalMapInputSelector);
+        targetRemoveTextureEventListener(desktopNormalMapSelector, removeNormalMapSelector, "normalMap");
+        toggleImportRemoveButton(desktopNormalMapSelector, removeNormalMapSelector, "normalMap");
+
+        targetClickFileInputEventListener(desktopDisplacementMapSelector, displacementMapInputSelector);
+        targetRemoveTextureEventListener(desktopDisplacementMapSelector, removeDisplacementMapSelector, "displacementMap");
+        toggleImportRemoveButton(desktopDisplacementMapSelector, removeDisplacementMapSelector, "displacementMap");
+
+        targetClickFileInputEventListener(desktopLightMapSelector, lightMapInputSelector);
+        targetRemoveTextureEventListener(desktopLightMapSelector, removeLightMapSelector, "lightMap");
+        toggleImportRemoveButton(desktopLightMapSelector, removeLightMapSelector, "lightMap");
+
+        targetClickFileInputEventListener(desktopAlphaMapSelector, alphaMapInputSelector);
+        targetRemoveTextureEventListener(desktopAlphaMapSelector, removeAlphaMapSelector, "alphaMap");
+        toggleImportRemoveButton(desktopAlphaMapSelector, removeAlphaMapSelector, "alphaMap");
+
+        targetClickFileInputEventListener(desktopAOMapSelector, aoMapInputSelector);
+        targetRemoveTextureEventListener(desktopAOMapSelector, removeAOMapSelector, "aoMap");
+        toggleImportRemoveButton(desktopAOMapSelector, removeAOMapSelector, "aoMap");
+
+        targetClickFileInputEventListener(desktopMapSelector, mapInputSelector);
+        targetRemoveTextureEventListener(desktopMapSelector, removeMapSelector, "map");
+        toggleImportRemoveButton(desktopMapSelector, removeMapSelector, "map");
+
+        targetClickFileInputEventListener(desktopEmissiveMapSelector, emissiveMapInputSelector);
+        targetRemoveTextureEventListener(desktopEmissiveMapSelector, removeEmissiveMapSelector, "emissiveMap");
+        toggleImportRemoveButton(desktopEmissiveMapSelector, removeEmissiveMapSelector, "emissiveMap");
+
+        targetClickFileInputEventListener(desktopEnvMapSelector, envMapInputSelector);
+        targetRemoveTextureEventListener(desktopEnvMapSelector, removeEnvMapSelector, "envMap");
+        toggleImportRemoveButton(desktopEnvMapSelector, removeEnvMapSelector, "envMap");
+
+    }
+
+</script>
+
+
+<script>
+
+//  Spectrum Colorpickers.js
+
+    var spectrumColorSelector    = "#sp-target-color";
+    var spectrumEmissiveSelector = "#sp-target-emissive";
+
+    $(spectrumColorSelector).spectrum({
+        preferredFormat: "hex",
+        color: "#ffffff",
+        flat: true,
+        showInput: true,
+        showInitial: true,
+        showButtons: false,
+        allowEmpty: false,
+        move: function(color) {
+            if ( !target) return;
+            var hex = color.toString("hex").replace(/#/, "0x");
+            target.color.setHex( hex );
+        }
+    });
+
+    $(spectrumEmissiveSelector).spectrum({
+        preferredFormat: "hex",
+        color: "#000000",
+        flat: true,
+        showInput: true,
+        showInitial: true,
+        showButtons: false,
+        allowEmpty: false,
+        move: function(color) {
+            if ( !target) return;
+            var hex = color.toString("hex").replace(/#/, "0x");
+            target.emissive.setHex( hex );
+        }
+    });
+
+//  TODO: When target then send this color value to your remote player.
+
+    $(spectrumColorSelector).on("dragstop.spectrum", function(e, color) {
+   //  debugMode && console.log( "diffuse color on dragstop:", color.toHexString() );        
+        if ( !target) {
+            $(this).spectrum( "set", "#ffffff" ); 
+            return;
+        }
+    });
+
+    $(spectrumEmissiveSelector).on("dragstop.spectrum", function(e, color) {
+    //  debugMode && console.log( "emissive color on dragstop:", color.toHexString() );
+        if ( !target) {
+            $(this).spectrum( "set", "#000000" );
+            return;
+        }
+    });
+
+    updateTargetColorpickers();
+
+    function updateTargetColorpickers(){
+    //  Colorpickers update.
+        if (!target) return;
+        var colorHex    = "#" + target.color.getHexString();
+        var emissiveHex = "#" + target.emissive.getHexString();
+        $(spectrumColorSelector).spectrum( "set", colorHex );
+        $(spectrumEmissiveSelector).spectrum( "set", emissiveHex );
+    }
+
+</script>
+
+<!-- ================================================================================================= -->
+
+<script>
+
+//  demo.
+/*
+    $("#library-map").on("click", function(){
+
+        var textures  = {};
+        textures.success = [];
+
+        endpoint = "/textures/find/selectors/options";
+
+        selectors = {};
+        selectors.kind = "texture";
+        selectors.type = "map";
+        selectors.outfit = "dress";
+        options = {};
+        options.skip = 0;
+        options.limit = 20;
+        options.fields = {};
+
+        var data = {
+            selectors: selectors,
+        //  options: options, // in server must converted to number.
+        }
+
+        debugMode && console.log("data:", data);
+
+        $.post( endpoint, data, function(data, status, xhr){
+            debugMode && console.log("post %s: %s", endpoint, status);
+        }).then( function( data ){
+            debugMode && console.log("data:", data);
+        });
+
+    });
+*/
+
+/*
+        new Promise( function(resolve, reject){
+            var url = options.endpoint;
+
+            $.post( url, data, function(data, status, xhr){
+                debugMode && console.log("post %s: %s", url, status);
+            }).then( function( data ){
+                debugMode && console.log("data:", data);
+        
+                if (!!data.error) {
+                    var error = data.error;
+                    debugMode && console.log("error:", error);
+                    throw Error(error);
+                }
+    
+                if (!!data.success) {
+                    if ( data.success.length == 0 ) console.warn("None data returned.");
+                }
+
+                resolve(data);
+            });
+        });
+*/
+
+
+</script>
+
+
+<script>
+/*
+    $(".catalog-panel-btn").on("click", function(){
+        if ( !$CatalogPanel.active ) {
+
+            $CatalogPanel.dialog( "option", {
+                width: 616,
+                minWidth: 616,
+                maxWidth: 616,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600,
+            });
+
+            var component = "catalog-panel-item-demo.html";
+            $CatalogPanel.loadComponent(component);
+
+        }
+    });
+
+    $(".catalog-panel-btn").on("click", function(){
+        if ( !$CatalogPanel.active ) {
+            $CatalogPanel.dialog("open");
+        } else {
+            $CatalogPanel.dialog("close");
+        }
+    });
+*/
+</script>
+
+
+
+<script>
+/*
+//  dialogTargetEventListeners.js
+
+    function targetremoveInputEventListener(selector){
+        $(selector).off("input");
+    }
+
+    function targetremoveChangeEventListener(selector){
+        $(selector).off("change");
+    }
+
+    function targetremoveClickEventListener(selector){
+        $(selector).off("click");
+    }
+
+    function targetInputEventListener(selector, option){
+        $(selector).on("input", function(){
+            target[ option ] = parseFloat( this.value );
+        });
+    }
+
+    function targetChangeEventListener(selector, option){
+        $(selector).on("change", function(){
+            target[ option ] = parseFloat( this.value );
+        });
+    }
+
+    function targetCheckedEventListener(selector, option){
+        $(selector).on("click", function(){
+            target[ option ] = this.checked;
+        });
+    }
+
+    function targetClickFileInputEventListener(selector, fileinputSelector){
+        $(selector).on( "click", function(){
+            if (!target) return;
+            $(fileinputSelector).val("");  // reset Filelist.
+            $(fileinputSelector).click();  // open file input window.
+        });
+    }
+
+    function targetDesktopMapFileInputEventListener(selector, map, callback){
+        
+        $(selector).on("change", function(e){
+
+            if (!target) return;
+            if ( e.currentTarget.files.length == 0 ) return;
+
+        //  Get file, name and extension.
+            var file = e.currentTarget.files[0];
+            var filename = file.name;
+            debugMode && console.log("filename:", filename);
+
+            var ext = filename.split( "." ).pop().toLowerCase();
+            var name = filename.split( "." ); name.pop(); 
+            name = name.join( "." ).replace(/\W/g, "_");
+            debugMode && console.log("name:", name, "extension:", ext);
+
+        //  File Reader.
+            var reader = new FileReader();
+            reader.onerror = onReaderError;
+            reader.onload = onReaderLoad;
+            reader.readAsDataURL(file);
+
+            function onReaderError(err){
+                console.error(err);
+            }
+    
+            function onReaderLoad(event){
+                var img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = onImageLoad;
+                img.src = reader.result;
+            }
+    
+            function onImageLoad(){
+                var canvas = makeFixedPowerOfTwo( this, textureSize ); // "this" is "img".
+                if (!!canvas){
+                    var texture = new THREE.Texture( canvas );
+                    texture.name = name;
+                    texture.sourceFile = "/desktop/fakepath/" + file.name;
+                    debugMode && console.log( "Texture has been created:", texture );
+    
+                //  Dispose old texture.
+                    if (!!target[ map ]) {
+                        deallocateTextures( target[ map ] );
+                        target[ map ] = null;
+                    }
+
+                //  Apply texture.
+                    target[ map ] = texture;
+                    target[ map ].needsUpdate = true;
+                    target.needsUpdate = true;
+                    
+                //  callback.
+                    if (!!callback) callback();
+                }
+    
+            //  Delete image.
+                $(this).remove(); debugMode && console.log( "Texture image has been removed." );
+            }
+    
+        });
+    }
+
+    function targetRemoveTextureEventListener(importSelector, removeSelector, map){
+        $(removeSelector).on("click", function(){
+            if (!!target[ map ]) {
+            //  Dispose texture.
+                deallocateTextures( target[ map ] );
+                target[ map ] = null;
+                target.needsUpdate = true;
+            //  Show import button.
+                $(importSelector).show();
+                $(removeSelector).hide();
+            }
+        });
+    }
+
+    function toggleImportRemoveButton(importSelector, removeSelector, map){
+        if (!!target[ map ]) {
+            $(importSelector).hide();
+            $(removeSelector).show();
+        } else {
+            $(importSelector).show();
+            $(removeSelector).hide();
+        }
+    }
+*/
+</script>
+
+
+
+
+<script>
+/*
+    $OutfitEditorPanel.dialog( "option", {
+        width: 616,
+        minWidth: 616,
+        maxWidth: 616,
+        height: 600,
+        minHeight: 600,
+        maxHeight: 600
+    });
+
+//  Open dialog.
+    $OutfitEditorPanel.dialog("open");
+*/
+</script>
