@@ -1,0 +1,60 @@
+
+    <!-- UPPY UPLOADER -->
+
+<script src="/js/uppy.js"></script>
+
+<script>
+
+//  Uppy Uploader.
+
+    var uppy = Uppy.Core({debug:true, autoProceed:false});
+    uppy.use(Uppy.Dashboard, { target:document.body});
+
+    uppy.use(Uppy.Url, {
+        target: Uppy.Dashboard, 
+        host: window.location.origin 
+    });
+
+//  uppy.use(Uppy.Instagram, { target: Uppy.Dashboard, host: 'http://localhost:3020' });
+//  uppy.use(Uppy.GoogleDrive, { target: Uppy.Dashboard, host: 'http://localhost:3020' });
+//  uppy.use(Uppy.GoldenRetriever, {serviceWorker:true});
+
+    uppy.use(Uppy.XHRUpload, { 
+        formData:true,
+        fieldName: "filetoupload",
+        endpoint: window.location.origin + "/uppy/upload",
+    });
+
+//  uppy.use(Uppy.Tus, { endpoint: "https://master.tus.io/files/" });
+
+    uppy.run();
+
+/*
+//  Uppy GoldenRetriever.
+    if ( "serviceWorker" in navigator ) {
+        navigator.serviceWorker.register('/workers/uppy-sw.js') // path to your bundled service worker with GoldenRetriever service worker
+        .then(function(registration){
+            console.log("ServiceWorker registration successful with scope:", registration.scope);
+        }).catch(function(error){
+            console.log("Registration failed with " + error);
+        })
+    }
+*/
+    uppy.on("success", function(fileCount){
+        console.log("success:", fileCount);
+    });
+
+    uppy.on("complete", function(result){
+        debugMode && console.log("complete:", result);
+        console.log('success files:', result.successful);
+        console.log('failure files:', result.failed);
+    });
+
+    uppy.on("error", function(err){
+        console.log("error:", err);
+    });
+
+//  uppy.getPlugin('Dashboard').openModal();
+//  uppy.getPlugin('Dashboard').closeModal()
+
+</script>
