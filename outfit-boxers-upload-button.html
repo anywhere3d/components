@@ -1,0 +1,139 @@
+<!-- outfit-boxers-upload-button.html -->
+
+<h4>Boxers Upload Form:</h4>
+<div id="outfit-boxers-upload-button" class="form-control btn btn-primary btn-white-outline">Upload boxers</div>
+
+
+<script>
+
+//  outfit-boxers-upload-button.html
+
+    var outfitBoxersUploadButtonSelector = "#outfit-boxers-upload-button";
+
+    $(outfitBoxersUploadButtonSelector)[0].uploadOptions = {
+        name    : "boxers", // outfit asset name.
+        editor  : "boxers", // outfit editor name.
+        index   : 0,        // material index.
+        maps    : ["map", "emissiveMap"],
+        kind    : "texture",
+        type    : "map",
+        outfit  : "boxers",
+        category: "boxers",
+        tags    : ["boxers", "underwears", "swimwears"],
+        gender  : ["male"],
+        clientid: "95e1ecaf14ca5e6",
+        endpoint: "https://api.imgur.com/3/image",
+        method: "POST",
+        snapshotEndpoint: "/snapshots/insert", // post url.
+        texturesEndpoint: "/textures/insert",  // post url.
+        collection: "textures",
+        scrOnly: false, //  replace sourceFiles only.
+    };
+
+
+//  Define button holder.
+    $(outfitBoxersUploadButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+    });
+
+
+//  Target texture is not avaliable.
+    $(outfitBoxersUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.boxers.material.materials[0].map ) {
+            var msg = "Open boxers editor panel and import a diffuse map texture<br>for this outfit first.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Define upload target.
+    $(outfitBoxersUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.boxers.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.boxers.material.materials[0].map.image; // must be canvas.
+        } else {
+            target = undefined;
+        }
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(outfitBoxersUploadButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.boxers.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Boxers Upload Form",
+            }
+
+            var component = "outfit-texture-upload-form.html";
+            $EditorPanel.loadComponent(component, option);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(outfitBoxersUploadButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.boxers.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+/*
+//  Setup form options.
+    $(outfitBoxersUploadButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.boxers.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            formOptions = {
+                name    : "boxers", // outfit asset name.
+                editor  : "boxers", // outfit editor name.
+                index   : 0,        // material index.
+                maps    : ["map", "emissiveMap"],
+                kind    : "texture",
+                type    : "map",
+                outfit  : "boxers",
+                category: "boxers",
+                tags    : ["boxers", "underwears", "swimwears"],
+                gender  : ["male"],
+                clientid: "95e1ecaf14ca5e6",
+                endpoint: "https://api.imgur.com/3/image",
+                method: "POST",
+                snapshotEndpoint: "/snapshots/insert", // post url.
+                texturesEndpoint: "/textures/insert",  // post url.
+                collection: "textures",
+                scrOnly: false, //  replace sourceFiles only.
+            };
+
+        }
+
+    });
+*/
+
+</script>
+
+
+
+
+
+
+
+

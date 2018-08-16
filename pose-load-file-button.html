@@ -1,0 +1,64 @@
+<!-- pose-load-file-button.html -->
+
+<h4>Pose Loader:</h4>
+<div id="load-pose-button" class="form-control btn btn-default btn-white-outline">Load pose from file</div>
+<input type="file" class="hidden" id="load-pose-input">
+
+<script>
+
+    var loadPoseButtonSelector = "#load-pose-button";
+    var loadPoseInputSelector = "#load-pose-input";
+
+    $(loadPoseButtonSelector).on("click", function(){
+        $(loadPoseInputSelector).val("");
+        $(loadPoseInputSelector).click();
+    });
+
+    $(loadPoseInputSelector).on("change", function(e){
+        if ( !e.target.files.length ) return;
+
+        new Promise( function(resolve, reject ){
+
+            var file = e.target.files[0];
+            var reader = new FileReader();
+            $(reader).on("load", function(){
+                debugMode && console.log(reader.result);
+                var json = JSON.parse( reader.result );
+                resolve( json );
+            });
+            reader.readAsText(file);
+
+        }).then( function( pose ){
+
+            debugMode && console.log( "pose:", pose );
+            localPlayer.outfit.outfits.forEach( function( name ){
+
+                if ( !!localPlayer.outfit[ name ] ) {
+                    pose.forEach( function( key, i ){
+                        localPlayer.outfit[ name ].skeleton.bones[i].position.fromArray( pose[i].pos );
+                        localPlayer.outfit[ name ].skeleton.bones[i].quaternion.fromArray( pose[i].rot );
+                        localPlayer.outfit[ name ].skeleton.bones[i].scale.fromArray( pose[i].scl );
+                    });
+                }
+
+            });
+
+        }).catch( function( err ){
+            console.error( err );
+        });
+
+    });
+
+//  poseFromJSON.js
+
+    function poseFromJSON( text, skinned ){
+        var pose = JSON.parse( text );
+        pose.forEach(function ( key, i ) {
+            skinned.skeleton.bones[i].position.fromArray( pose[i].pos );
+            skinned.skeleton.bones[i].quaternion.fromArray( pose[i].rot );
+            skinned.skeleton.bones[i].scale.fromArray( pose[i].scl );
+        });
+    }
+
+</script>
+

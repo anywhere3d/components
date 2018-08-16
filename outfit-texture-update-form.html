@@ -1,0 +1,114 @@
+<!-- outfit-texture-update-form.html (v1.2)-->
+
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+        z-index:9999 !important;
+    }
+
+    #editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .form-header {
+        margin-top:10px;
+        height:auto;
+        color: #ffffff;
+    }
+
+    .form-body {
+        padding:20px;
+        height:220px;
+        color: #ffffff;
+    }
+
+    #item-description {
+        min-width:100%;
+        max-width:100%;
+        min-height:40px;
+        max-height:75px;
+        color:#000000;
+    }
+
+    .form-footer {
+        padding:20px;
+        height:70px;
+        color: #ffffff;
+    }
+
+    .modal-dialog {
+        width:fit-content;
+    }
+
+</style>
+
+<h4>Outfit texture update form:</h4>
+
+<div class="form-body">
+    <div>Title:</div>
+    <input type="text" id="item-title" class="form-control" readonly>
+    <div class="label">Description (optional):</div>
+    <textarea id="item-description" cols="33" rows="3" maxlength="600" class="form-control" readonly></textarea>
+    <div class="label">Tags (optional - comma, delimiter):</div>
+    <input type="text" id="item-tags" class="form-control" readonly>
+</div>
+
+<div id="form-snapshots-holder">
+    <script>
+        var formSnapshotsHolderSelector = "#form-snapshots-holder";
+        var formSnapshotsComponents = componentsFolder + "form-snapshots.html";
+        $(formSnapshotsHolderSelector).load(formSnapshotsComponents, function(response, status, xhr){
+            debugMode && console.log("form-snapshots:", status);
+        });
+    </script>
+</div>
+
+<div class="form-footer">
+    <input type=button id="form-update-button" class="btn btn-success btn-white-outline pull-right" value="Update texture" disabled>
+    <div id="form-cancel-button" class="btn btn-default btn-white-outline">Cancel</div>
+</div>
+
+
+<script>
+
+//  Form Cancel button.
+
+    var formCancelButtonSelector = "#form-cancel-button";
+    $(formCancelButtonSelector).on("click", function(){
+        $EditorPanel.dialog("close");
+    });
+
+</script>
+
+
+<script>
+
+//  Form Update button.
+
+    var itemTitleSelector         = "#item-title";
+    var outfitSnapshotsSelector   = "#outfit-snapshots";
+    var itemSnapshotSelector      = ".item-snapshot";
+    var snapshotContainerSelector = ".snapshot-container";
+    var snapshotImageSelector     = ".snapshot-image";
+    var formSpinnerSelector       = ".form-spinner";
+    var itemDescriptionSelector   = "#item-description";
+    var itemTagsSelector          = "#item-tags";
+    var formUpdateButtonSelector  = "#form-update-button";
+
+</script>
+
+
+
+
+
+
+

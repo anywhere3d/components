@@ -1,0 +1,52 @@
+<!-- pose-save-storage-button.html -->
+
+<div id="pose-save-storage-button" class="form-control btn btn-primary btn-white-outline">Save this pose to browser</div>
+
+<script>
+
+//  pose-save-storage-button.html
+
+    var componentsFolder = "/components/";
+    var poseSaveStorageButtonSelector = "#pose-save-storage-button";
+
+//  Import dialog form component and apply dialog option.
+    $(poseSaveStorageButtonSelector).on("click", function(){
+        if ( !$FormPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Save Pose Form",
+            }
+
+            var component = "pose-save-storage-form.html";
+            $FormPanel.loadForm(component, option);
+        }
+
+    });
+
+/*
+//  Define form target.
+    $(poseSaveStorageButtonSelector).on("click", function (){
+        if ( !$FormPanel.active ){
+
+        } else {
+
+        }
+    });
+*/
+
+//  Open/Close dialog.
+    $(poseSaveStorageButtonSelector).on("click", function(){
+        if ( !$FormPanel.active ) {
+            $FormPanel.dialog("open");
+        } else {
+            $FormPanel.dialog("close");
+        }
+    });
+
+</script>

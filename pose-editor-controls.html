@@ -1,0 +1,1175 @@
+<!-- pose-editor-controls.html (v1.0)-->
+
+<style>
+
+    #editor-panel,
+    #asset-editor-panel,
+    #avatar-editor-panel,
+    #outfit-editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:550px !important;
+        max-height:550px !important; 
+        background-color:#000000;
+    }
+
+</style>
+
+
+<style>
+/*animator-components.css*/
+    .control-container { 
+        left:0px; right:0px; margin-bottom:1px; padding:10px 10px 5px 10px; 
+        color: #ffffff; border:1px solid #ffffff; border-radius:9px; 
+    }
+    #bones-holder {margin-top:15px; height:50px;}
+    /*.slider-row { padding-left:10px; padding-right:5px; }*/
+    .dynamic-label  { position:absolute; width:18%; font-size:11px; padding-top:5px; }
+    .ui-widget input[type=range],
+    .dynamic-slider, static-slider { display:inline; width:60%; margin-left:22%; }
+    .ui-widget input[type=number],
+    .dynamic-output { 
+        position:absolute; margin-right:10px; width:15%; right:15px;
+        color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+        font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
+    } 
+    .reset-container { 
+        padding:1px; margin-bottom:5px; font-weight:normal; 
+        font-size:0.8em; text-align:left; margin-top:5px; 
+    }
+    .reset-container a { cursor:pointer; }
+    #hover { opacity:0.5; }
+    .reset-container a span {color:#ffeb3b !important;}
+	.reset-container a:link {color:#ccf !important; text-decoration:initial;}
+    .reset-container a:visited span {color:#ccf !important; text-decoration:initial;}
+    .reset-container a:hover span  {color:#0f0 !important; text-decoration:initial;}
+    .reset-container a:active span {color:#f00 !important; text-decoration:initial;}
+    .expo-buttons-row { display:inline-flex; margin-bottom:30px; width:100%; }
+    .btn-holder { text-align:center; }
+    .btn-holder + .btn-holder { margin-left:5px; }
+    .btn-white { color:#fff; }
+    #export-data, #export-pose { width:49%; margin-left:0px; }
+    #exports-holder { margin-bottom:30px; }
+    #crazy-pose { width:100%; margin-left:0px; }
+/*  
+    #load-skinned-button:hover, #load-pose-button:hover, 
+    #load-data-button:hover, #load-bvh-button:hover,
+    #export-data:hover, #export-pose:hover, #crazy-pose:hover { color:#0275d8 !important; } 
+*/
+    #animation-loop, #hidden-helpers, #manual-play { float:right; }    
+
+    #select-bones { position:absolute; 
+        left:150px; width:55%; font-family:Arial, sans-serif; 
+        font-size:1.8rem; color:#000000; border:none; 
+    }
+
+    #bone-label { position:absolute; left:0px; right:0px; top:0px; font-size:1.3em; text-align:center; }
+    #bone-label-slider { font-size:1em; margin-bottom:15px; }
+    #current-bone-select { height:45px; } 
+    #bone-divider { margin-bottom:15px; }
+
+    span.push-right  { position:absolute; right:20px; }    
+    #scale-ratio     { color:#2275d7; }
+    #keep-ratio      { vertical-align: -4px; }
+</style>
+
+<div id="bones-holder">
+    <div id="current-bone-select" class="control-container">
+        <label for="select-bones" id="select-label">Selected Bone:</label>
+        <select id="select-bones" name="BONES" size="1">
+        <!-- 
+            <option value="Hips">Hips</option>
+            <option value="LHipJoint">LHipJoint</option>
+            <option value="LeftUpLeg">LeftUpLeg</option>
+            <option value="LeftLeg">LeftLeg</option>
+            <option value="LeftFoot">LeftFoot</option>
+            <option value="LeftToeBase">LeftToeBase</option>
+            <option value="RHipJoint">RHipJoint</option>
+            <option value="RightUpLeg">RightUpLeg</option>
+            <option value="RightLeg">RightLeg</option>
+            <option value="RightFoot">RightFoot</option>
+            <option value="RightToeBase">RightToeBase</option>
+            <option value="LowerBack">LowerBack</option>
+            <option value="Spine">Spine</option>
+            <option value="Spine1">Spine1</option>
+            <option value="Neck">Neck</option>
+            <option value="Neck1">Neck1</option>
+            <option value="Head">Head</option>
+            <option value="LeftShoulder">LeftShoulder</option>
+            <option value="LeftArm">LeftArm</option>
+            <option value="LeftForeArm">LeftForeArm</option>
+            <option value="LeftHand">LeftHand</option>
+            <option value="LeftFingerBase">LeftFingerBase</option>
+            <option value="LeftHandIndex1">LeftHandIndex1</option>
+            <option value="LThumb">LThumb</option>
+            <option value="RightShoulder">RightShoulder</option>
+            <option value="RightArm">RightArm</option>
+            <option value="RightForeArm">RightForeArm</option>
+            <option value="RightHand">RightHand</option>
+            <option value="RightFingerBase">RightFingerBase</option>
+            <option value="RightHandIndex1">RightHandIndex1</option>
+            <option value="RThumb">RThumb</option>
+         -->
+        </select>
+    </div>
+    
+    <div id="bone-divider" class="reset-container"></div>
+</div>
+
+<div id="position-holder">
+    <div id="position-sliders" class="control-container">
+        <div class="slider-row">
+            <label for="slider-pos-x" id="label-pos-x" class="dynamic-label">position&nbsp;<strong>x:</strong></label>
+            <input type="range" id="slider-pos-x" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+            <input type="number" id="output-pos-x" class="dynamic-output position-output" value="0" step="0.1">
+        </div>
+        <div class="slider-row">
+            <label for="slider-pos-y" id="label-pos-y" class="dynamic-label">position&nbsp;<strong>y:</strong></label>
+            <input type="range" id="slider-pos-y" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+            <input type="number" id="output-pos-y" class="dynamic-output position-output" value="0" step="0.1">
+        </div>
+        <div class="slider-row">
+            <label for="slider-pos-z" id="label-pos-z" class="dynamic-label">position&nbsp;<strong>z:</strong></label>
+            <input type="range" id="slider-pos-z" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+            <input type="number" id="output-pos-z" class="dynamic-output position-output" value="0" step="0.1">
+        </div>
+    </div>
+    
+    <div class="reset-container">
+        <a><span id="reset-position">Reset pose</span></a>
+    </div>
+</div>
+
+<div id="rotation-holder">
+    <div id="rotation-sliders" class="control-container">
+        <div class="slider-row">
+            <label for="slider-rot-x" id="label-rot-x" class="dynamic-label">rotation&nbsp;<strong>x:</strong></label>
+            <input type="range" id="slider-rot-x" class="dynamic-slider rotation-slider" min="-180" max="180" value="0" step="1">
+            <input type="number" id="output-rot-x" class="dynamic-output rotation-output" min="-180" max="180" value="0" step="1">
+        </div>
+        <div class="slider-row">
+            <label for="slider-rot-y" id="label-rot-y" class="dynamic-label">rotation&nbsp;<strong>y:</strong></label>
+            <input type="range" id="slider-rot-y" class="dynamic-slider rotation-slider" min="-180" max="180" value="0" step="1">
+            <input type="number" id="output-rot-y" class="dynamic-output rotation-output" min="-180" max="180" value="0" step="1">
+        </div>
+        <div class="slider-row">
+            <label for="slider-rot-z" id="label-rot-z" class="dynamic-label">rotation&nbsp;<strong>z:</strong></label>
+            <input type="range" id="slider-rot-z" class="dynamic-slider rotation-slider" min="-180" max="180" value="0" step="1">
+            <input type="number" id="output-rot-z" class="dynamic-output rotation-output" min="-180" max="180" value="0" step="1">
+        </div>
+    </div>
+    
+    <div class="reset-container">
+        <a><span id="reset-rotation">Reset bones rotation</span></a>
+    </div>
+</div>
+
+<div id="scale-holder">
+    <style>
+
+    </style>
+    
+    <div class="control-container">
+        <div class="slider-row">
+            <label for="slider-scale-uniform" class="dynamic-label">Scale <strong>xyz</strong></label>
+            <input type="range" id="slider-scale-uniform" class="dynamic-slider" min="0.99" max="1.01" value="1" step="0.001">
+            <input type="number" id="output-scale-uniform" class="dynamic-output uniform-scale-output" value="0" step="0.1">
+        </div>
+    </div>
+    
+    <div class="reset-container">
+        <a><span id="reset-scale">Reset bones scale</span></a>
+        <span id="scale-ratio" class="push-right">
+            Keep&nbsp;scale&nbsp;ratio&nbsp;<input type="checkbox" id="keep-ratio" title="keep scale ratio">
+        </span>
+    </div>
+    
+    <div id="scale-sliders" class="control-container">
+        <div class="slider-row">
+            <label for="slider-scl-x" id="label-scl-x" class="dynamic-label">scale&nbsp;<strong>x:</strong></label>
+            <input type="range" id="slider-scl-x" class="dynamic-slider" min="0.99" max="1.01" value="1" step="0.001">
+            <input type="number" id="output-scl-x" class="dynamic-output scale-output" value="1" step="0.1">
+        </div>
+        <div class="slider-row">
+            <label for="slider-scl-y" id="label-scl-y" class="dynamic-label">scale&nbsp;<strong>y:</strong></label>
+            <input type="range" id="slider-scl-y" class="dynamic-slider" min="0.99" max="1.01" value="1" step="0.001">
+            <input type="number" id="output-scl-y" class="dynamic-output scale-output" value="1" step="0.1">
+        </div>
+        <div class="slider-row">
+            <label for="slider-scl-z" id="label-scl-z" class="dynamic-label">scale&nbsp;<strong>z:</strong></label>
+            <input type="range" id="slider-scl-z" class="dynamic-slider" min="0.99" max="1.01" value="1" step="0.001">
+            <input type="number" id="output-scl-z" class="dynamic-output scale-output" value="1" step="0.1">
+        </div>
+    </div>
+    
+    <div class="reset-container">
+        <a><span id="reset-pose">Reset T-Pose</span></a>
+    </div>
+</div>
+
+
+<script>
+
+    var currentBone;
+    var currentBoneIndex;
+
+//  Holders.
+
+    var bonesHolderSelector = "#bones-holder";
+    var selectBonesSelector = "#select-bones";
+    var bonesSelectDroplist = $(selectBonesSelector)[0];
+
+    var positionHolderSelector = "#position-holder";
+    var rotationHolderSelector = "#rotation-holder";
+    var scaleHolderSelector    = "#scale-holder";
+
+//  Resets.
+
+    var resetPoseSelector  = "#reset-pose";
+    var resetScaleSelector = "#reset-scale";
+    var resetRotationSelector = "#reset-rotation";
+    var resetPositionSelector = "#reset-position";
+
+//  Updaters.
+
+//  var positionSliderUpdaterSelector = "#positionSliderUpdater";
+//  var rotationSliderUpdaterSelector = "#rotationSliderUpdater";
+//  var scaleSliderUpdaterSelector    = "#scaleSliderUpdater";
+//  var uniformSliderUpdaterSelector  = "#uniformSliderUpdater";
+
+//  Position sliders.
+
+    var sliderPosXSelector = "#slider-pos-x";
+    var sliderPosYSelector = "#slider-pos-y";
+    var sliderPosZSelector = "#slider-pos-z";
+    var outputPosXSelector = "#output-pos-x";
+    var outputPosYSelector = "#output-pos-y";
+    var outputPosZSelector = "#output-pos-z";
+    var positionOutputSelector = ".position-output";    
+    var resetPositionSelector = "#reset-position";
+    var posSliderX = $(sliderPosXSelector)[0];
+    var posSliderY = $(sliderPosYSelector)[0];
+    var posSliderZ = $(sliderPosZSelector)[0];
+    var posOutputX = $(outputPosXSelector)[0];
+    var posOutputY = $(outputPosYSelector)[0];
+    var posOutputZ = $(outputPosZSelector)[0];
+
+//  Rotation sliders.
+
+    var sliderRotXSelector = "#slider-rot-x";
+    var sliderRotYSelector = "#slider-rot-y";
+    var sliderRotZSelector = "#slider-rot-z";
+    var outputRotXSelector = "#output-rot-x";
+    var outputRotYSelector = "#output-rot-y";
+    var outputRotZSelector = "#output-rot-z";
+    var rotationSliderSelector = ".rotation-slider";
+    var rotationOutputSelector = ".rotation-output";
+    var resetRotationSelector = "#reset-rotation";
+    var rotSliderX = $(sliderRotXSelector)[0];
+    var rotSliderY = $(sliderRotYSelector)[0];
+    var rotSliderZ = $(sliderRotZSelector)[0];
+    var rotOutputX = $(outputRotXSelector)[0];
+    var rotOutputY = $(outputRotYSelector)[0];
+    var rotOutputZ = $(outputRotZSelector)[0];
+
+//  Scale sliders.
+
+    var sliderSclXSelector = "#slider-scl-x";
+    var sliderSclYSelector = "#slider-scl-y";
+    var sliderSclZSelector = "#slider-scl-z";
+    var outputSclXSelector = "#output-scl-x";
+    var outputSclYSelector = "#output-scl-y";
+    var outputSclZSelector = "#output-scl-z";
+    var scaleOutputSelector = ".scale-output";
+    var resetScaleSelector = "#reset-scale";
+    var scaleRatioSelector = "#scale-ratio";
+    var keepRatioSelector  = "#keep-ratio";
+    var sclSliderX = $(sliderSclXSelector)[0];
+    var sclSliderY = $(sliderSclYSelector)[0];
+    var sclSliderZ = $(sliderSclZSelector)[0];
+    var sclOutputX = $(outputSclXSelector)[0];
+    var sclOutputY = $(outputSclYSelector)[0];
+    var sclOutputZ = $(outputSclZSelector)[0];
+
+//  Uniform Scale slider.
+
+    var sliderScaleUniformSelector = "#slider-scale-uniform";
+    var outputScaleUniformSelector = "#output-scale-uniform";
+    var sclUniformSlider = $(sliderScaleUniformSelector)[0];
+    var sclUniformOutput = $(outputScaleUniformSelector)[0];
+    var uniformScaleOutputSelector = ".uniform-scale-output";
+
+//  Keep scale ratio.
+
+    $(keepRatioSelector).on("click", function(){
+        if ( this.checked ) {
+            $(scaleRatioSelector).css("color", "#00ff00");
+        } else {
+            $(scaleRatioSelector).css("color", "#2275d7");
+        }
+    });
+
+</script>
+
+
+<script>
+
+//  Animator controller helpers.js
+
+    function initBonesDroplist( skinned ){
+
+    //  Remove all options from select.
+        bonesSelectDroplist.innerHTML = null;
+
+    //  Create new options list from skeleton bones.
+        for (var i in skinned.skeleton.bones){
+            var option = document.createElement("option");
+            option.value = skinned.skeleton.bones[i].name;
+            option.text  = skinned.skeleton.bones[i].name;
+            bonesSelectDroplist.options.add( option );
+        }
+    }
+
+    var getCurrentBone = defineBoneTarget;
+
+    function defineBoneTarget( name ){
+        currentBoneIndex = bonesSelectDroplist.selectedIndex; // number.
+        debugMode && console.log("currentBoneIndex:", currentBoneIndex);
+        currentBone = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+        debugMode && console.log("currentBone:", currentBone);
+        return currentBone;
+    }
+
+    function initBoneOutputValues(){
+    
+    //  INITIALAZE POSITION OUTPUT VALUES.
+        posOutputX.value = target.position.x.toFixed(1);     // string
+        posOutputY.value = target.position.y.toFixed(1);     // string
+        posOutputZ.value = target.position.z.toFixed(1);     // string
+        
+    //  INITIALAZE ROTATION OUTPUT VALUES.
+        var xrad = target.rotation._x;                       // number rad
+        var yrad = target.rotation._y;                       // number rad
+        var zrad = target.rotation._z;                       // number rad
+
+        var x = Math.floor( THREE.Math.radToDeg(xrad) );     // number degrees
+        var y = Math.floor( THREE.Math.radToDeg(yrad) );     // number degrees
+        var z = Math.floor( THREE.Math.radToDeg(zrad) );     // number degrees
+    //  Always return first rotation y because of quaternion.
+        rotOutputY.value = rotSliderY.value = y.toFixed(0);  // string degrees
+        rotOutputX.value = rotSliderX.value = x.toFixed(0);  // string degrees
+        rotOutputZ.value = rotSliderZ.value = z.toFixed(0);  // string degrees
+
+    //  INITIALAZE SCALE OUTPUT VALUES.
+        sx = target.scale.x * 100;           // number
+        sy = target.scale.y * 100;           // number
+        sz = target.scale.z * 100;           // number
+        sclOutputX.value = sx.toFixed(1);    // string
+        sclOutputY.value = sy.toFixed(1);    // string
+        sclOutputZ.value = sz.toFixed(1);    // string
+        sclUniformOutput.value = sclOutputY.value;
+
+    }
+
+    function initSlider(slider, min, max, step, value){
+        slider.min = min;
+        slider.max = max;
+        slider.step = step;
+        if (value != null) slider.value = value;
+    }
+
+    function outputUpdate(selector, value) { 
+        $(selector).val( value ); 
+    }
+
+    function CurrentBoneSelected( name ){ 
+        target = defineBoneTarget( name );           
+        initBoneOutputValues();
+    }
+/*
+    function getCurrentBone( name ){
+    //  var bonesSelectDroplist = document.getElementById("select-bones");
+        currentBoneIndex = bonesSelectDroplist.selectedIndex;                // number  //  We can put this line in update().
+        currentBone = animation.hierarchy[currentBoneIndex];                 // object  //  We can put this line in update().
+        currentDataBone = animation.data.hierarchy[currentBoneIndex];        // object  //  We can put this line in update().
+        $(boneLabelSelectedNameSelector).text( currentBone.name );
+    }
+*/
+    function staticSliderPressed(identifier, status){ 
+    //  debugMode && console.log("staticSliderPressed:", status);
+        currentSlider = $( "#slider-" + identifier )[0];
+        currentOutput = $( "#output-" + identifier )[0];
+        currentSliderStatus = status;
+    }
+
+    function outputSliderPressed(identifier, status){ 
+    //  debugMode && console.log("staticSliderPressed:", status);
+        currentSlider = $( "#output-" + identifier )[0];
+        currentOutput = $( "#slider-" + identifier )[0];
+        currentSliderStatus = status;
+    }
+
+    function dynamicSliderPressed(identifier, status, restore){ 
+    //  debugMode && console.log("dynamicSliderPressed:", status);
+        currentSlider = $( "#slider-" + identifier )[0];
+        currentOutput = $( "#output-" + identifier )[0];
+        currentSliderStatus = status;
+        if (restore == null) 
+            currentSlider.value = 0;
+        else 
+            currentSlider.value = restore;
+    }
+
+//  source: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round"
+    function round(number, precision) {
+        var shift = function (number, precision, reverseShift) {
+            if (reverseShift) {
+                precision = -precision;
+            }  
+            numArray = ("" + number).split("e");
+            return +(numArray[0] + "e" + (numArray[1] ? (+numArray[1] + precision) : precision));
+        };
+        return shift(Math.round(shift(number, precision, false)), precision, true);
+    }
+
+</script>
+
+
+<script>
+
+//  boneSelector.js
+
+//  On dialog open.
+    debugMode && console.log(
+        !!localPlayer.outfit.body 
+        && !!localPlayer.outfit.body.skeleton
+        && !!localPlayer.outfit.body.skeleton.bones 
+        && !!localPlayer.outfit.body.skeleton.bones.length
+    );
+
+    if (!!localPlayer.outfit.body 
+     && !!localPlayer.outfit.body.skeleton
+     && !!localPlayer.outfit.body.skeleton.bones 
+     && !!localPlayer.outfit.body.skeleton.bones.length){
+
+    //  Create new options list from skeleton bones.
+        initBonesDroplist( localPlayer.outfit["body"] );
+
+    //  Define bone target.
+        target = defineBoneTarget( "body" );
+
+    //  Initialize output values.
+        initBoneOutputValues();
+    }
+
+    $(selectBonesSelector).on("change", function(e){ 
+        new CurrentBoneSelected( "body" );
+    });
+
+</script>
+
+
+<script>
+
+//  positionControls.js
+
+//  Initialize Position sliders.
+    var pmin, pmax, pstep;
+    pmin = -.1; pmax = .1; pstep = 0.001; 
+    initSlider(posSliderX, pmin, pmax, pstep);
+    initSlider(posSliderY, pmin, pmax, pstep);
+    initSlider(posSliderZ, pmin, pmax, pstep);
+
+//  Sliders.
+    $(sliderPosXSelector).on("mousedown", function(){ 
+        dynamicSliderPressed('pos-x', true,  0);
+        $(positionSliderUpdaterSelector).addClass("update");
+    });
+    $(sliderPosYSelector).on("mousedown", function(){ 
+        dynamicSliderPressed('pos-y', true,  0); 
+        $(positionSliderUpdaterSelector).addClass("update");
+    });
+    $(sliderPosZSelector).on("mousedown", function(){ 
+        dynamicSliderPressed('pos-z', true,  0);
+        $(positionSliderUpdaterSelector).addClass("update");
+    });
+    $(sliderPosXSelector).on("mouseup", function(){ 
+        dynamicSliderPressed('pos-x', false, 0);
+        $(positionSliderUpdaterSelector).removeClass("update");
+    });
+    $(sliderPosYSelector).on("mouseup", function(){ 
+        dynamicSliderPressed('pos-y', false, 0); 
+        $(positionSliderUpdaterSelector).removeClass("update");
+    });
+    $(sliderPosZSelector).on("mouseup", function(){ 
+        dynamicSliderPressed('pos-z', false, 0); 
+        $(positionSliderUpdaterSelector).removeClass("update");
+    });
+
+//  Outputs.
+    $(outputPosXSelector).on("mousedown", function(){ outputSliderPressed('pos-x', true);  });
+    $(outputPosYSelector).on("mousedown", function(){ outputSliderPressed('pos-y', true);  });
+    $(outputPosZSelector).on("mousedown", function(){ outputSliderPressed('pos-z', true);  });
+    $(outputPosXSelector).on("mouseup",   function(){ outputSliderPressed('pos-x', false); });
+    $(outputPosYSelector).on("mouseup",   function(){ outputSliderPressed('pos-y', false); });
+    $(outputPosZSelector).on("mouseup",   function(){ outputSliderPressed('pos-z', false); });
+
+    $(posOutputX).on("input", function(e){
+        if ( !validator.isNumeric(this.value) ) return;
+        var self = this;
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+                target.position.x = parseFloat( self.value );
+            }
+        });
+    });
+
+    $(posOutputY).on("input", function(e){
+        if ( !validator.isNumeric(this.value) ) return;
+        var self = this;
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+                target.position.y = parseFloat(self.value);
+            }
+        });
+    });
+
+    $(posOutputZ).on("input", function(e){
+        if ( !validator.isNumeric(this.value) ) return;
+        var self = this;
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+                target.position.z = parseFloat(self.value);
+            }
+        });
+    });
+
+    function submitPositionValue(){
+
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+
+            //  Submit value to object.
+                target.position.x += parseFloat(posSliderX.value);   // number  toFixed(2)
+                target.position.y += parseFloat(posSliderY.value);   // number  toFixed(2)
+                target.position.z += parseFloat(posSliderZ.value);   // number  toFixed(2)
+            }
+        });
+
+    //  Update output values.
+        posOutputX.value = target.position.x.toFixed(1);     // string  toFixed(2)
+        posOutputY.value = target.position.y.toFixed(1);     // string  toFixed(2)
+        posOutputZ.value = target.position.z.toFixed(1);     // string  toFixed(2)
+    }
+
+    function reversePositionValue(){
+    //  Update output values.
+        if (!!animation){
+            posOutputX.value = target.position.x.toFixed(1);   // string  toFixed(2)
+            posOutputY.value = target.position.y.toFixed(1);   // string  toFixed(2)
+            posOutputZ.value = target.position.z.toFixed(1);   // string  toFixed(2)
+        }
+    }
+
+</script>
+
+
+<script>
+
+//  rotationControls.js
+
+//  Initialize Static Rotation sliders.
+    var rmin, rmax, rstep;
+    rmin = -180; rmax = 180; rstep = 1;
+    initSlider(rotSliderX, rmin, rmax, rstep);
+    initSlider(rotSliderY, rmin, rmax, rstep);
+    initSlider(rotSliderZ, rmin, rmax, rstep);
+
+    $(sliderRotXSelector).on("mousedown", function(){ staticSliderPressed('rot-x', true);  });
+    $(sliderRotYSelector).on("mousedown", function(){ staticSliderPressed('rot-y', true);  });
+    $(sliderRotZSelector).on("mousedown", function(){ staticSliderPressed('rot-z', true);  });
+    $(sliderRotXSelector).on("mouseup",   function(){ staticSliderPressed('rot-x', false); });
+    $(sliderRotYSelector).on("mouseup",   function(){ staticSliderPressed('rot-y', false); });
+    $(sliderRotZSelector).on("mouseup",   function(){ staticSliderPressed('rot-z', false); });
+
+    $(rotationSliderSelector).on("input", function(){
+        submitRotationValue();
+    });
+
+    $(rotationOutputSelector).on("input", function(){
+        if ( !validator.isNumeric(this.value) ) return;
+
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+
+            //  Submit value to object.
+                target.rotation.x = parseFloat( THREE.Math.degToRad( Number( rotOutputX.value ) ) ); // number rad.
+                target.rotation.y = parseFloat( THREE.Math.degToRad( Number( rotOutputY.value ) ) ); // number rad.
+                target.rotation.z = parseFloat( THREE.Math.degToRad( Number( rotOutputZ.value ) ) ); // number rad.
+            }
+        });
+
+    //  Update slider values.
+        var xrad = target.rotation._x;                           // number rad.
+        var yrad = target.rotation._y;                           // number rad.
+        var zrad = target.rotation._z;                           // number rad.
+
+        rotSliderX.value = THREE.Math.radToDeg(xrad).toFixed(0); // string deg.
+        rotSliderY.value = THREE.Math.radToDeg(yrad).toFixed(0); // string deg.
+        rotSliderZ.value = THREE.Math.radToDeg(zrad).toFixed(0); // string deg.
+    });
+
+    function submitRotationValue(){
+
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+
+            //  Submit value to object.
+                target.rotation.x = parseFloat( THREE.Math.degToRad( Number( rotSliderX.value ) ) ); // number rad.
+                target.rotation.y = parseFloat( THREE.Math.degToRad( Number( rotSliderY.value ) ) ); // number rad.
+                target.rotation.z = parseFloat( THREE.Math.degToRad( Number( rotSliderZ.value ) ) ); // number rad.
+            }
+        });
+
+    //  Update output values.
+        var xrad = target.rotation._x;                      // number rad.
+        var yrad = target.rotation._y;                      // number rad.
+        var zrad = target.rotation._z;                      // number rad.
+
+        var xdeg = parseInt( THREE.Math.radToDeg(xrad) );   // number deg.
+        var ydeg = parseInt( THREE.Math.radToDeg(yrad) );   // number deg.
+        var zdeg = parseInt( THREE.Math.radToDeg(zrad) );   // number deg.
+
+        rotOutputX.value = xdeg.toFixed(0);                 // string deg.
+        rotOutputY.value = ydeg.toFixed(0);                 // string deg.
+        rotOutputZ.value = zdeg.toFixed(0);                 // string deg.
+    }
+
+    function reverseRotationValue(){
+    //  Update output values.
+        if (!!animation){
+            var xrad = target.rotation._x;                  // number rad.
+            var yrad = target.rotation._y;                  // number rad.
+            var zrad = target.rotation._z;                  // number rad.
+        //  Always rotation y first because of quaternion.
+            rotOutputY.value = rotSliderY.value = THREE.Math.radToDeg(yrad).toFixed(0); // string deg.
+            rotOutputX.value = rotSliderX.value = THREE.Math.radToDeg(xrad).toFixed(0); // string deg.
+            rotOutputZ.value = rotSliderZ.value = THREE.Math.radToDeg(zrad).toFixed(0); // string deg.
+        }
+    }
+
+</script>
+
+
+
+<script>
+
+//  scaleControls.js
+
+//  Initialize Scale sliders.
+    var sclmin, sclmax, sclstep;
+    sclmin = 0.99; sclmax = 1.01; sclstep = 0.001;
+    initSlider(sclSliderX, sclmin, sclmax, sclstep);
+    initSlider(sclSliderY, sclmin, sclmax, sclstep);
+    initSlider(sclSliderZ, sclmin, sclmax, sclstep);
+    initSlider(sclUniformSlider, sclmin, sclmax, sclstep);
+
+    $(sliderSclXSelector).on("mousedown", function(){ 
+        dynamicSliderPressed("scl-x", true,  1); 
+        $(scaleSliderUpdaterSelector).addClass("update");
+    });
+    $(sliderSclYSelector).on("mousedown", function(){ 
+        dynamicSliderPressed("scl-y", true,  1); 
+        $(scaleSliderUpdaterSelector).addClass("update");
+    });
+    $(sliderSclZSelector).on("mousedown", function(){ 
+        dynamicSliderPressed("scl-z", true,  1); 
+        $(scaleSliderUpdaterSelector).addClass("update");
+    });
+    $(sliderSclXSelector).on("mouseup", function(){ 
+        dynamicSliderPressed("scl-x", false, 1); 
+        $(scaleSliderUpdaterSelector).removeClass("update");
+    });
+    $(sliderSclYSelector).on("mouseup", function(){ 
+        dynamicSliderPressed("scl-y", false, 1); 
+        $(scaleSliderUpdaterSelector).removeClass("update");
+    });
+    $(sliderSclZSelector).on("mouseup", function(){ 
+        dynamicSliderPressed("scl-z", false, 1); 
+        $(scaleSliderUpdaterSelector).removeClass("update");
+    });
+
+    $(sliderScaleUniformSelector).on("mousedown", function(){ 
+        dynamicSliderPressed("scale-uniform", true,  1); 
+        $(uniformSliderUpdaterSelector).addClass("update");
+    });
+    $(sliderScaleUniformSelector).on("mouseup", function(){ 
+        dynamicSliderPressed("scale-uniform", false, 1); 
+        $(uniformSliderUpdaterSelector).removeClass("update");
+    });
+
+
+    $(outputSclXSelector).on("mousedown", function(){ 
+        outputSliderPressed("scl-x", true);
+    });
+    $(outputSclYSelector).on("mousedown", function(){ 
+        outputSliderPressed("scl-y", true);
+    });
+    $(outputSclZSelector).on("mousedown", function(){ 
+        outputSliderPressed("scl-z", true);
+    });
+    $(outputSclXSelector).on("mouseup", function(){ 
+        outputSliderPressed("scl-x", false);
+    });
+    $(outputSclYSelector).on("mouseup", function(){ 
+        outputSliderPressed("scl-y", false);
+    });
+    $(outputSclZSelector).on("mouseup", function(){ 
+        outputSliderPressed("scl-z", false);
+    });
+
+    $(outputScaleUniformSelector).on("mousedown", function(){ 
+        outputSliderPressed("scale-uniform", true);
+    });
+    $(outputScaleUniformSelector).on("mouseup", function(){ 
+        outputSliderPressed("scale-uniform", false);
+    });
+
+
+//  Uniform Output slider.
+
+    $(uniformScaleOutputSelector).on("input", function(){
+        if ( !validator.isNumeric(this.value) ) return;
+
+    //  Submit value to objects.
+        var s = parseFloat( this.value/100 ); // number.
+
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+
+                if ( $(keepRatioSelector)[0].checked ) {
+    
+                    s = s - target.scale.y;
+    
+                    target.scale.x += s;
+                    target.scale.y += s;
+                    target.scale.z += s;
+    
+                } else {
+    
+                    target.scale.x = s;    // number.
+                    target.scale.y = s;    // number.
+                    target.scale.z = s;    // number.
+    
+                }
+            }
+        });
+
+    //  Update output values.
+        sx = target.scale.x * 100;           // number.
+        sy = target.scale.y * 100;           // number.
+        sz = target.scale.z * 100;           // number.
+
+        sclOutputX.value = sx.toFixed(1);    // string.
+        sclOutputY.value = sy.toFixed(1);    // string.
+        sclOutputZ.value = sz.toFixed(1);    // string.
+    });
+
+//  Output slider x.
+
+    $(sclOutputX).on("input", function(){
+        if ( !validator.isNumeric(this.value) ) return;
+
+        var s = parseFloat( this.value/100 );    // number.
+
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+            //  Submit value to object.
+                target.scale.x = s;               // number
+            }
+        });
+    });
+
+//  Output slider y.
+
+    $(sclOutputY).on("input", function(){
+        if ( !validator.isNumeric(this.value) ) return;
+
+        var s = parseFloat( this.value/100 );    // number.
+
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+            //  Submit value to object.
+                target.scale.y = s;              // number.
+            }
+        });
+
+    //  Update uniform output value.
+        sy = target.scale.y * 100;               // number.
+        sclUniformOutput.value = sy.toFixed(1);  // string.
+
+    });
+
+//  Output slider z.
+
+    $(sclOutputZ).on("input", function(){
+        if ( !validator.isNumeric(this.value) ) return;
+
+        var s = parseFloat( self.value/100 );    // number.
+
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+            //  Submit value to object.
+                target.scale.z = s;              // number.
+            }
+        });
+    });
+
+    function submitNewScaleValue(){
+
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+
+            //  Submit value to object.
+                target.scale.x *= parseFloat( sclSliderX.value ); // number.
+                target.scale.y *= parseFloat( sclSliderY.value ); // number.
+                target.scale.z *= parseFloat( sclSliderZ.value ); // number.
+            }
+        });
+
+    //  Update output values.
+        var sx = target.scale.x * 100;       // number
+        var sy = target.scale.y * 100;       // number
+        var sz = target.scale.z * 100;       // number
+
+        sclOutputX.value = sx.toFixed(1);    // string
+        sclOutputY.value = sy.toFixed(1);    // string
+        sclOutputZ.value = sz.toFixed(1);    // string
+        sclUniformOutput.value = sclOutputY.value;
+    }
+
+    function submitUniformScaleValue(){
+
+
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                var target = localPlayer.outfit[ name ].skeleton.bones[ currentBoneIndex ];
+
+            //  Submit value to objects.
+                var s = parseFloat( sclUniformSlider.value );
+
+                if ( $(keepRatioSelector)[0].checked ) {
+        
+                    target.scale.x *= s; // number scale x.
+                    target.scale.y *= s; // number scale y.
+                    target.scale.z *= s; // number scale z.
+        
+                } else {
+        
+                    s *= currentBone.scale.y;
+        
+                    target.scale.x = s; // number scale x.
+                    target.scale.y = s; // number scale y.
+                    target.scale.z = s; // number scale z.
+        
+                }
+            }
+        });
+
+    //  Update output values.
+        sx = target.scale.x * 100;         // number.
+        sy = target.scale.y * 100;         // number.
+        sz = target.scale.z * 100;         // number.
+
+        sclOutputX.value = sx.toFixed(1);  // string.
+        sclOutputY.value = sy.toFixed(1);  // string.
+        sclOutputZ.value = sz.toFixed(1);  // string.
+        sclUniformOutput.value = sclOutputY.value;
+
+    }
+
+    function reverseNewScaleValue(){
+    //  Update output values.
+        if (!!animation){
+            var sx = target.scale.x * 100;              // number
+            var sy = target.scale.y * 100;              // number
+            var sz = target.scale.z * 100;              // number
+            sclOutputX.value = sx.toFixed(1);           // string
+            sclOutputY.value = sy.toFixed(1);           // string
+            sclOutputZ.value = sz.toFixed(1);           // string
+            sclUniformOutput.value = sclOutputY.value;  // string
+        }
+    }
+
+</script>
+
+
+<script>
+
+//  Resets.
+
+//  male pose.
+    var hm_pose = "vVa7bhwxDPwX1zqB70d+xXCVNoCDOF2Qf89IewkuhY1b2PBts9KJ5HA4pPbx18P355eHL48XmoSf5OCawspjb3Dn03j48fwTR2ish7F++foNax54nn6Pvy7+ecCLO2keLoj6bhc83VprXGQau8fyYMxyv4eVh4xLIgdXHVgKVdiJJPQwb4tY5pasccKcuyyXoZtLD5lS8PSZJF54mr6fxX4Hi5d30rjsyXVbllbX5rGIP5hH8IKtFAkBPlXK5XZ2N3drk6njxd/kybSwCRsXWXjRMl1+impuX0ohlMjH4TPl/lTX/2eICXBriMfktZXK3DfhJimS6a4INt7sjNc2SahNsOMV4sZSm77C4ZTgcPZ4u1eV1MZSbNKaOQa7usUiUdVSHsYdtBXBpN5CgjCBIKQbCUMfUtgmLUI1eyMxoEILkEng7AdxKBPxqwEbNNiWd+V/o3KCoSqOWjoCLpeFMUQsALrZFj+2TcPCvJhLzQp+cDA9mlwoNUGkvQ7bJiO73aAUtloNneqpJ/SnM7o29RQOpEgqFaSfEjB0ABQ0rreI6Qk5unek7L6TIDTPZ0U+VfI1S8NDjpprXYtOt0NxUjkmBq4wyA5FDd6wEotsFJSUM3NRjb4o46yoSMuyVXPD1IBclhJKNwuvIDmKXteia+Queoven/tlVz1340QA6qo6+uks91D0Ltz6UvBTksHdyHZMW/RE2qm74XTkpz8=";
+//  female pose.
+    var fm_pose = "vVXLbtwwDPyXPcsC34/+SrCnXAukaHor+u8l5U3aHFLYDbLWxbKlITkzoh5+Xr49PV++PGwwoR7ygTkNGfL1sbH+Yfp1XL4//ajVMHpgzZ8fv9YcR43rr/GC9gpWL6rAvkMA5GEInCrJMTaagqorCUGk4whdEo3NJ6Eyj5oShMmJInjfnmLW28WR7c/2WSQBWqawS4rLwoOZiqCmaFRvyvqPAJgh3tAqSjloUlSse9K84RT+OM/5AZ63Tye6I4Dywg6OjMV0AN6V6SaWoz7OTCXqZOpMZegpCExto0AppGPHdDpeR/8/U7UVcVLxiulYRkXM4+HWEWRgGW0zByzaJJ3ikxKmqUmRFY3IZFkp/E3jmlDRAy0wy/VASq2kEYkFW6JkpSdrq4mJBmKwSBROLXS1BCVwdi472ruJyERRXYcBTNrWdSrU+YTYPC1jMQamlWkV5Ux2nLq9pVNlAePW3oVPaK+a5rROGhmUU+8V+ZTk3bdMjXbNOW6iw98NqEVnVgc3BSvpbsJ0D+hew0hBLZFpmTXMmA3rEowlORJrLat6gO19ybdd87hpzuZL86zIx4tZojsv0a3s16JTxlnqq7SlW1/besoxdQ1hXUlLdDGX45fR/0S+/gY=";
+
+    $(resetPoseSelector).on("click", function(){
+        localPlayer.outfit.outfits.forEach( function( name ){
+            if ( !!localPlayer.outfit[ name ]){
+                localPlayer.outfit[ name ].skeleton.pose();
+            }
+        });
+        initBoneOutputValues();
+    });
+
+    $(resetScaleSelector).on("click", function(){
+
+        var pose;
+
+        if ( !!localPlayer.outfit.getGender() ) {
+
+            if ( localPlayer.outfit.getGender("male") ) pose = JSON.parse( decode( hm_pose ) );
+            if ( localPlayer.outfit.getGender("female") ) pose = JSON.parse( decode( fm_pose ) );
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ] ) {
+                    pose.forEach(function ( key, i ) {
+                    //  localPlayer.outfit[ name ].skeleton.bones[i].position.fromArray( pose[i].pos );
+                    //  localPlayer.outfit[ name ].skeleton.bones[i].quaternion.fromArray( pose[i].rot );
+                        localPlayer.outfit[ name ].skeleton.bones[i].scale.fromArray( pose[i].scl );
+                    });
+                }
+            });
+
+        } else {
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ]){
+                    var length = localPlayer.outfit[ name ].skeleton.bones.length;
+                    for ( var i = 0; i < length; i++ ){
+                    	localPlayer.outfit[ name ].skeleton.bones[i].scale.set(1,1,1);
+                    }
+                }
+            });
+        }
+
+        initBoneOutputValues();
+    });
+
+    $(resetRotationSelector).on("click", function(){
+
+        var pose;
+
+        if ( !!localPlayer.outfit.getGender() ) {
+
+            if ( localPlayer.outfit.getGender("male") ) pose = JSON.parse( decode( hm_pose ) );
+            if ( localPlayer.outfit.getGender("female") ) pose = JSON.parse( decode( fm_pose ) );
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ] ) {
+                    pose.forEach(function ( key, i ) {
+                    //  localPlayer.outfit[ name ].skeleton.bones[i].position.fromArray( pose[i].pos );
+                        localPlayer.outfit[ name ].skeleton.bones[i].quaternion.fromArray( pose[i].rot );
+                    //  localPlayer.outfit[ name ].skeleton.bones[i].scale.fromArray( pose[i].scl );
+                    });
+                }
+            });
+
+        } else {
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ]){
+                    var length = localPlayer.outfit[ name ].skeleton.bones.length;
+                    for ( var i=0; i < length; i++ ){
+                   	    localPlayer.outfit[ name ].skeleton.bones[i].quaternion.set(0,0,0,1);
+                    }
+                }
+            });
+        }
+
+        initBoneOutputValues();
+    });
+
+    //  localPlayer.outfit[ name ].skeleton.bones[i].rotation.set(0,0,0);     // or //
+    //  localPlayer.outfit[ name ].skeleton.bones[i].quaternion.setFromArray(
+    //      localPlayer.outfit[ name ].geometry.bones[i].rotq
+    //  );
+
+    $(resetPositionSelector).on("click", function(){
+
+        var pose;
+
+        if ( !!localPlayer.outfit.getGender() ) {
+
+            if ( localPlayer.outfit.getGender("male") ) pose = JSON.parse( decode( hm_pose ) );
+            if ( localPlayer.outfit.getGender("female") ) pose = JSON.parse( decode( fm_pose ) );
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ] ) {
+                    pose.forEach(function ( key, i ) {
+                        localPlayer.outfit[ name ].skeleton.bones[i].position.fromArray( pose[i].pos );
+                        localPlayer.outfit[ name ].skeleton.bones[i].quaternion.fromArray( pose[i].rot );
+                        localPlayer.outfit[ name ].skeleton.bones[i].scale.fromArray( pose[i].scl );
+                    });
+                }
+            });
+
+        } else {
+
+            localPlayer.outfit.outfits.forEach( function( name ){
+                if ( !!localPlayer.outfit[ name ]){
+                    localPlayer.outfit[ name ].skeleton.pose();
+                }
+            });
+
+        }
+
+        initBoneOutputValues();
+    });
+
+</script>
+
+
+
+<script>
+/*
+//  function pose() {
+
+		var bone;
+
+	//  Recover the bind-time world matrices.
+		for ( var i = 0, l = this.bones.length; i < l; i ++ ) {
+
+			bone = this.bones[ i ];
+
+			if ( bone ) {
+				bone.matrixWorld.getInverse( this.boneInverses[ i ] );
+			}
+
+		}
+
+	//  Compute the local matrices, positions, rotations and scales.
+		for ( var i = 0, l = this.bones.length; i < l; i ++ ) {
+
+			bone = this.bones[ i ];
+
+			if ( bone ) {
+				if ( bone.parent instanceof THREE.Bone ) {
+					bone.matrix.getInverse( bone.parent.matrixWorld );
+					bone.matrix.multiply( bone.matrixWorld );
+
+				} else {
+					bone.matrix.copy( bone.matrixWorld );
+				}
+
+				bone.matrix.decompose( bone.position, bone.quaternion, bone.scale );
+			}
+
+		}
+
+	}
+*/
+
+/*
+    function decompose( position, quaternion, scale ) {
+
+		if ( vector === undefined ) {
+
+			vector = new THREE.Vector3();
+			matrix = new THREE.Matrix4();
+
+		}
+
+		var te = this.elements;
+
+		var sx = vector.set( te[ 0 ], te[ 1 ], te[ 2 ] ).length();
+		var sy = vector.set( te[ 4 ], te[ 5 ], te[ 6 ] ).length();
+		var sz = vector.set( te[ 8 ], te[ 9 ], te[ 10 ] ).length();
+
+		// if determine is negative, we need to invert one scale
+		var det = this.determinant();
+		if ( det < 0 ) {
+
+			sx = - sx;
+
+		}
+
+		position.x = te[ 12 ];
+		position.y = te[ 13 ];
+		position.z = te[ 14 ];
+
+		// scale the rotation part
+
+		matrix.elements.set( this.elements ); // at this point matrix is incomplete so we can't use .copy()
+
+		var invSX = 1 / sx;
+		var invSY = 1 / sy;
+		var invSZ = 1 / sz;
+
+		matrix.elements[ 0 ] *= invSX;
+		matrix.elements[ 1 ] *= invSX;
+		matrix.elements[ 2 ] *= invSX;
+
+		matrix.elements[ 4 ] *= invSY;
+		matrix.elements[ 5 ] *= invSY;
+		matrix.elements[ 6 ] *= invSY;
+
+		matrix.elements[ 8 ] *= invSZ;
+		matrix.elements[ 9 ] *= invSZ;
+		matrix.elements[ 10 ] *= invSZ;
+
+		quaternion.setFromRotationMatrix( matrix );
+
+		scale.x = sx;
+		scale.y = sy;
+		scale.z = sz;
+
+		return this;
+
+	}
+*/
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

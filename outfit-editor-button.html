@@ -1,0 +1,63 @@
+<!-- outfit-editor-button.html -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Outfit Editor Panel:</li>
+<div id="outfit-editor-button" class="form-control btn btn-danger btn-white-outline gradient-btn">Open outfit editor panel</div>
+
+
+<script>
+
+    var outfitEditorButtonSelector = "#outfit-editor-button";
+/*
+//  Define target.
+//  Target must be pre-defined.
+    $(outfitEditorButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.tshirt.material.materials[0];
+        } else {
+            target = undefined;
+        }
+    });
+*/
+
+
+//  Import dialog components.
+    $(outfitEditorButtonSelector).on("click", function (){
+
+    //  if ( !target || !(target instanceof THREE.Material) ) return;
+
+        if ( !$EditorPanel.active ){
+
+            $EditorPanel.dialog( "option", {
+                width: 616,
+                minWidth: 616,
+                maxWidth: 616,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600
+            });
+
+            var size = [512, 512]; // makeFixedPowerOfTwo.js
+            var title = "Outfit Editor";
+            $EditorPanel.loadMaterialPanel(title, size);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(outfitEditorButtonSelector).on("click", function (){
+
+        if ( !$EditorPanel.active ) {
+
+            $EditorPanel.dialog("open");
+
+        } else {
+
+            $EditorPanel.dialog("close");
+
+        }
+
+    });
+
+</script>

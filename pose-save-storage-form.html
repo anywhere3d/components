@@ -1,0 +1,642 @@
+<!-- pose-save-storage-form.html (v1.1)-->
+
+<style>
+
+    .ui-dialog {
+        opacity:1 !important;
+        max-height:670px !important;
+        z-index:9999 !important;
+    }
+
+    #form-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:600px !important;
+        max-height:600px !important; 
+        background-color:#000000;
+        color: #ffffff;
+    }
+
+    .form-header {
+        margin-top:10px;
+        height:auto;
+        color: #ffffff;
+    /*  border: 1px solid; */
+    }
+
+    .form-body {
+        padding:20px;
+        height:220px;
+        color: #ffffff;
+    /*  border: 1px solid; */
+    }
+
+    .form-renderer {
+        padding:50px;
+        height:500px;
+        color: #ffffff;
+    /*  border: 1px solid; */
+    }
+
+    #pose-renderer { 
+        width:450px; 
+        height:450px; 
+        margin:auto;
+        border: 1px solid;
+    }
+
+    .form-snapshots {
+        padding:20px;
+        height:250px;
+        color: #ffffff;
+    /*  border: 1px solid; */
+    }
+
+    #pose-snapshots {
+        overflow-x:auto;
+        height:170px;
+        border: 1px solid;
+    }
+
+    .pose-snapshot {
+        width:150px;
+        height:150px;
+        margin:0px;
+        padding:4px;
+        color: #ffffff;
+        display:inline-block;
+    /*  border: 1px solid; */
+    }
+
+    .pose-snapshot > img {
+        width:100%;
+        height:100%;
+    }
+
+    #pose-description {
+        min-width:100%;
+        max-width:100%;
+        min-height:40px;
+        max-height:75px;
+        color:#000000;
+    }
+
+    .form-footer {
+        padding:20px;
+        height:70px;
+        color: #ffffff;
+    /*  border: 1px solid; */
+    }
+
+    .modal-dialog {
+        width:fit-content;
+    }
+
+</style>
+
+<h4>Save this pose to browser:</h4>
+
+<div class="form-body">
+    <div>Title:</div>
+    <input type="text" id="pose-title" class="form-control">
+    <div class="label">Description (optional):</div>
+    <textarea id="pose-description" cols="33" rows="3" maxlength="600" class="form-control"></textarea>
+    <div class="label">Tags (optional - comma(,) delimiter):</div>
+    <input type="text" id="pose-tags" class="form-control">
+</div>
+
+<div class="form-snapshots">
+    <div style="height:50px;">Snapshots: 
+        <div id="add-snapshot" class="btn btn-primary btn-white-outline pull-right">Add Snapshots</div>
+    </div>
+    <div id="pose-snapshots">
+
+        <div class="pose-snapshot"><img class="thumbnail"></div>
+        <div class="pose-snapshot"><img class="thumbnail"></div>
+        <div class="pose-snapshot"><img class="thumbnail"></div>
+        <div class="pose-snapshot"><img class="thumbnail"></div>
+
+    </div>
+</div>
+
+<div class="form-footer">
+    <input type=button id="pose-save-button" class="btn btn-success btn-white-outline pull-right" value="Save pose to browser">
+    <div id="pose-cancel-button" class="btn btn-default btn-white-outline">Cancel</div>
+</div>
+
+
+<script>
+/*
+    var JcropScript = "/js/jquery.Jcrop.js";
+    $.getScript(JcropScript, function(script, status, xhr){
+        debugMode && console.log("Jcrop:", status);
+    });
+*/
+</script>
+
+
+<script>
+
+//  var jcropper;
+//  Jcrop is used to define crop coordinates on a canvas.
+
+    var addSnapshotSelector = "#add-snapshot";
+    var jcropTrackerSelector = ".jcrop-tracker";
+    var poseSnapshotsSelector = "#pose-snapshots";
+    $(poseSnapshotsSelector).contents().remove();
+
+    $(addSnapshotSelector).on("click", function(){
+
+        var size = 450;
+
+        var options = {
+
+            aspectRatio: 1, 
+        //  for snapshots use "aspectRatio: 420/570,"
+
+        //  $jcropTracker: 500x500.
+            setSelect: [ 
+                (renderer.domElement.width * 0.5)  - (size * 0.5),
+                (renderer.domElement.height * 0.5) - (size * 0.5),
+                (renderer.domElement.width * 0.5)  + (size * 0.5),
+                (renderer.domElement.height * 0.5) + (size * 0.5),
+            ],
+
+            minSize: [size, size],
+            maxSize: [size, size],
+
+            onChange: function(coords){
+            //  debugMode && console.log("onChange coords:", coords);
+            },
+            onSelect: function(coords){
+                debugMode && console.log("onSelect coords:", coords);
+            },
+            onRelease: function(){
+                this.exit();
+                debugMode && console.log("onRelease this:", this);
+            },
+        };
+
+    //  returns: $(renderer.domElement).
+        $(renderer.domElement).Jcrop(options, function(){
+
+        //  jcropTracker = $(".jcrop-tracker");
+
+            $(".jcrop-tracker").append([
+                '<div id="crop-button" class="btn btn-primary pull-right">Crop</div>',
+                '<div id="exit-button" class="btn btn-default pull-left">Exit</div>',
+            ].join("") );
+
+            var jcropper = this;
+            jcropper.exit = exit;
+            jcropper.crop = crop;
+
+            debugMode && console.log( "jcropper:", jcropper );
+            debugMode && console.log( "jcropper options:", jcropper.getOptions() );
+
+            $("#exit-button").on( "click", function(){
+                exit();
+            });
+
+            $("#crop-button").on( "click", function(){
+
+                crop().then(function( canvas ){
+                //  $poseSnapshot.append( canvas );
+
+                    var $poseSnapshot = $('<div class="pose-snapshot"><img class="thumbnail snapshot-image"></div>');
+                    $poseSnapshot.find("img")[0].src = canvas.toDataURL("image/jpeg");
+                    $("#pose-snapshots").append( $poseSnapshot );
+
+                }).then(function(){
+                    exit();
+                });
+                
+            });
+
+        //  debugMode && $("#pose-snapshots").contents().remove();
+        //  debugMode && $("#pose-snapshots").append(canvas);
+
+            function crop(){
+
+                return new Promise( function(resolve, reject){
+
+                    var selection = jcropper.tellSelect();   // <-- {x: 400, y: 245, x2: 850, y2: 695, w: 450, h:450}
+                    var scaletion = jcropper.tellScaled();   // <-- {x: 400, y: 245, x2: 850, y2: 695, w: 450, h:450}
+                    debugMode && console.log( "selection:", selection );  
+                    debugMode && console.log( "scaletion:", scaletion );
+    
+                //  ctx.drawImage() arguments.
+                    var img = renderer.domElement;
+                    var sourceX = selection.x;
+                    var sourceY = selection.y;
+                    var sourceWidth = selection.w;
+                    var sourceHeight = selection.h;
+                    var x = 0, y = 0;
+                    var width = selection.w;
+                    var height = selection.h;
+    
+                    var canvas = document.createElement( 'canvas' );
+                    var ctx = canvas.getContext("2d");
+                    canvas.width = width;
+                    canvas.height = height;
+    
+    
+                //  Clip the image and position the clipped part on the canvas:
+                    ctx.drawImage(
+                        img,          // Specifies the image, canvas, or video element to use.
+                        sourceX,      // The x coordinate where to start clipping.
+                        sourceY,      // The y coordinate where to start clipping.
+                        sourceWidth,  // The width of the clipped image.
+                        sourceHeight, // The height of the clipped image.
+                        x, y,         // The x, y coordinates where to place the image on the canvas.	
+                        width,        // The width of the image to use (stretch or reduce the image).
+                        height        // The height of the image to use (stretch or reduce the image)	
+                    );
+    
+                    resolve( canvas );
+                });
+            }
+
+            function exit(){
+                jcropper.destroy();
+                $(container).append(renderer.domElement);
+            };
+
+        });
+
+    });
+
+//    function cropperExit(){
+//        jcropper.destroy();
+//        $(container).append(renderer.domElement);
+//    }
+
+</script>
+
+
+<script>
+
+//  Cancel button.
+
+    var poseCancelButtonSelector = "#pose-cancel-button";
+    $(poseCancelButtonSelector).on("click", function(){
+        $FormPanel.dialog("close");
+    });
+
+</script>
+
+<script>
+
+//  Save to browser button.
+
+    var poseTitleSelector       = "#pose-title";
+    var poseSnapshotsSelector   = "#pose-snapshots";
+    var poseSnapshotSelector    = ".pose-snapshot";
+    var snapshotImageSelector   = ".snapshot-image";
+    var poseDescriptionSelector = "#pose-description";
+    var poseTagsSelector        = "#pose-tags";
+    var poseSaveButtonSelector  = "#pose-save-button";
+
+    $(poseSaveButtonSelector).on("click", function(){
+
+        this.disabled = true;
+
+    //  Validate title.
+        if ( $(poseTitleSelector).val().length < 4 ){
+            var msg = "You must type a title for this pose.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+    
+    //  Validate snapshots.
+        if ( $(poseSnapshotsSelector).find(snapshotImageSelector).toArray().length == 0 ){
+            var msg = "You must add one snapshot at least.";
+            bootboxWarningAlert(msg);
+            this.disabled = false;
+            return;
+        }
+
+    //  Collect form data.
+        var kind = "pose";
+        var title = $(poseTitleSelector).val();
+        var description = $(poseDescriptionSelector).val();
+        var tags = $(poseTagsSelector).val.split(",");
+
+        var gender = localPlayer.outfit.getGender();
+
+        var avatar = localPlayer.outfit.body;
+        var geometry = avatar.geometry.sourceFile;
+        var bones = avatar.geometry.bones;
+
+    //  Collect pose data.
+        var pose = poseToJSON( avatar );
+
+    //  Validate pose.
+
+    //  poseToJSON.js
+        function poseToJSON( skinned ){
+            var pose = []; // animation.data.hierarchy ???
+    
+            for (var i in skinned.skeleton.bones) {
+                var key = {}; // {"pos":[], "rot":[], "scl":[]};
+                key.pos = skinned.skeleton.bones[i].position.toArray();
+                key.rot = skinned.skeleton.bones[i].quaternion.toArray();
+                key.scl = skinned.skeleton.bones[i].scale.toArray();
+                pose.push(key);
+            }
+            debugMode && console.log("pose:", pose);
+        //  var json = JSON.stringify(pose);
+        //  debugMode && console.log("json:", json);
+        //  return json;
+            return pose;
+        }
+
+    //  Collect snapshot images.
+
+        var formSnapshots = $(poseSnapshotsSelector).find(snapshotImageSelector).toArray();
+        debugMode && console.log( "formSnapshots:", formSnapshots );
+    
+        var snapshotsPromises = [];
+
+        formSnapshots.forEach(function( image, index ){
+            snapshotsPromises.push(
+            //  uploadToImgur.js  //
+                new Promise( function(resolve, reject){
+                //  $(container).append(snapshotSpinner);
+                    var data = image.src;
+                    var name = Date.now().toString(36);
+                    var blob = dataURLtoBlob( data );
+                    var size = blob.size;
+                    var mimeType = blob.type;
+                    var filename = name + ".jpg";
+                    var file = new File([blob], filename, { type: mimeType });
+        
+                //  imgurUpload.js
+        
+                    new Promise( function(resolve, reject){
+
+                        var clientid = "95e1ecaf14ca5e6";
+                        var endpoint = "https://api.imgur.com/3/image";
+
+                        var formdata = new FormData();
+                        formdata.append("image", file);
+                        formdata.append("name",  filename);
+                        formdata.append("title", title);
+                        formdata.append("description", description);
+        
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.open('POST', endpoint, true);
+                        xhttp.setRequestHeader('Authorization', 'Client-ID ' + clientid);
+                        xhttp.onreadystatechange = function () {
+                            if (this.readyState === 4) {
+                                var response = "";
+                                if (this.status >= 200 && this.status < 300) {
+                                    response = JSON.parse(this.responseText);
+                                    resolve( response ); // resolve: new Promise.
+                                } else {
+                                    var error = this.responseText;
+                                    throw Error( error );
+                                }
+                            }
+                        };
+                        xhttp.send(formdata);
+                        xhttp = null;
+
+                    }).then( function( response ){
+                        debugMode && console.log("imgur data:", response.data);
+
+                        var data = response.data;
+                        data._id = (Date.now() * 1000).toString(16);  // 13 character length _id;
+                        Snapshots.insert( data, function(err){
+                            if (err) throw err;
+                            resolve( data ); // resolve: uploadToImgur().
+                        }).then(function(){
+                            $(".snapshot-spinner").remove();
+                        }).catch(function (err) {
+                            console.error("Gallery Error:", err); 
+                        });
+
+                    }).catch(function (err) {
+                        $(".snapshot-spinner").remove();
+                        console.error("Snapshot Uploader Error:", err); 
+                    });
+
+                }) // end promise.
+
+            );  // end push promise.
+
+        }); // end forEach.
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+    
+            return new Blob([u8arr], {type:mime});
+        }
+
+        function generateSalt(length, set){
+            var length = length || 10;
+            var set = set || "abcdefghijklmnopqurstuvwxyz0123456789ABCDEFGHIJKLMNOPQURSTUVWXYZ";
+            var salt = "";
+            for (var i = 0; i < length; i++) {
+                var p = Math.floor(Math.random() * set.length);
+                salt += set[p];
+            }
+            return salt;
+        }
+
+        debugMode && console.log( "snapshotsPromises:", snapshotsPromises );
+
+    // BREAK POINT //  return;  // BREAK POINT //
+
+    //  Upload snapshot to imgur.
+
+        Promise.all(snapshotsPromises).then( function( results ){
+            debugMode && console.log( "snapshotsPromises results:", results );
+
+        //  Collect entry data.
+
+            var entry = {};
+            entry._id = generateSalt(13);
+            entry.kind = kind;
+            entry.tags = tags;
+            entry.gender = gender;
+            entry.geometry = geometry;
+            entry.bones = bones.length;
+            entry.title = title;
+            entry.description = description;
+            entry.pose = pose;
+            entry.imgLinks = [];
+            entry.imgurIds = [];
+            entry.snapshots_ids = [];
+
+        //  Collect snapshots urls.
+            for (var i=0; i < results.length; i++){
+                entry.imgLinks.push( results[i].link );
+                entry.imgurIds.push( results[i].id );
+                entry.snapshots_ids.push( results[i]._id );
+            }
+
+            return entry;
+
+        }).then( function( entry ){
+            debugMode && console.log( "entry:", entry );
+
+        //  Store pose to database.
+            Poses.insert( entry, function(err){
+                if (err) throw err;
+            }).then(function(){
+            //  Success. //
+                var msg = "Your pose has been saved successfully.";
+                bootboxSuccessAlert(msg);
+            //  Reset form or ... //
+            //  Close form panel. //
+                $FormPanel.dialog("close");
+            //  Show page of the new pose.
+            }).catch(function (err) {
+                console.error("Poses InsertError:", err); 
+            });
+
+        }).catch(function (err) {
+            console.error("InsertError:", err); 
+        });
+
+    //  Update pose data ??? //
+
+    });
+
+
+</script>
+
+
+
+
+<script>
+
+/*
+    //  var data = renderer.domElement.toDataURL("image/jpeg");
+        var img = new Image(); //  (width, height)
+        img.crossOrigin = "anonymous";
+        $(img).on("load", function(){
+            console.log( "img:", img.width, img.height );
+
+            var jtracker = $(".jcrop-tracker");
+            var width = jtracker.width();
+            var height = jtracker.height();
+            console.log( "width:", width, "height:", height );
+
+            var canvas = document.createElement( 'canvas' );
+            var ctx = canvas.getContext("2d");
+            canvas.width = width;
+            canvas.height = height;
+        //  ctx.drawImage(img,x,y,width,height);
+        //  Clip the image and position the clipped part on the canvas:
+            ctx.drawImage(
+                img,          // Specifies the image, canvas, or video element to use.
+                sourceX,      // The x coordinate where to start clipping.
+                sourceY,      // The y coordinate where to start clipping.
+                sourceWidth,  // The width of the clipped image.
+                sourceHeight, // The height of the clipped image.
+                x, y,         // The x, y coordinates where to place the image on the canvas.	
+                width,        // The width of the image to use (stretch or reduce the image).
+                height        // The height of the image to use (stretch or reduce the image)	
+            );
+
+
+            return canvas.toDataURL(); // resolve( canvas.toDataURL() );
+
+        });
+        img.src = renderer.domElement.toDataURL("image/jpeg");
+
+*/
+
+/*
+        var data = renderer.domElement.toDataURL("image/jpeg");
+
+        var poseSnapshotSelector = "#pose-snapshot";
+        var pixelRatio = window.devicePixelRatio || 1;
+
+*/
+
+/*
+        $(poseSnapshotSelector).one("load", function(){
+            $("#pose-snapshot").Jcrop();
+        });
+*/
+
+/*
+    var dialog = bootbox.dialog({
+
+        size: "large",
+        title: "Pose snapshot",
+        closeButton: true, // IMPORTANT // if closeButton: true (default) then "hide.bs.modal" fires twice.
+
+        message: [
+            '<img src="' + data + '"', 
+            'id="pose-snapshot"', 
+            'class="img-thumbnail"',
+            'style="width:auto; max-height:600px;">'
+        ].join(" "),
+
+        buttons: {
+
+            cancel: {
+                label: 'Cancel',
+                className: 'btn-default pull-left',
+                callback: function(){}
+            },
+
+            crop: {
+                label: 'Crop',
+                className: 'btn-danger pull-right',
+                callback: function(){}
+            },
+        }
+
+    });
+*/
+
+
+/*
+    $(poseSnapshotSelector).Jcrop({
+        setSelect: [ 40, 40, $(img).width() - 40, $(img).height - 40 ],
+        onSelect: function (coords) {
+            coordinates = coords;
+        },
+        onRelease: function () {
+            coordinates = null;
+        }
+    });
+*/
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

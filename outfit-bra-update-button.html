@@ -1,0 +1,151 @@
+<!-- outfit-bra-update-button.html -->
+
+<h4>Bra Update:</h4>
+<div id="outfit-bra-update-button" class="form-control btn btn-primary btn-white-outline">Open bra update form</div>
+
+
+<script>
+
+//  outfit-bra-update-button.html
+
+    var outfitBraUpdateButtonSelector = "#outfit-bra-update-button";
+
+//  Target texture is not avaliable.
+    $(outfitBraUpdateButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.bra.material.materials[0].map.img_id ) {
+            var msg = "Open bra library panel and choose an item for this outfit first.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Define update target.
+    $(outfitBraUpdateButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.bra.material.materials[0].map.img_id ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.bra.material.materials[0].map.img_id;
+        } else {
+            target = undefined;
+        }
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(outfitBraUpdateButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.bra.material.materials[0].map.img_id ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            $EditorPanel.dialog( "option", {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                modal: true,
+                title: "Bra Update Form",
+            });
+
+            var component = "outfit-texture-update-form.html";
+            var formComponent = componentsFolder + component; 
+            $EditorPanel.load(formComponent, function(response, status, xhr){
+                debugMode && console.log("outfit-texture-update-form:", status);
+            });
+        }
+
+    });
+
+
+//  Get img_id data.
+    $(outfitBraUpdateButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.bra.material.materials[0].map.img_id ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var endpoint = "/textures/imgur/id/" + target;
+            var jqxhr = $.post(endpoint, function(result, status, xhr){
+                debugMode && console.log("post%s: %s", endpoint, status);
+            }).then( function(result, status, xhr){
+
+            //  Error.
+                if (!!result.error) {
+                    console.log("Error:", result.error);
+                    throw Error(result.error);
+                }
+
+            //  Success.
+                if (!!result.success) {
+                    debugMode && console.log("Success:", result.success);
+                    return result.success;
+                }
+
+            }).then( function( data ){
+                debugMode && console.log("data:", data);
+
+                var itemTitleSelector         = "#item-title";
+                var outfitSnapshotsSelector   = "#outfit-snapshots";
+                var itemSnapshotSelector      = ".item-snapshot";
+                var snapshotContainerSelector = ".snapshot-container";
+                var snapshotImageSelector     = ".snapshot-image";
+                var itemDescriptionSelector   = "#item-description";
+                var itemTagsSelector          = "#item-tags";
+
+                $(itemTitleSelector).val(data.title);
+                $(itemDescriptionSelector).val(data.description);
+                $(itemTagsSelector).val(data.tags);
+
+                if (!!data.snapshots) data.snapshots.forEach( function( id, index ){
+
+                    var $itemSnapshot = $([
+                        '<div class="item-snapshot snapshot-container">',
+                        '<img class="thumbnail snapshot-image">',
+                        '<div class="btn btn-default snapshot-inner-btn snapshot-remove"></div>',
+                        '<input type="checkbox" class="btn btn-default snapshot-inner-btn snapshot-master">',
+                        '</div>'
+                    ].join("") );
+
+                    $itemSnapshot.find("img")[0].src = "https://i.imgur.com/" + id + ".jpg";
+
+                    $(outfitSnapshotsSelector).append( $itemSnapshot );
+
+                    $itemSnapshot.find(".snapshot-remove").on("click", function(){
+                        debugMode && console.log(".snapshot-remove click handler.");
+                        $itemSnapshot.remove();
+                    });
+
+                    $itemSnapshot.find(".snapshot-master").on("click", function(){
+                        $(".snapshot-master").attr("checked", false);
+                        this.checked = true;
+                    });
+
+                });
+
+            });
+            
+            jqxhr.done( function(){
+                $EditorPanel.dialog("open");
+            });
+            
+            jqxhr.fail(function ( err ) {
+                console.error(err);
+            });
+
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(outfitBraUpdateButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.bra.material.materials[0].map.img_id ) return;
+
+        if ( !$EditorPanel.active ) {
+        //  $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+</script>

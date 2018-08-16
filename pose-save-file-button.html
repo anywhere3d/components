@@ -1,0 +1,91 @@
+<!-- pose-save-file-button.html -->
+
+<h4>Save Pose:</h4>
+<div id="pose-save-file-button" class="form-control btn btn-default btn-white-outline">Save this pose to file</div>
+
+
+<script>
+
+//  pose-save-file-button.html
+
+    var poseSaveFileButtonSelector = "#pose-save-file-button";
+
+    $(poseSaveFileButtonSelector).on("click", function(){
+
+        new Promise( function(resolve, reject ){
+
+            var skinned = localPlayer.outfit["body"];
+            var json = poseToJSON( skinned );
+            resolve( json );
+
+        }).then(function( json ){
+
+            var gender = localPlayer.outfit.getGender();
+            var name = gender + "-pose-" + Date.now().toString(36);
+            saveJSONtoFile( json, name );
+        
+        }).catch( function( err ){
+            console.error( err );
+        });
+
+    });
+
+//  poseToJSON.js
+
+    function poseToJSON( skinned ){
+        var pose = []; // animation.data.hierarchy ???
+
+        for (var i in skinned.skeleton.bones) {
+            var key = {}; // {"pos":[], "rot":[], "scl":[]};
+            key.pos = skinned.skeleton.bones[i].position.toArray();
+            key.rot = skinned.skeleton.bones[i].quaternion.toArray();
+            key.scl = skinned.skeleton.bones[i].scale.toArray();
+            pose.push(key);
+        }
+
+        debugMode && console.log("pose:", pose);
+
+        var json = JSON.stringify(pose);
+
+        debugMode && console.log("json:", json);
+        return json;
+    }
+
+//  saveJSONtoFile.js
+
+    function saveJSONtoFile( json, name ){
+        if ( !!json ){
+            var blob = new Blob([ json ], {type: "application/json"});
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.download = name + ".json";
+            a.href = url;
+            $(a).on("click", function(){
+                $(a).remove();
+            });
+            a.click();
+        }
+    }
+</script>
+
+<script>
+/*
+//  poseFromJSON.js
+
+    function poseFromJSON( text, skinned ){
+        var pose = JSON.parse( text );
+        pose.forEach(function ( key, i ) {
+            skinned.skeleton.bones[i].position.fromArray( pose[i].pos );
+            skinned.skeleton.bones[i].quaternion.fromArray( pose[i].rot );
+            skinned.skeleton.bones[i].scale.fromArray( pose[i].scl );
+        });
+    }
+*/
+</script>
+
+
+
+
+
+
+

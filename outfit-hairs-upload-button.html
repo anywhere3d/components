@@ -1,0 +1,155 @@
+<!-- outfit-hairs-upload-button.html -->
+
+<h4>Hairs Upload Form:</h4>
+<div id="outfit-hairs-upload-button" class="form-control btn btn-primary btn-white-outline">Upload hairs</div>
+
+
+<script>
+
+//  outfit-hairs-upload-button.html
+
+    var outfitHairsUploadButtonSelector = "#outfit-hairs-upload-button";
+
+    $(outfitHairsUploadButtonSelector)[0].uploadOptions = {
+        name    : "hairs", // outfit asset name.
+        editor  : "hairs", // outfit editor name.
+        index   : 0,         // material index.
+        maps    : ["map", "emissiveMap"],
+        kind    : "texture",
+        type    : "map",
+        outfit  : "hairs",
+        category: "hairs",
+        tags    : ["hairs"],
+        gender  : ["male", "female"],
+        clientid: "95e1ecaf14ca5e6",
+        endpoint: "https://api.imgur.com/3/image",
+        method: "POST",
+        snapshotEndpoint: "/snapshots/insert", // post url.
+        texturesEndpoint: "/textures/insert",  // post url.
+        collection: "textures",
+        scrOnly: false, //  replace sourceFiles only.
+    };
+
+
+//  Define button holder.
+    $(outfitHairsUploadButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+    });
+
+
+//  Target texture is not avaliable.
+    $(outfitHairsUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.hairs.material.materials[0].map ) {
+            var msg = "Open hairs editor panel and import a diffuse map texture<br>for this outfit first.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Define upload target.
+    $(outfitHairsUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.hairs.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.hairs.material.materials[0].map.image; // must be canvas.
+        } else {
+            target = undefined;
+        }
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(outfitHairsUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.hairs.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Hairs Upload Form",
+            }
+
+            var component = "outfit-texture-upload-form.html";
+            $EditorPanel.loadComponent(component, option);
+        }
+
+    });
+
+//  Open/Close dialog.
+    $(outfitHairsUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.hairs.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+/*
+//  Setup form options.
+    $(outfitHairsUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.hairs.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            formOptions = {
+                name    : "hairs", // outfit asset name.
+                editor  : "hairs", // outfit editor name.
+                index   : 0,         // material index.
+                maps    : ["map", "emissiveMap"],
+                kind    : "texture",
+                type    : "map",
+                outfit  : "hairs",
+                category: "hairs",
+                tags    : ["hairs"],
+                gender  : ["male", "female"],
+                clientid: "95e1ecaf14ca5e6",
+                endpoint: "https://api.imgur.com/3/image",
+                method: "POST",
+                snapshotEndpoint: "/snapshots/insert", // post url.
+                texturesEndpoint: "/textures/insert",  // post url.
+                collection: "textures",
+                scrOnly: false, //  replace sourceFiles only.
+            };
+
+        }
+
+    });
+*/
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

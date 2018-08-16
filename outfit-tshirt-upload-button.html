@@ -1,0 +1,173 @@
+<!-- outfit-tshirt-upload-button.html -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Tshirt Texture Upload Form:</li>
+<div id="outfit-tshirt-upload-button" class="form-control btn btn-danger btn-white-outline gradient-btn">Upload tshirt texture</div>
+
+
+<script>
+
+//  outfit-tshirt-upload-button.html
+
+    var outfitTshirtUploadButtonSelector = "#outfit-tshirt-upload-button";
+
+    $(outfitTshirtUploadButtonSelector)[0].uploadOptions = {
+        name    : "tshirt", // outfit asset name.
+        editor  : "tshirt", // outfit editor name.
+        index   : 0,         // material index.
+        maps    : ["map", "emissiveMap"],
+        kind    : "texture",
+        type    : "map",
+        outfit  : "tshirt",
+        category: "tshirt",
+        tags    : ["fabric", "tshirt"],
+        gender  : ["male", "female"],
+        clientid: "95e1ecaf14ca5e6",
+        endpoint: "https://api.imgur.com/3/image",
+        method: "POST",
+        snapshotEndpoint: "/snapshots/insert", // post url.
+        texturesEndpoint : "/textures/insert",  // post url.
+        collection: "textures",
+        scrOnly: false, //  replace sourceFiles only.
+    };
+
+    $(outfitTshirtUploadButtonSelector)[0].options = {
+        name: "tshirt",
+        index: 0,
+        map: "map",
+        title: "Tshirt Upload Form",
+        component: "outfit-texture-upload-form.html"
+    };
+
+
+//  Define button holder.
+    $(outfitTshirtUploadButtonSelector).on("click", function (){
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+
+    });
+
+
+//  Target texture is not avaliable.
+    $(outfitTshirtUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.tshirt.material.materials[0].map ) {
+            var msg = "Open tshirt editor panel and import a diffuse map texture<br>for this outfit first.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Define upload target.
+    $(outfitTshirtUploadButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit.tshirt.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.tshirt.material.materials[0].map.image; // must be canvas.
+        } else {
+            target = undefined;
+        }
+
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(outfitTshirtUploadButtonSelector).on("click", function(){
+
+        if (!target) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Tshirt Upload Form",
+            }
+
+            var component = "outfit-texture-upload-form.html";
+            $EditorPanel.loadComponent(component, option);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(outfitTshirtUploadButtonSelector).on("click", function(){
+
+        if ( !$EditorPanel.active ) {
+            if (!target) return;
+
+            $EditorPanel.dialog("open");
+
+        } else {
+
+            $EditorPanel.dialog("close");
+
+        }
+    });
+
+/*
+//  Setup form options.
+    $(outfitTshirtUploadButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.tshirt.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            uploadOptions = {
+                name    : "tshirt", // outfit asset name.
+                editor  : "tshirt", // outfit editor name.
+                index   : 0,         // material index.
+                maps    : ["map", "emissiveMap"],
+                kind    : "texture",
+                type    : "map",
+                outfit  : "tshirt",
+                category: "tshirt",
+                tags    : ["tshirt"],
+                gender  : ["male", "female"],
+                clientid: "95e1ecaf14ca5e6",
+                endpoint: "https://api.imgur.com/3/image",
+                method: "POST",
+                snapshotEndpoint: "/snapshots/insert", // post url.
+                texturesEndpoint : "/textures/insert",  // post url.
+                collection: "textures",
+                scrOnly: false, //  replace sourceFiles only.
+            };
+
+        }
+
+    });
+*/
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

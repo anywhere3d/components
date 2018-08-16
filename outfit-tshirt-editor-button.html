@@ -1,0 +1,64 @@
+<!-- outfit-tshirt-editor-button.html -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Tshirt Editor:</li>
+<div id="outfit-tshirt-editor-button" class="form-control btn btn-danger btn-white-outline gradient-btn">Open tshirt editor panel</div>
+
+
+<script>
+
+    var tshirtEditorButtonSelector = "#outfit-tshirt-editor-button";
+
+//  Define target.
+    $(tshirtEditorButtonSelector).on("click", function (){
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.tshirt.material.materials[0];
+        } else {
+            target = undefined;
+        }
+
+    });
+
+//  Import dialog components.
+    $(tshirtEditorButtonSelector).on("click", function (){
+
+        if ( !target ) return;
+
+        if (!$EditorPanel.active){
+
+            $EditorPanel.dialog( "option", {
+                width: 616,
+                minWidth: 616,
+                maxWidth: 616,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600
+            });
+
+            var size = [512, 512]; // makeFixedPowerOfTwo.js
+            var title = "Tshirt Editor";
+            $EditorPanel.loadMaterialPanel(title, size);
+        }
+    });
+
+//  Open/Close dialog.
+    $(tshirtEditorButtonSelector).on("click", function (){
+
+        if ( !$EditorPanel.active ) {
+            if ( !target ) return;
+
+            $EditorPanel.dialog("open");
+
+        } else {
+
+            $EditorPanel.dialog("close");
+
+        }
+
+    });
+
+</script>
+
+
+

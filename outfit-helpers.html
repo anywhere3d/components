@@ -1,0 +1,93 @@
+<!-- outfit-helpers.html (v1.1)-->
+
+<div id="outfit-editor-male-holder">
+    <h4>Male Outfit helpers:</h4>
+    <li class="helpers" data-outfit="boxers"   data-asset="hmBoxers"      data-gender="male" data-remove="trousers,boxers"><a></a></li>
+    <li class="helpers" data-outfit="tshirt"   data-asset="hmTshirt"      data-gender="male"><a></a></li>
+    <li class="helpers" data-outfit="tshirt"   data-asset="hmTshirtStamp" data-gender="male"><a></a></li>
+    <li class="helpers" data-outfit="trousers" data-asset="hmTrousers"    data-gender="male" data-remove="boxers" data-nudity="boxers"><a></a></li>
+    <li class="helpers" data-outfit="shoes"    data-asset="hmSneakers"    data-gender="male"><a></a></li>
+    <li class="helpers" data-outfit="hairs"    data-asset="hmHairs"       data-gender="male"><a></a></li>
+    <li class="helpers" data-outfit="body"     data-asset="hmBody"        data-gender="male" data-remove="boxers" data-nudity="boxers"><a></a></li>
+</div>
+<hr/>
+<div id="outfit-editor-female-holder">
+    <h4>Female Outfit helpers:</h4>
+    <li class="helpers" data-outfit="bra"      data-asset="fmBra"         data-gender="female" data-remove="tshirt,dress"                      data-nudity="bra"><a></a></li>
+    <li class="helpers" data-outfit="panties"  data-asset="fmPanties"     data-gender="female" data-remove="trousers,skirt,dress"              data-nudity="panties"><a></a></li>
+    <li class="helpers" data-outfit="tshirt"   data-asset="fmTshirt"      data-gender="female" data-remove="bra,dress"                         data-nudity="bra"><a></a></li>
+    <li class="helpers" data-outfit="tshirt"   data-asset="fmTshirtStamp" data-gender="female" data-remove="bra,dress"                         data-nudity="bra"><a></a></li>
+    <li class="helpers" data-outfit="skirt"    data-asset="fmSkirt"       data-gender="female" data-remove="panties,trousers,dress"            data-nudity="panties"><a></a></li>
+    <li class="helpers" data-outfit="trousers" data-asset="fmTrousers"    data-gender="female" data-remove="panties,skirt,dress"               data-nudity="panties"><a></a></li>
+    <li class="helpers" data-outfit="dress"    data-asset="fmDress"       data-gender="female" data-remove="panties,trousers,skirt,bra,tshirt" data-nudity="bra,panties"><a></a></li>
+    <li class="helpers" data-outfit="shoes"    data-asset="fmSandal"      data-gender="female"><a></a></li>
+    <li class="helpers" data-outfit="hairs"    data-asset="fmHairs"       data-gender="female"><a></a></li>
+    <li class="helpers" data-outfit="body"     data-asset="fmBody"        data-gender="female" data-remove="bra,panties"                       data-nudity="bra,panties"><a></a></li>
+</div>
+
+<script>
+
+//  Initialize helpers.
+    $("li[data-gender=male]").toArray()
+    .forEach( function( item, i ){
+        var name = $(item).attr("data-outfit");
+        if ( !!localPlayer.outfit[ name ] ) {
+            $(item).find("a").text("Remove outfit " + name);
+        } else {
+            $(item).find("a").text("Add outfit " + name);
+        }
+    });
+
+    $(".helpers").on("click", function(){
+        scene.add( localPlayer.outfit.direction );
+        console.log("Outfit direction added!");
+        $(".helpers").off("click"); // IMPORTANT //
+    });
+
+    function outfitHelperClickHandler( self ){
+
+    //  var self = this;
+        var gender = $(self).attr("data-gender");
+        var asset  = $(self).attr("data-asset");
+        var outfit = $(self).attr("data-outfit");
+        var remove = $(self).attr("data-remove");
+        var string = "gender: %s, outfit: %s, asset: %s, remove: %s";
+        debugMode && console.log( string, gender, outfit, asset, remove );
+
+    //  Set gender.
+        if ( !localPlayer.outfit.getGender(gender) ){
+
+            localPlayer.outfit.removeAll();
+            localPlayer.outfit.setGender(gender);
+
+        }
+
+    //  Add outfit item.
+        if ( localPlayer.outfit[ outfit ] ) {
+
+            localPlayer.outfit.remove( outfit );
+
+        } else {
+
+            if ( !!remove ) localPlayer.outfit.remove( remove );
+            localPlayer.outfit.add( {[outfit]:Avatars[ asset ]} );
+
+        //  Define material target.
+            target = localPlayer.outfit[ outfit ].material.materials[0];
+
+        }
+
+    //  Update helpers text.
+        $("li[data-gender=male]").toArray()
+        .forEach( function( item, i ){
+            var name = $(item).attr("data-outfit");
+            if ( !!localPlayer.outfit[ name ] ) {
+                $(item).find("a").text("Remove outfit " + name);
+            } else {
+                $(item).find("a").text("Add outfit " + name);
+            }
+        });
+
+    }
+
+</script>

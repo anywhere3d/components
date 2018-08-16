@@ -1,0 +1,139 @@
+<!-- outfit-panties-upload-button.html -->
+
+<h4>Panties Upload Form:</h4>
+<div id="outfit-panties-upload-button" class="form-control btn btn-primary btn-white-outline">Upload panties</div>
+
+
+<script>
+
+//  outfit-panties-upload-button.html
+
+    var outfitPantiesUploadButtonSelector = "#outfit-panties-upload-button";
+
+    $(outfitPantiesUploadButtonSelector)[0].uploadOptions = {
+        name    : "panties", // outfit asset name.
+        editor  : "panties", // outfit editor name.
+        index   : 0,         // material index.
+        maps    : ["map", "emissiveMap"],
+        kind    : "texture",
+        type    : "map",
+        outfit  : "panties",
+        category: "panties",
+        tags    : ["lingerie", "panties", "bikini", "underwears", "swimwears"],
+        gender  : ["female"],
+        clientid: "95e1ecaf14ca5e6",
+        endpoint: "https://api.imgur.com/3/image",
+        method: "POST",
+        snapshotEndpoint: "/snapshots/insert", // post url.
+        texturesEndpoint: "/textures/insert",  // post url.
+        collection: "textures",
+        scrOnly: false, //  replace sourceFiles only.
+    };
+
+
+//  Define button holder.
+    $(outfitPantiesUploadButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+    });
+
+
+//  Target texture is not avaliable.
+    $(outfitPantiesUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.panties.material.materials[0].map ) {
+            var msg = "Open panties editor panel and import a diffuse map texture<br>for this outfit first.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Define upload target.
+    $(outfitPantiesUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit.panties.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.panties.material.materials[0].map.image; // must be canvas.
+        } else {
+            target = undefined;
+        }
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(outfitPantiesUploadButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.panties.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Panties Upload Form",
+            }
+
+        //  var component = "outfit-panties-upload-form.html";
+            var component = "outfit-texture-upload-form.html";
+            $EditorPanel.loadComponent(component, option);
+        }
+
+    });
+
+//  Open/Close dialog.
+    $(outfitPantiesUploadButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.panties.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+/*
+//  Setup form options.
+    $(outfitPantiesUploadButtonSelector).on("click", function(){
+        if ( !localPlayer.outfit.panties.material.materials[0].map ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            formOptions = {
+                name    : "panties", // outfit asset name.
+                editor  : "panties", // outfit editor name.
+                index   : 0,         // material index.
+                maps    : ["map", "emissiveMap"],
+                kind    : "texture",
+                type    : "map",
+                outfit  : "panties",
+                category: "panties",
+                tags    : ["lingerie", "panties", "bikini", "underwears", "swimwears"],
+                gender  : ["female"],
+                clientid: "95e1ecaf14ca5e6",
+                endpoint: "https://api.imgur.com/3/image",
+                method: "POST",
+                snapshotEndpoint: "/snapshots/insert", // post url.
+                texturesEndpoint: "/textures/insert",  // post url.
+                collection: "textures",
+                scrOnly: false, //  replace sourceFiles only.
+            };
+
+        }
+
+    });
+*/
+
+</script>
+
+
+
+
+
+
+
+

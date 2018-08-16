@@ -1,0 +1,55 @@
+<!-- outfit-bra-editor-button.html -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Bra Editor:</li>
+<div id="outfit-bra-editor-button" class="form-control btn btn-default btn-white-outline gradient-btn">Open bra editor panel</div>
+
+
+<script>
+
+    var braEditorButtonSelector = "#outfit-bra-editor-button";
+
+//  Define target.
+    $(braEditorButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.bra.material.materials[0];
+        } else {
+            target = undefined;
+        }
+    });
+
+//  Import dialog components.
+    $(braEditorButtonSelector).on("click", function (){
+        if (!!target && !$EditorPanel.active){
+
+            $EditorPanel.dialog( "option", {
+                width: 616,
+                minWidth: 616,
+                maxWidth: 616,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600
+            });
+
+            var size = [512, 256];
+            var title = "Outfit Bra Editor";
+            $EditorPanel.loadMaterialPanel(title, size);
+        }
+    });
+
+//  Open/Close dialog.
+    $(braEditorButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+</script>
+
+
+
+
+
+

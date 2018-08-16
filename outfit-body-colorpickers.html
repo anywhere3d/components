@@ -1,0 +1,101 @@
+<div id="outfit-body-diffuse-col" class="col-md-6 col-panel">
+    <h4>Skin tone (color):</h4>
+    <input type="hidden" id="sp-body-color">
+</div>
+
+<div id="outfit-body-emissive-col" class="col-md-6 col-panel">
+    <h4>Skin color (emissive):</h4>
+    <input type="hidden" id="sp-body-emissive">
+</div>
+
+
+
+<script>
+
+//  Skin Spectrum Colorpickers.js
+
+    var bodySpectrumColorSelector    = "#sp-body-color";
+    var bodySpectrumEmissiveSelector = "#sp-body-emissive";
+    
+    $(bodySpectrumColorSelector).spectrum({
+        preferredFormat: "hex",
+        color: "#ffffff",
+        flat: true,
+        showInput: true,
+        showInitial: true,
+        showButtons: false,
+        allowEmpty: false,
+        move: function(color) {
+            var body, material;
+
+            body = localPlayer.outfit.body;
+            if ( !!body.material.materials )
+                material = body.material.materials[0];
+            else 
+                material = body.material;
+            if (!material) return;
+
+            var hex = color.toString("hex").replace(/#/, "0x");
+            material.color.setHex( hex );
+        }
+    });
+
+    $(bodySpectrumEmissiveSelector).spectrum({
+        preferredFormat: "hex",
+        color: "#000000",
+        flat: true,
+        showInput: true,
+        showInitial: true,
+        showButtons: false,
+        allowEmpty: false,
+        move: function(color) {
+            var body, material;
+
+            body = localPlayer.outfit.body;
+            if ( !!body.material.materials )
+                material = body.material.materials[0];
+            else 
+                material = body.material;
+            if (!material) return;
+
+            var hex = color.toString("hex").replace(/#/, "0x");
+            material.emissive.setHex( hex );
+        }
+    });
+
+    $(bodySpectrumColorSelector).on("dragstop.spectrum", function(e, color) {
+   //  debugMode && console.log( "diffuse color on dragstop:", color.toHexString() );        
+        if ( !localPlayer.outfit.body) {
+            $(this).spectrum( "set", "#ffffff" ); 
+            return;
+        }
+    });
+
+    $(bodySpectrumEmissiveSelector).on("dragstop.spectrum", function(e, color) {
+    //  debugMode && console.log( "emissive color on dragstop:", emissive.toHexString() );
+        if ( !localPlayer.outfit.body) {
+            $(this).spectrum( "set", "#000000" );
+            return;
+        }
+    });
+
+    updateBodyColorpickers();
+
+    function updateBodyColorpickers(){
+    //  Colorpickers update.
+        var body, material;
+
+        body = localPlayer.outfit.body;
+        if ( !!body.material.materials )
+            material = body.material.materials[0];
+        else 
+            material = body.material;
+        if (!material) return;
+
+        $(bodySpectrumColorSelector).spectrum( "set", material.color.getHexString() );
+        $(bodySpectrumEmissiveSelector).spectrum( "set", material.emissive.getHexString() );
+    }
+
+</script>
+
+

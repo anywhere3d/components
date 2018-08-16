@@ -1,0 +1,944 @@
+<style>
+
+    #outfit-editor-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:550px !important;
+        max-height:550px !important; 
+        background-color:#000000;
+    }
+
+    .col-panel {
+        height:auto; 
+        border:black 1px solid;
+        padding-top:0px; padding-bottom:0px;
+        color:#ffffff;
+    }
+
+    .col-panel a { color:#ffffff; }
+    .sp-container { width:100%; background-color:#000000; border:none; }
+    .sp-input { color:#ffffff; border:none; }
+    .sp-picker-container { width:90%; border:none; }
+
+    .texture-btn { margin-bottom:15px; }
+    .outfit-item-row { padding:1px; line-height:2; }
+    .btn-add, .btn-rmv { 
+        width:25px; height:25px; 
+        border-color:#333333;
+        background-size: contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat; 
+    }
+    .btn-add + .btn-rmv { margin-right:5px; }
+    .btn-add { background-image: url('/img/zoom_in.png'); }
+    .btn-rmv { background-image: url('/img/zoom_out.png'); }
+
+    .female-asset { display:none; }
+    .male-asset { display:none; }
+    .unisex-asset  { display:list-item; }
+    .non-ready-asset { display:none; }
+/*
+    .panel-controls-output { 
+        width:50px; outline:none;
+        color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+        font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
+    }
+*/
+</style>
+
+<!-- 
+<div id="outfit-gender-left-col" class="col-md-6 col-panel" style="display:none;">
+
+    <h4>Select gender:</h4>
+
+    <a id="gender-male" name="male" class="nav-link btn btn-default btn-white-outline avatar-btn" 
+    style="width:79px; height:79px; background-image: url('/img/hmHead.png'); background-size: 
+    contain; background-position:50% 50%; background-repeat:no-repeat;" title="Male"></a>
+
+    <a id="gender-female" name="female" class="nav-link btn btn-default btn-white-outline avatar-btn" 
+    style="width:79px; height:79px; background-image: url('/img/fmHead.png'); background-size: 
+    contain; background-position:50% 50%; background-repeat:no-repeat;" title="Female"></a>
+
+    <a id="gender-reset" class="nav-link btn btn-default btn-white-outline avatar-btn" 
+    style="width:79px; height:79px; background-image: url('/img/skull-head.png'); background-size: 
+    contain; background-position:50% 50%; background-repeat:no-repeat;" title="Skeleton"></a>
+
+</div>
+ -->
+
+<div id="outfit-add-remove-col" class="col-md-12 col-panel">
+
+    <h4 style="margin-top:30px;">Add/Remove:</h4>
+
+    <li class="outfit-item-row unisex-asset" id="outfit-hairs-item">Hairs
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="hairs-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="hairs-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row female-asset" id="outfit-bra-item">Bra
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="bra-add"></a>
+        <!-- a class="btn btn-default btn-white-outline btn-rmv pull-right" id="bra-rmv"></a -->
+    </li>
+
+    <li class="outfit-item-row female-asset" id="outfit-panties-item">Panties
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="panties-add"></a>
+        <!-- a class="btn btn-default btn-white-outline btn-rmv pull-right" id="panties-rmv"></a -->
+    </li>
+
+    <li class="outfit-item-row non-ready-asset" id="outfit-lingerie-item">Lingerie
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="lingerie-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="lingerie-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row non-ready-asset" id="outfit-nightwear-item">Nightwear
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="nightwear-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="nightwear-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row male-asset" id="outfit-boxers-item">Boxers
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="boxers-add"></a>
+        <!-- a class="btn btn-default btn-white-outline btn-rmv pull-right" id="boxers-rmv"></a -->
+    </li>
+
+    <li class="outfit-item-row unisex-asset" id="outfit-tshirt-item">Tshirt
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="tshirt-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="tshirt-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row non-ready-asset" id="outfit-shirt-item">Shirt
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="shirt-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="shirt-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row non-ready-asset" id="outfit-jacket-item">Jacket
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="jacket-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="jacket-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row non-ready-asset" id="outfit-suit-item">Suit
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="suit-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="suit-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row female-asset" id="outfit-skirt-item">Skirt
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="skirt-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="skirt-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row unisex-asset" id="outfit-trousers-item">Trousers
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="trousers-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="trousers-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row female-asset" id="outfit-dress-item">Dress
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="dress-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="dress-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row female-asset" id="outfit-tail-dress-item">Tail Dress
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="tail-dress-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="tail-dress-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row unisex-asset" id="outfit-shoes-item">Shoes
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="shoes-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="shoes-rmv"></a>
+    </li>
+
+    <li class="outfit-item-row non-ready-asset" id="outfit-coat-item">Coat
+        <a class="btn btn-default btn-white-outline btn-add pull-right" id="coat-add"></a>
+        <a class="btn btn-default btn-white-outline btn-rmv pull-right" id="coat-rmv"></a>
+    </li>
+
+</div>
+
+
+<!-- div id="outfit-assets-right-col" class="col-md-12 col-panel"></div -->
+
+<!-- 
+<div id="outfit-gender-male-skin-col" class="col-md-6 col-panel" style="display:none;">
+    <h4>Select skintone:</h4>
+
+    <a id="skin-map-hmSkinLight" name="hmSkinLight" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/hmSkinLight.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Skin: hmSkinLight"></a>
+
+    <a id="skin-map-hmSkinMedium" name="hmSkinMedium" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/hmSkinMedium.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Skin: hmSkinMedium"></a>
+
+    <a id="skin-map-hmSkinDark" name="hmSkinDark" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/hmSkinDark.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Skin: hmSkinDark"></a>
+
+</div>
+ -->
+
+<!-- 
+<div id="outfit-gender-import-skin-col" class="col-md-6 col-panel" style="display:none;">
+    <h4>Import skin texture:</h4>
+
+    <a id="gender-doll" name="fmDoll" class="nav-link btn btn-default btn-white-outline avatar-btn" 
+    style="width:79px; height:79px; background-image: url('/img/alien-head128x128.png'); background-size: 
+    contain; background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Doll"></a>
+
+    <a id="cataloge-skin-map" name="import-skin-map" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/icon_cat128x128.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Open catalogue"></a>
+
+    <a id="desktop-skin-map" name="import-skin-map" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/import-texture100x100.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from desktop"></a>
+
+    <a id="web-skin-map" name="import-skin-map" class="nav-link btn btn-default btn-white-outline import-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/from-internet-texture100x100.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Import from internet"></a>
+
+    <a id="remove-skin-map" name="remove-skin-texture" class="nav-link btn btn-default btn-white-outline remove-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/delete-texture100x100.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat; display:none;" title="Remove skin texture"></a>
+
+</div>
+ -->
+
+<!-- 
+<div id="outfit-gender-female-skin-col" class="col-md-6 col-panel"  style="display:none">
+    <h4>Select skintone:</h4>
+
+    <a id="skin-map-fmSkinLight" name="fmSkinLight" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/fmSkinLight.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinLight"></a>
+
+    <a id="skin-map-fmSkinMedium" name="fmSkinMedium" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/fmSkinMedium.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinMedium"></a>
+
+    <a id="skin-map-fmSkinDark" name="fmSkinDark" class="nav-link btn btn-default btn-white-outline skin-texture-btn" 
+    style="width:79px; height:79px; background-image: url('/img/fmSkinDark.png'); background-size: contain; 
+    background-position:50% 50%; background-repeat:no-repeat;" title="Skin: fmSkinDark"></a>
+
+</div>
+ -->
+
+<!-- 
+<div id="outfit-gender-diffuse-col" class="col-md-6 col-panel" style="display:none">
+    <h4>Edit diffuse color:</h4>
+    <input type="hidden" id="sp-skin-color">
+</div>
+
+<div id="outfit-gender-emissive-col" class="col-md-6 col-panel" style="display:none">
+    <h4>Edit emissive color:</h4>
+    <input type="hidden" id="sp-skin-emissive">
+</div>
+ -->
+
+                <!-- LOGIC -->
+
+
+<script>
+
+    var hairsAddSelector = "#hairs-add";
+    var hairsRmvSelector = "#hairs-rmv";
+
+    $(hairsAddSelector).on("click", function(){
+
+        if ( !!target.hairs ) return;
+        if ( !target.getGender() ) return;
+
+        if ( target.getGender("female") ){
+
+            target.add( {"hairs": Avatars["fmHairs"]} );
+
+        } else if ( target.getGender("male") ){
+
+            target.add( {"hairs": Avatars["hmHairs"]} );
+
+        }
+    });
+
+    $(hairsRmvSelector).on("click", function(){
+
+        if ( !target.hairs ) return;
+        if ( !target.getGender() ) return;
+
+        target.remove("hairs");
+    });
+
+
+//    var avatarHairsButtonSelector = "#avatar-hairs-button";
+
+//    $(hairsAddSelector).on("click", function(){
+//        $(avatarHairsButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(hairsRmvSelector).on("click", function(){
+//        $(avatarHairsButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+<script>
+
+    var braAddSelector = "#bra-add";
+    var braRmvSelector = "#bra-rmv";
+
+    $(braAddSelector).on("click", function(){
+
+        if ( !!target.bra ) return;
+        if ( !target.getGender("female") ) return;
+
+        if (!!target.dress){
+            target.add( {"panties": Avatars["fmPanties"]} );
+            target.remove("dress");
+        }
+
+        target.remove("tshirt");
+
+        target.add( {"bra": Avatars["fmBra"]} );
+
+    });
+
+    $(braRmvSelector).on("click", function(){
+
+        if ( !target.bra ) return;
+        if ( !target.getGender("female") ) return;
+
+        target.add( {"tshirt": Avatars["fmTshirtFront"]} );
+
+        target.remove("bra");
+    });
+
+
+//    var outfitBraButtonSelector = "#outfit-bra-button";
+
+//    $(braAddSelector).on("click", function(){
+//        $(outfitBraButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(braRmvSelector).on("click", function(){
+//        $(outfitBraButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+<script>
+
+    var pantiesAddSelector = "#panties-add";
+    var pantiesRmvSelector = "#panties-rmv";
+
+    $(pantiesAddSelector).on("click", function(){
+
+        if ( !!target.panties ) return;
+        if ( !target.getGender("female") ) return;
+
+        if (!!target.dress){
+            target.add( {"bra": Avatars["fmBra"]} );
+            target.remove("dress");
+        }
+
+        target.remove("trousers", "skirt");
+
+        target.add( {"panties": Avatars["fmPanties"]} );
+
+    });
+
+    $(pantiesRmvSelector).on("click", function(){
+        
+        return;  // not allowed //
+
+        if ( !target.panties ) return;
+        if ( !target.getGender("female") ) return;
+
+        target.add( {"trousers": Avatars["fmTrousers"]} );
+
+        target.remove("panties");
+    });
+
+
+//    var outfitPantiesButtonSelector = "#outfit-panties-button";
+
+//    $(pantiesAddSelector).on("click", function(){
+//        $(outfitPantiesButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(pantiesRmvSelector).on("click", function(){
+//        $(outfitPantiesButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+<script>
+
+    var boxersAddSelector = "#boxers-add";
+    var boxersRmvSelector = "#boxers-rmv";
+
+    $(boxersAddSelector).on("click", function(){
+
+        if ( !!target.boxers ) return;
+        if ( !target.getGender("male") ) return;
+
+        target.remove("trousers");
+        target.add( {"boxers": Avatars["hmBoxers"]} );
+
+    });
+
+    $(boxersRmvSelector).on("click", function(){
+        
+        return;  // not allowed //
+
+        if ( !target.boxers ) return;
+        if ( !target.getGender("male") ) return;
+
+        target.add( {"trousers": Avatars["hmTrousers"]} );
+
+        target.remove("boxers");
+    });
+
+
+//    var outfitBoxersButtonSelector = "#outfit-boxers-button";
+
+//    $(boxersAddSelector).on("click", function(){
+//        $(outfitBoxersButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(boxersRmvSelector).on("click", function(){
+//        $(outfitBoxersButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+<script>
+
+    var tshirtAddSelector = "#tshirt-add";
+    var tshirtRmvSelector = "#tshirt-rmv";
+
+    $(tshirtAddSelector).on("click", function(){
+
+        if ( !!target.tshirt ) return;
+        if ( !target.getGender() ) return;
+
+        if ( target.getGender("female") ){
+
+            target.remove("bra");
+
+            if (!!target.dress){
+                target.add( {"panties": Avatars["fmPanties"]} );
+                target.remove("dress");
+            }
+
+            target.add( {"tshirt": Avatars["fmTshirtFront"]} );
+        }
+
+        if ( target.getGender("male") ){
+
+            target.add( {"tshirt": Avatars["hmTshirt"]} );
+        }
+
+    });
+
+    $(tshirtRmvSelector).on("click", function(){
+
+        if ( !target.tshirt ) return;
+        if ( !target.getGender() ) return;
+
+        if ( target.getGender("female") ){
+            target.add( {"bra": Avatars["fmBra"]} );
+        }
+
+        if ( target.getGender("male") ){
+                //  nothing  //
+        }
+
+        target.remove("tshirt" );
+    });
+
+
+//    var outfitTshirtButtonSelector = "#outfit-tshirt-button";
+//    var outfitTshirtStampButtonSelector = "#outfit-tshirt-stamp-button";
+
+//    $(tshirtAddSelector).on("click", function(){
+//        $(outfitTshirtButtonSelector).show();
+//        $(outfitTshirtStampButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(tshirtRmvSelector).on("click", function(){
+//        $(outfitTshirtButtonSelector).hide();
+//        $(outfitTshirtStampButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+<script>
+
+    var skirtAddSelector = "#skirt-add";
+    var skirtRmvSelector = "#skirt-rmv";
+
+    $(skirtAddSelector).on("click", function(){
+
+        if ( !!target.skirt ) return;
+        if ( !target.getGender("female") ) return;
+
+        target.remove("panties");
+        target.remove("trousers");
+
+        if ( !!target.dress ) {
+            target.remove("dress");
+            target.add( {"bra": Avatars["fmBra"]} );
+        }
+
+        target.add( {"skirt": Avatars["fmSkirt"]} );
+    });
+
+    $(skirtRmvSelector).on("click", function(){
+
+        if ( !target.skirt ) return;
+        if ( !target.getGender("female") ) return;
+
+        target.add({"panties": Avatars["fmPanties"]});
+
+        target.remove("skirt");
+    });
+
+
+//    var outfitSkirtButtonSelector = "#outfit-skirt-button";
+
+//    $(skirtAddSelector).on("click", function(){
+//        $(outfitSkirtButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(skirtRmvSelector).on("click", function(){
+//        $(outfitSkirtButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+<script>
+
+    var trousersAddSelector = "#trousers-add";
+    var trousersRmvSelector = "#trousers-rmv";
+
+    $(trousersAddSelector).on("click", function(){
+
+        if ( !!target.trousers ) return;
+        if ( !target.getGender() ) return;
+
+        if ( target.getGender("female") ){
+
+            target.remove("panties", "skirt");
+            if ( !!target.dress ) {
+                target.remove("dress");
+                target.add( {"bra": Avatars["fmBra"]} );
+            }
+
+            target.add( {"trousers": Avatars["fmTrousers"]} );
+        } 
+        
+        if ( target.getGender("male") ){
+            target.remove("boxers");
+            target.add({"trousers": Avatars["hmTrousers"]});
+        }
+        
+    });
+
+    $(trousersRmvSelector).on("click", function(){
+
+        if ( !target.trousers ) return;
+        if ( !target.getGender() ) return;
+
+        if ( target.getGender("female") ){
+            target.add({"panties": Avatars["fmPanties"]});
+        } 
+
+        if ( target.getGender("male") ){
+            target.add({"boxers": Avatars["hmBoxers"]});
+        }
+
+        target.remove("trousers");
+    });
+
+
+//    var outfitTrousersButtonSelector = "#outfit-trousers-button";
+
+//    $(trousersAddSelector).on("click", function(){
+//        $(outfitTrousersButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(trousersRmvSelector).on("click", function(){
+//        $(outfitTrousersButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+<script>
+
+    var dressAddSelector = "#dress-add";
+    var dressRmvSelector = "#dress-rmv";
+
+    $(dressAddSelector).on("click", function(){
+
+    //  if ( !!target.dress ) target.remove("dress");
+        if ( !target.getGender("female") ) return;
+
+        target.remove("bra", "panties", "trousers", "tshirt", "skirt", "dress" );
+        target.add( {"dress": Avatars["fmDress"]} );
+
+    });
+
+    $(dressRmvSelector).on("click", function(){
+
+        if ( !target.dress ) return;
+        if ( !target.getGender("female") ) return;
+
+        target.add( {"bra": Avatars["fmBra"]},
+            {"panties": Avatars["fmPanties"]}
+        );
+
+        target.remove("dress");
+    });
+
+
+//    var outfitDressButtonSelector = "#outfit-dress-button";
+
+//    $(dressAddSelector).on("click", function(){
+//        $(outfitDressButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(dressRmvSelector).on("click", function(){
+//        $(outfitDressButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+<script>
+
+    var tailDressAddSelector = "#tail-dress-add";
+    var tailDressRmvSelector = "#tail-dress-rmv";
+
+    $(tailDressAddSelector).on("click", function(){
+
+    //  if ( !!target.dress ) target.remove("dress");
+        if ( !target.getGender("female") ) return;
+
+        target.remove("bra", "panties", "trousers", "tshirt", "skirt", "dress" );
+        target.add( {"dress": Avatars["fmTailDress"]} );
+
+    });
+
+    $(tailDressRmvSelector).on("click", function(){
+
+        if ( !target.dress ) return;
+        if ( !target.getGender("female") ) return;
+
+        target.add( {"bra": Avatars["fmBra"]},
+            {"panties": Avatars["fmPanties"]}
+        );
+
+        target.remove("dress");
+    });
+
+//    var outfitDressButtonSelector = "#outfit-dress-button";
+
+//    $(tailDressAddSelector).on("click", function(){
+//        $(outfitDressButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(tailDressRmvSelector).on("click", function(){
+//        $(outfitDressButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+<script>
+
+    var shoesAddSelector = "#shoes-add";
+    var shoesRmvSelector = "#shoes-rmv";
+
+    $(shoesAddSelector).on("click", function(){
+
+        if ( !!target.shoes ) return;
+        if ( !target.getGender() ) return;
+
+        if ( target.getGender("female") ){
+            target.add({"shoes": Avatars["fmSandal"]});  // "fmSneakers"
+        } 
+        
+        if ( target.getGender("male") ){
+            target.add({"shoes": Avatars["hmSneakers"]});
+        }
+        
+    });
+
+    $(shoesRmvSelector).on("click", function(){
+
+        if ( !target.shoes ) return;
+        if ( !target.getGender() ) return;
+
+        target.remove("shoes");
+    });
+
+
+//    var outfitShoesButtonSelector = "#outfit-shoes-button";
+
+//    $(shoesAddSelector).on("click", function(){
+//        $(outfitShoesButtonSelector).show();
+//        showAvaliableOutfitOptions();
+//    });
+
+//    $(shoesRmvSelector).on("click", function(){
+//        $(outfitShoesButtonSelector).hide();
+//        showAvaliableOutfitOptions();
+//    });
+
+</script>
+
+
+<script>
+
+    var maleAssetSelector   = ".male-asset";
+    var femaleAssetSelector = ".female-asset";
+    var unisexAssetSelector = ".unisex-asset";
+
+    switch( target.getGender() ){
+
+        case "male": {
+            $(maleAssetSelector).show();
+            $(femaleAssetSelector).hide();
+            $(unisexAssetSelector).show();
+            break;
+        } 
+        case "female": {
+            $(maleAssetSelector).hide();
+            $(femaleAssetSelector).show();
+            $(unisexAssetSelector).show();
+            break;
+        } 
+        case undefined: {
+            $(maleAssetSelector).hide();
+            $(femaleAssetSelector).hide();
+            $(unisexAssetSelector).hide();
+            break;
+        } 
+        default: {
+            $(maleAssetSelector).hide();
+            $(femaleAssetSelector).hide();
+            $(unisexAssetSelector).show();
+            break;
+        } 
+    }
+
+</script>
+
+
+<script>
+
+    $OutfitEditorPanel.dialog( "option", {
+        width: 335,
+        minWidth: 335,
+        maxWidth: 335,
+        height: 600,
+        minHeight: 600,
+        maxHeight: 600
+    });
+
+//  Open dialog.
+    $OutfitEditorPanel.dialog("open");
+
+</script>
+
+
+<script>
+
+    var addbtnSelector = ".btn-add";
+    var rmvbtnSelector = ".btn-rmv";
+
+    $(addbtnSelector).on("click", function(){
+        showAvaliableOutfitOptions();
+    });
+
+    $(rmvbtnSelector).on("click", function(){
+        showAvaliableOutfitOptions();
+    });
+
+</script>
+
+
+
+
+<script>
+/*
+    var genderMaleSelector   = "#gender-male";
+    var genderFemaleSelector = "#gender-female";
+    var genderResetSelector  = "#gender-reset";
+    var genderDollSelector   = "#gender-doll";
+    
+    $(genderMaleSelector).on("click", function(){
+        var outfit = localPlayer.outfit;
+        outfit.removeFromScene();
+        outfit.setGender("male");
+
+        outfit.add( 
+            {"body":     Avatars[ "hmBody" ]},
+            {"hairs":    Avatars[ "hmHairs" ]},
+            {"tshirt":   Avatars[ "hmTshirt" ]},
+            {"trousers": Avatars[ "hmTrousers" ]},
+            {"shoes":    Avatars[ "hmSneakers" ]}
+        );
+        outfit.direction.scale.set(1.04, 1.04, 1.04); // IMPORTANT //
+
+        updateSkinColorpickers();
+    });
+
+    $(genderFemaleSelector).on("click", function(){
+        var outfit = localPlayer.outfit;
+        outfit.removeFromScene();
+        outfit.setGender("female");
+
+        outfit.add( 
+            {"body":  Avatars[ "fmBody" ]},
+            {"hairs": Avatars[ "fmHairs" ]},
+            {"dress": Avatars[ "fmDress" ]},
+            {"shoes": Avatars[ "fmSandal" ]}
+        );
+        outfit.direction.scale.set(1, 1, 1); // IMPORTANT //
+
+        updateSkinColorpickers();
+    });
+
+    $(genderResetSelector).on("click", function(){
+        var outfit = localPlayer.outfit;
+        outfit.removeFromScene();
+        outfit.resetGender();
+
+        outfit.add({"body": Avatars["skeleton"]});
+        
+        updateSkinColorpickers();
+    });
+*/
+</script>
+
+<script>
+/*
+    $(genderMaleSelector).on("click", function(){
+        $(maleAssetSelector).show();
+        $(femaleAssetSelector).hide();
+        $(unisexAssetSelector).show();
+    });
+
+    $(genderFemaleSelector).on("click", function(){
+        $(maleAssetSelector).hide();
+        $(femaleAssetSelector).show();
+        $(unisexAssetSelector).show();
+    });
+
+    $(genderResetSelector).on("click", function(){
+        $(maleAssetSelector).hide();
+        $(femaleAssetSelector).hide();
+        $(unisexAssetSelector).hide();
+    });
+*/
+</script>
+
+<script>
+/*
+//  Skin Spectrum Colorpickers.js
+
+    var skinSpectrumColorSelector    = "#sp-skin-color";
+    var skinSpectrumEmissiveSelector = "#sp-skin-emissive";
+
+    $(skinSpectrumColorSelector).spectrum({
+        preferredFormat: "hex",
+        color: "#ffffff",
+        flat: true,
+        showInput: true,
+        showInitial: true,
+        showButtons: false,
+        allowEmpty: false,
+        move: function(color) {
+            var outfit = localPlayer.outfit;
+            var hex = color.toString("hex").replace(/#/, "0x");
+            if (!!outfit.body) {
+                if ( !!outfit.body.material.materials ) {
+                    outfit.body.material.materials[0].color.setHex( hex );
+                } else {
+                    outfit.body.material.color.setHex( hex );
+                }
+            }
+        }
+    });
+
+    $(skinSpectrumEmissiveSelector).spectrum({
+        preferredFormat: "hex",
+        color: "#000000",
+        flat: true,
+        showInput: true,
+        showInitial: true,
+        showButtons: false,
+        allowEmpty: false,
+        move: function(color) {
+            var outfit = localPlayer.outfit;
+            var hex = color.toString("hex").replace(/#/, "0x");
+            if (!!outfit.body) {
+                if ( !!outfit.body.material.materials ) {
+                    outfit.body.material.materials[0].emissive.setHex( hex );
+                } else {
+                    outfit.body.material.emissive.setHex( hex );
+                }
+            }
+        }
+    });
+
+    $(skinSpectrumColorSelector).on("dragstop.spectrum", function(e, color) {
+   //  debugMode && console.log( "diffuse color on dragstop:", color.toHexString() );        
+        if ( !target) {
+            $(this).spectrum( "set", "#ffffff" ); 
+            return;
+        }
+    });
+
+    $(skinSpectrumEmissiveSelector).on("dragstop.spectrum", function(e, color) {
+    //  debugMode && console.log( "emissive color on dragstop:", color.toHexString() );
+        if ( !target) {
+            $(this).spectrum( "set", "#000000" );
+            return;
+        }
+    });
+
+    updateSkinColorpickers();
+
+    function updateSkinColorpickers(){
+    //  Colorpickers update.
+        var outfit = localPlayer.outfit;
+        var material, colorHex, emissiveHex;
+        if ( !!outfit.body.material.materials){
+            material = outfit.body.material.materials[0];
+        } else {
+            material = outfit.body.material
+        }
+        colorHex    = "#" + material.color.getHexString();
+        emissiveHex = "#" + material.emissive.getHexString();
+        $(skinSpectrumColorSelector).spectrum( "set", colorHex );
+        $(skinSpectrumEmissiveSelector).spectrum( "set", emissiveHex );
+    }
+*/
+</script>
+
+

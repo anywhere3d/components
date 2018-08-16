@@ -1,0 +1,64 @@
+<!-- outfit-panties-editor-button.html -->
+
+<h4>Panties Editor:</h4>
+<div id="outfit-panties-editor-button" class="form-control btn btn-default btn-white-outline">Open panties editor panel</div>
+
+
+<script>
+
+//    var dialogTargetEventListenersScript = "/js/dialogTargetEventListeners.js";
+//    $.getScript(dialogTargetEventListenersScript, function(script, status, xhr){
+//        debugMode && console.log("dialogTargetEventListeners:", status);
+//    });
+
+</script>
+
+
+<script>
+
+    var pantiesEditorButtonSelector = "#outfit-panties-editor-button";
+
+//  Define target.
+    $(pantiesEditorButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.panties.material.materials[0];
+        } else {
+            target = undefined;
+        }
+    });
+
+//  Import dialog components.
+    $(pantiesEditorButtonSelector).on("click", function (){
+        if (!!target && !$EditorPanel.active){
+
+            $EditorPanel.dialog( "option", {
+                width: 616,
+                minWidth: 616,
+                maxWidth: 616,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600
+            });
+
+            var size = [256, 256]; // makeFixedPowerOfTwo.js
+            var title = "Outfit Panties Editor";
+            $EditorPanel.loadMaterialPanel(title, size);
+        }
+    });
+
+//  Open/Close dialog.
+    $(pantiesEditorButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+</script>
+
+
+
+
+
+

@@ -1,0 +1,67 @@
+<!-- outfit-trousers-editor-button.html -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Trousers Editor:</li>
+<div id="outfit-trousers-editor-button" class="form-control btn btn-danger btn-white-outline gradient-btn">Open trousers editor panel</div>
+
+
+<script>
+
+    var trousersEditorButtonSelector = "#outfit-trousers-editor-button";
+
+    $(trousersEditorButtonSelector)[0].options = {
+        name: "trousers",
+        index: 0,
+        map: "map",
+        title: "Trousers Editor",
+    };
+
+
+//  Define target.
+    $(trousersEditorButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit[ this.options.name ].material.materials[ this.options.index ];
+        } else {
+            target = undefined;
+        }
+    });
+
+
+//  Import dialog components.
+    $(trousersEditorButtonSelector).on("click", function (){
+        if (!!target && !$EditorPanel.active){
+
+            $EditorPanel.dialog( "option", {
+                width: 616,
+                minWidth: 616,
+                maxWidth: 616,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600
+            });
+
+            var size = [512, 512]; // makeFixedPowerOfTwo.js
+            var title = "Trousers Editor";
+            $EditorPanel.loadMaterialPanel(title, size);
+        }
+    });
+
+
+//  Open/Close dialog.
+    $(trousersEditorButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+</script>
+
+
+
+
+
+
+
+

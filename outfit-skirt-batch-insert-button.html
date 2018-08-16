@@ -1,0 +1,187 @@
+<!-- outfit-skirt-batch-insert-button.html -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Skirt Batch Insert Form:</li>
+<div id="outfit-skirt-batch-insert-button" class="form-control btn btn-danger btn-white-outline gradient-btn">Open batch skrit insert form</div>
+
+
+<script>
+
+//  outfit-skirt-batch-insert-button.html
+
+    var skirtBatchInsertButtonSelector = "#outfit-skirt-batch-insert-button";
+
+    $(skirtBatchInsertButtonSelector)[0].uploadOptions = {
+        name    : "skirt", // outfit asset name.
+        editor  : "skirt", // outfit editor name.
+        index   : 0,         // material index.
+        maps    : ["map", "emissiveMap"],
+        kind    : "texture",
+        type    : "map",
+        outfit  : ["skirt"],
+        category: "skirt",
+        tags    : ["fabric", "skirt"],
+        gender  : ["female"],
+        clientid: "95e1ecaf14ca5e6",
+        endpoint: "https://api.imgur.com/3/image",
+        method: "POST",
+        snapshotEndpoint: "/snapshots/insert", // post url.
+        texturesEndpoint : "/textures/insert",  // post url.
+        collection: "textures",
+        scrOnly: false, //  replace sourceFiles only.
+    };
+
+    $(skirtBatchInsertButtonSelector)[0].fetchOptions = {
+        endpoint: "/textures/find/selectors/options",
+        selectors: {
+            kind: "texture",
+            type: "map",
+            category: "fabric",
+        },
+        options: {
+            skip: 0,
+            limit: 16,
+            sort: {_id: -1 },
+            fields: {  
+                "id":1,
+                "ext":1,
+                "title":1, // "kind":1, "type":1, "outfit":1, 
+            //  "material_index":1, // "geometry_name":1, 
+            //  "master_snapshot":1, // "snapshots":1, 
+            //  "size":1, "width":1, "height":1, "mimeType":1,
+            },
+        },
+    };
+
+    $(skirtBatchInsertButtonSelector)[0].options = {
+        name: "skirt",
+        index: 0,
+        map: "map",
+        title: "Skirt Batch Insert Form",
+        component: "outfit-texture-batch-insert-form.html",
+        counterPath: "/textures/skirt/upload/counter",
+        prefixedTitle: "skirt SKF",
+    };
+
+/*
+//  Avatar is not avaliable.
+    $(skirtBatchInsertButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit ) {
+            var msg = "Avatar not defined.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Outfit is not avaliable.
+    $(skirtBatchInsertButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit[ this.options.name ] ) {
+            var msg = "Outfit not defined.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Target is not avaliable.
+    $(skirtBatchInsertButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit[ this.options.name ].material.materials[ this.options.index ] ) {
+            var msg = "Material not defined.";
+            bootboxErrorAlert(msg);
+        }
+    });
+*/
+
+//  Define holder.
+    $(skirtBatchInsertButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit[ this.options.name ] ) return;
+        if ( !localPlayer.outfit[ this.options.name ].material.materials[ this.options.index ] ) return;
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+
+    });
+
+
+//  Define target.
+    $(skirtBatchInsertButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit[ this.options.name ] ) return;
+        if ( !localPlayer.outfit[ this.options.name ].material.materials[ this.options.index ] ) return;
+
+        if ( !$EditorPanel.active ){
+
+            target = localPlayer.outfit[ this.options.name ].material.materials[ this.options.index ];
+
+        } else {
+
+            target = undefined;
+        }
+
+    });
+
+
+
+//  Import dialog form component and apply dialog option.
+    $(skirtBatchInsertButtonSelector).on("click", function(){
+
+        if ( !target ) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 500,
+                minWidth: 500,
+                maxWidth: 500,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Skirt Batch Insert Form",
+            };
+
+            var component = "outfit-texture-batch-insert-form.html";
+            $EditorPanel.loadComponent(component, option);
+
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(skirtBatchInsertButtonSelector).on("click", function(){
+
+        if ( !$EditorPanel.active ) {
+            if ( !target ) return;
+
+            $EditorPanel.dialog("open");
+
+        } else {
+
+            $EditorPanel.dialog("close");
+        }
+
+    });
+
+
+//  Target is not defined.
+    $(skirtBatchInsertButtonSelector).on("click", function(){
+        if ( !$EditorPanel.active && !target ) {
+            var msg = "Deny: skirt not defined";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+

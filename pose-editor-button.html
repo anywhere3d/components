@@ -1,0 +1,97 @@
+<!-- poser-editor-button.html -->
+
+
+<h4>Pose Editor:</h4>
+<div id="poser-button" class="form-control btn btn-primary btn-white-outline">Open pose editor panel</div>
+
+
+<script>
+
+    var componentsFolder = "/components/";
+    var poserButtonSelector = "#poser-button";
+
+</script>
+
+
+<script>
+
+//  Confing dialog option.
+    $(poserButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+
+            var option = {
+                width: 400,
+                minWidth: 400,
+                maxWidth: 400,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600,
+                title: "Pose Editor",
+            }
+
+            $EditorPanel.dialog( "option", option );
+        }
+    });
+
+//  Import dialog components.
+    $(poserButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            var PoseEditorControlsComponent = componentsFolder + "pose-editor-controls.html";
+            $EditorPanel.load(PoseEditorControlsComponent, function(response, status, xhr){
+                debugMode && console.log("pose-editor-controls:", status);
+            });
+        }
+    });
+
+//  Open/Close dialog.
+    $(poserButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
+
+/*
+//  Define target. (bone target is defined in animation-skeleton-controls.html).
+    $(poserButtonSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit.body;
+        } else {
+            target = undefined;
+        }
+    });
+*/
+
+</script>
+
+<script>
+
+//  Poser editor sliders updates.js
+
+    var updatesSelector = "#updates";
+
+    $(updatesSelector).append('<input type="hidden" id="positionSliderUpdater">');
+    $(updatesSelector).append('<input type="hidden" id="rotationSliderUpdater">');
+    $(updatesSelector).append('<input type="hidden" id="scaleSliderUpdater">');
+    $(updatesSelector).append('<input type="hidden" id="uniformSliderUpdater">');
+
+    var positionSliderUpdaterSelector = "#positionSliderUpdater";
+    var rotationSliderUpdaterSelector = "#rotationSliderUpdater";
+    var scaleSliderUpdaterSelector    = "#scaleSliderUpdater";
+    var uniformSliderUpdaterSelector  = "#uniformSliderUpdater";
+
+    var $positionSliderUpdater = $(positionSliderUpdaterSelector)[0];
+    var $rotationSliderUpdater = $(rotationSliderUpdaterSelector)[0];
+    var $scaleSliderUpdater    = $(scaleSliderUpdaterSelector)[0];
+    var $uniformSliderUpdater  = $(uniformSliderUpdaterSelector)[0];
+
+    $positionSliderUpdater.update = function(){ submitPositionValue(); };
+    $rotationSliderUpdater.update = function(){ submitRotationValue(); };
+    $scaleSliderUpdater.update    = function(){ submitNewScaleValue(); };
+    $uniformSliderUpdater.update  = function(){ submitUniformScaleValue(); };
+
+
+</script>
+
+

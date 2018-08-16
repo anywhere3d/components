@@ -1,0 +1,132 @@
+<!-- outfit-trousers-upload-button.html -->
+
+
+<li style="margin:10px -18px;list-style-type:square;">Trousers Texture Upload Form:</li>
+<div id="outfit-trousers-upload-button" class="form-control btn btn-danger btn-white-outline gradient-btn">Upload trousers texture</div>
+
+
+<script>
+
+//  outfit-trousers-upload-button.html
+
+    var outfitTrousersUploadButtonSelector = "#outfit-trousers-upload-button";
+
+    $(outfitTrousersUploadButtonSelector)[0].uploadOptions = {
+        name    : "trousers", // outfit asset name.
+        editor  : "trousers", // outfit editor name.
+        index   : 0,         // material index.
+        maps    : ["map", "emissiveMap"],
+        kind    : "texture",
+        type    : "map",
+        outfit  : "trousers",
+        category: "trousers",
+        tags    : ["fabric", "trousers"],
+        gender  : ["male", "female"],
+        clientid: "95e1ecaf14ca5e6",
+        endpoint: "https://api.imgur.com/3/image",
+        method: "POST",
+        snapshotEndpoint: "/snapshots/insert", // post url.
+        texturesEndpoint : "/textures/insert",  // post url.
+        collection: "textures",
+        scrOnly: false, //  replace sourceFiles only.
+    };
+
+    $(outfitTrousersUploadButtonSelector)[0].options = {
+        name: "trousers",
+        index: 0,
+        map: "map",
+        title: "Trousers Upload Form",
+        component: "outfit-texture-upload-form.html"
+    };
+
+
+
+//  Define button holder.
+    $(outfitTrousersUploadButtonSelector).on("click", function (){
+
+        if ( !$EditorPanel.active ){
+            editorHolderButton = this;
+        } else {
+            editorHolderButton = undefined;
+        }
+
+    });
+
+
+//  Target texture is not avaliable.
+    $(outfitTrousersUploadButtonSelector).on("click", function (){
+        if ( !localPlayer.outfit[ this.options.name ].material.materials[ this.options.index ][ this.options.map ] ) {
+            var msg = "Open trousers editor panel and import a diffuse map texture for this outfit first.";
+            bootboxErrorAlert(msg);
+        }
+    });
+
+
+//  Define upload target.
+    $(outfitTrousersUploadButtonSelector).on("click", function (){
+
+        if ( !localPlayer.outfit[ this.options.name ].material.materials[ this.options.index ][ this.options.map ] ) return;
+
+        if ( !$EditorPanel.active ){
+            target = localPlayer.outfit[ this.options.name ].material.materials[this.options.index][ this.options.map ].image; // must be canvas.
+        } else {
+            target = undefined;
+        }
+
+    });
+
+
+//  Import dialog form component and apply dialog option.
+    $(outfitTrousersUploadButtonSelector).on("click", function(){
+
+        if (!target) return;
+
+        if ( !$EditorPanel.active ) {
+
+            var option = {
+                width: 420,
+                minWidth: 420,
+                maxWidth: 420,
+                height: 650,
+                minHeight: 650,
+                maxHeight: 650,
+                title: "Trousers Upload Form",
+            }
+
+            var component = "outfit-texture-upload-form.html";
+            $EditorPanel.loadComponent(component, option);
+        }
+
+    });
+
+
+//  Open/Close dialog.
+    $(outfitTrousersUploadButtonSelector).on("click", function(){
+
+        if ( !$EditorPanel.active ) {
+            if (!target) return;
+
+            $EditorPanel.dialog("open");
+
+        } else {
+
+            $EditorPanel.dialog("close");
+
+        }
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
