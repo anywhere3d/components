@@ -1,0 +1,49 @@
+<!-- asset-import-button.html (v1.0) -->
+
+
+<div id="asset-import" class="form-control btn btn-danger btn-white-outline gradient-btn">Import Mesh</div>
+<input type="file" class="hidden" id="asset-input">
+
+
+<script>
+//  File Input button.
+    var fileinputSelector = "#asset-input";
+    var assetImportSelector = "#asset-import";
+    $(assetImportSelector).on( "click", assetImportButtonClickHandler );
+    function assetImportButtonClickHandler(){
+        $(fileinputSelector).val("");  // reset Filelist.
+        $(fileinputSelector).click();  // open file input window.
+    }
+    $(fileinputSelector).on("change", function(e){
+    //  if (!target) return;
+        if ( e.currentTarget.files.length == 0 ) return;
+        debugMode && console.log("value:", $(this).val() );
+        var files = e.currentTarget.files;
+        debugMode && console.log("files:", files);
+        for (var i = 0; i < files.length; i++) {
+        //  Get file, name and extension.
+            var file = e.currentTarget.files[i];
+            var filename = file.name;
+            debugMode && console.log("filename:", filename);
+    
+            var ext = filename.split( "." ).pop().toLowerCase();
+            var name = filename.split( "." ); name.pop(); 
+            name = name.join( "." ).replace(/\W/g, "_");
+            debugMode && console.log("name:", name, "extension:", ext);
+        //  File Reader.
+            var reader = new FileReader();
+            reader.onerror = onReaderError;
+            reader.onload = onReaderLoad;
+            reader.readAsText(file);
+            function onReaderError(err){
+                console.error(err);
+            }
+            function onReaderLoad(event){
+                var json = JSON.parse( reader.result );
+                debugMode && console.log("json:", json);
+                var mesh = initMeshAsset( json );
+                debugMode && console.log("mesh:", mesh);
+                scene.add( mesh );
+            }
+        }
+    });
