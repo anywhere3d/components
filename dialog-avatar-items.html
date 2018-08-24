@@ -1,0 +1,427 @@
+<!-- dialog-avatar-items.html (v1.3) -->
+
+<style>
+
+    .ui-dialog {
+        z-index:9999 !important;
+    }
+
+    .dialog-panel,
+    #editor-panel,
+    #catalog-panel {
+        width:100% !important;
+        min-width:100% !important;
+        max-width:100% !important; 
+        min-height:550px !important;
+        max-height:550px !important; 
+        background-color:#000000 !important;
+    }
+    .catalog-item {
+        width:100px;
+        height:100px;
+        margin:4px;
+        background-size: contain; 
+        background-position:50% 50%; 
+        background-repeat:no-repeat;
+    }
+    .panel-container {
+        height:auto; 
+        padding:0px;
+        margin:0px;
+        color:#ffffff;
+    }
+    .pager {
+        padding-right:20px;
+    }
+
+    .dialog-panel h4 { 
+        color:#ffffff; 
+    }
+
+    .ui-widget-overlay { 
+        background:none;
+        opacity:0;
+    }
+
+    .page-btn {
+        max-width:50px;
+    }
+
+</style>
+
+<h4>Select avatar: <div class="pull-right small">page:<span id="page"></span>, items:<span id="from"></span> to <span id="to"></span> of <span id="count"></span></div></h4>
+
+<div id="dialog-avatar-items" class="panel-container">
+    <li class="btn btn-default btn-white-outline catalog-item" 
+    style="background-image:url('https://i.imgur.com/{{master_snapshot}}s.jpg');"
+    title={{title}} data-id={{_id}} data-type={{type}} data-data={{data}} 
+    w3-repeat="success" onclick="catalogItemClickHandler(this);"></li>
+</div>
+
+<div class="pager">
+    <li class="btn btn-primary get-prev-btn pull-left">Prev page</li>
+    <div class="pager-buttons-holder" style="display:inline;">
+        <a class="btn btn-default page-btn"></a>
+        <a class="btn btn-default page-btn"></a>
+        <a class="btn btn-default page-btn"></a>
+        <a class="btn btn-default page-btn"></a>
+    </div>
+    <li class="btn btn-primary get-next-btn pull-right">Next page</li>
+</div>
+
+<script>
+
+//  "dialogHolder" keeps the "fetch-options" of "dialogPanel"
+//  which $(dialogPanel) in this case here is "$avatarCatalog".
+
+    var primaryClass = "btn-primary";
+    var pageBtnSelector = ".page-btn";
+    var dialogPanelSelector = ".dialog-panel";
+    var getNextBtnSelector = ".get-next-btn";
+    var getPrevBtnSelector = ".get-prev-btn";
+
+//  On dialog panel open.
+
+    $(function(){
+
+        var catalogItemsSelector = "dialog-avatar-items";
+        var dialogHolder = $avatarCatalog.data("dialog-holder");
+    //  debugMode && console.log( "dialogHolder:", dialogHolder );
+
+        countCatalogItems(dialogHolder);
+        openCatalogItems(dialogHolder);
+
+        function openCatalogItems( dialogHolder ){
+    
+            var fetchOptions = $(dialogHolder).data("fetch-options");
+        //  debugMode && console.log("fetchOptions:", fetchOptions);
+    
+            var endpoint = fetchOptions.endpoint;
+            var options = fetchOptions.options;
+            var selectors = fetchOptions.selectors;
+            debugMode && console.log( "options:", options );
+    
+            var data = {
+                options:   JSON.stringify( fetchOptions.options ),
+                selectors: JSON.stringify( fetchOptions.selectors ),
+            };
+    
+        //  debugMode && console.log("find data:", data);
+    
+            var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+                debugMode && console.log("post%s: %s", endpoint, status);
+            }).then( function( data ){
+                debugMode && console.log("data:", data);
+                w3.displayObject( catalogItemsSelector, data );
+            //  pager initial values.
+                var pageIndex = parseInt( options.skip / options.limit );
+                $avatarCatalog.find("span#page").text( pageIndex + 1 );
+                $avatarCatalog.find("span#from").text( options.skip + 1 );
+                $avatarCatalog.find("span#to").text(options.skip + data.success.length);
+                return data.success;
+            });
+    
+            jqxhr.done( function( results ){
+                $avatarCatalog.dialog("open");
+                initPagenation(dialogHolder);
+                debugMode && console.log( "results:", results );
+            });
+    
+        //  init pagenation.
+            function initPagenation( dialogHolder ){
+                var fetchOptions = $(dialogHolder).data("fetch-options");
+            //  debugMode && console.log( "fetchOptions:", fetchOptions );
+                var skip = fetchOptions.options.skip;
+                $(dialogHolder).data("skip",  skip );
+                var limit = fetchOptions.options.limit;
+                $(dialogHolder).data("limit", limit );
+                var pageIndex = parseInt( skip / limit );
+                $(dialogHolder).data( "pageIndex", pageIndex );
+                var $pageBtnObject = $avatarCatalog.find(pageBtnSelector);
+                $pageBtnObject.removeClass( primaryClass );
+                var buttonIndex = $(dialogHolder).data("button-index");
+                var pagebutton  = $pageBtnObject.get(buttonIndex);
+                $(pagebutton).addClass( primaryClass );
+                var l = $pageBtnObject.length;
+                var d = parseInt( pageIndex / l );
+                var m = parseInt( pageIndex % l );
+                var n = l * d;
+            //  debugMode && console.log("l:%i, d:%i, m:%i, n:%i", l, d, m, n);
+                $pageBtnObject.each( function( i, button ){
+                    var index = n + i;
+                    $(button).data("index", index);
+                    $(button).text( index + 1 );
+                });
+            }
+    
+            jqxhr.fail( function( err ){
+                console.error(err);
+            });
+            
+            jqxhr.always( function(){
+                $(".dialog-spinner").remove();
+            });
+    
+        }
+
+
+        function countCatalogItems( dialogHolder ){
+    
+            var fetchOptions = $(dialogHolder).data("fetch-options");
+        //  debugMode && console.log("fetchOptions:", fetchOptions);
+    
+            var options = {};
+            var selectors = fetchOptions.selectors;
+            var endpoint = "/outfits/count/selectors/options";
+    
+            var data = {
+                options:   JSON.stringify( options ),
+                selectors: JSON.stringify( fetchOptions.selectors ),
+            };
+    
+            var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+            //  debugMode && console.log("data:", data);
+            }).then( function( data ){
+                return data.count;
+            }).done( function( count ){
+                $(dialogHolder).data("count", count);
+                $avatarCatalog.find("span#count").text(count);
+                debugMode && console.log( "count:", count );
+            }).fail( function( err ){
+                throw err;
+            });
+    
+        }
+    
+    //  Page buttons event handler.
+    
+        $avatarCatalog.find(getNextBtnSelector).on("click", getNextPageClickHandler);
+        $avatarCatalog.find(getPrevBtnSelector).on("click", getPrevPageClickHandler);
+        $avatarCatalog.find(pageBtnSelector).each( function(i, button){
+    
+            $(button).text( i + 1 );
+            $(button).data("index", i);
+    
+            $(button).on("click", function(){
+                var dialogHolder = $avatarCatalog.data("dialog-holder");
+
+                clearTimeout( $(dialogHolder).data("timeout") );
+    
+                var count = $(dialogHolder).data("count");
+                var timeout = $(dialogHolder).data("timeout");
+                var skip = $(dialogHolder).data("skip");
+                var limit = $(dialogHolder).data("limit");
+    
+            //  Set new button index.
+                var buttonIndex = $(pageBtnSelector).index(this);
+                $(dialogHolder).data("buttonIndex", buttonIndex);
+    
+            //  Set new page index.
+                var pageIndex = $(this).data("index");
+                $(dialogHolder).data("pageIndex", pageIndex);
+    
+            //  Clear page buttons primary class.
+                $avatarCatalog.find(pageBtnSelector).removeClass( primaryClass );
+    
+            //  Set primary class to button.
+                $(this).addClass( primaryClass );
+            //  debugMode && console.log("page-index:%i, button-index:%i", pageIndex, buttonIndex);
+
+            //  Set new fetch options.
+                $(dialogHolder).data("fetch-options").options.limit = limit;
+                $(dialogHolder).data("fetch-options").options.skip = pageIndex * limit;
+                debugMode && console.log("options:", $(dialogHolder).data("fetch-options").options);
+
+            //  Button click handler.
+                var clickHandler = () => {
+                    fetchCatalogPageItems( dialogHolder );
+                }
+                
+                $(dialogHolder).data( "timeout", setTimeout(clickHandler, 500) );
+    
+            });
+    
+        });
+    
+        function getNextPageClickHandler(){
+    
+            var dialogHolder = $avatarCatalog.data("dialog-holder");
+    
+            var count   = $(dialogHolder).data("count");
+            var timeout = $(dialogHolder).data("timeout");
+            var skip    = $(dialogHolder).data("fetch-options").options.skip;
+            var limit   = $(dialogHolder).data("fetch-options").options.limit;
+            var pageIndex = $(dialogHolder).data("page-index");
+            var buttonIndex = $(dialogHolder).data("button-index");
+    
+            debugMode && console.log("skip:", skip, "limit:", limit, "skip + limit =", skip + limit, "count:", count);
+        
+            if ( !count || skip + limit >= count ) return false;
+            clearTimeout( $(dialogHolder).data("timeout") );
+    
+            pageIndex++; 
+            skip = pageIndex * limit;
+            $avatarCatalog.find("span#page").text(pageIndex + 1);
+
+        //  pagenation.
+    
+            var $pageBtnObject = $avatarCatalog.find(pageBtnSelector);
+        //  debugMode && console.log("$pageBtnObject:", $pageBtnObject);
+    
+            $pageBtnObject.removeClass( primaryClass );
+    
+            var l = $pageBtnObject.length;
+            var d = parseInt( pageIndex / l );
+            var m = parseInt( pageIndex % l );
+    
+            var n = l * d;
+            
+        //  debugMode && console.log("l:%i, d:%i, m:%i, n:%i", l, d, m, n);
+    
+            $pageBtnObject.each( function( i, button ){
+                var index = n + i;
+                $(button).data("index", index);
+                $(button).text( index + 1 );
+            });
+    
+            var buttonIndex = m;
+            var currentButton = $pageBtnObject.get(m);
+            $(currentButton).addClass( primaryClass );
+    
+        //  end pagenation.
+    
+            $(dialogHolder).data("pageIndex", pageIndex);
+            $(dialogHolder).data("buttonIndex", buttonIndex);
+            $(dialogHolder).data().fetchOptions.options.skip = skip;
+            $(dialogHolder).data().fetchOptions.options.limit = limit;
+    
+        //  Button click handler.
+            var clickHandler = () => {
+                fetchCatalogPageItems( dialogHolder );
+            };
+    
+         // var timeout = setTimeout(buttonClickHandler, 500);
+            $(dialogHolder).data("timeout", setTimeout(clickHandler, 500) );
+    
+        }
+    
+        function getPrevPageClickHandler(){
+    
+            var dialogHolder = $avatarCatalog.data("dialog-holder");
+    
+            var count   = $(dialogHolder).data("count");
+            var timeout = $(dialogHolder).data("timeout");
+            var skip    = $(dialogHolder).data("fetch-options").options.skip;
+            var limit   = $(dialogHolder).data("fetch-options").options.limit;
+            var pageIndex = $(dialogHolder).data("page-index");
+            var buttonIndex = $(dialogHolder).data("button-index");
+    
+            debugMode && console.log("skip:", skip, "limit:", limit, "skip + limit =", skip + limit, "count:", count);
+        
+            if ( pageIndex - 1 < 0 ) return false;
+            clearTimeout( $(dialogHolder).data("timeout") );
+    
+            pageIndex--;
+            skip = pageIndex * limit;
+            $avatarCatalog.find("span#page").text(pageIndex + 1);
+        
+        //  pagenation.
+    
+            var $pageBtnObject = $avatarCatalog.find(pageBtnSelector);
+        //  debugMode && console.log("$pageBtnObject:", $pageBtnObject);
+    
+            $pageBtnObject.removeClass( primaryClass );
+    
+            var l = $pageBtnObject.length;
+            var d = parseInt( pageIndex / l );
+            var m = parseInt( pageIndex % l );
+    
+            var n = l * d;
+            
+        //  debugMode && console.log("l:%i, d:%i, m:%i, n:%i", l, d, m, n);
+    
+            $pageBtnObject.each( function( i, button ){
+                var index = n + i;
+                $(button).data("index", index);
+                $(button).text( index + 1 );
+            });
+    
+            var buttonIndex = m;
+            var currentButton = $pageBtnObject.get(m);
+            $(currentButton).addClass( primaryClass );
+    
+        //  end pagenation.
+    
+            $(dialogHolder).data("pageIndex", pageIndex);
+            $(dialogHolder).data("buttonIndex", buttonIndex);
+            $(dialogHolder).data().fetchOptions.options.skip = skip;
+            $(dialogHolder).data().fetchOptions.options.limit = limit;
+    
+        //  Button click handler.
+            var clickHandler = () => {
+                fetchCatalogPageItems( dialogHolder );
+            };
+    
+            $(dialogHolder).data("timeout", setTimeout(clickHandler, 500) );
+    
+        }
+    
+    
+        function fetchCatalogPageItems( dialogHolder ){
+            debugMode && console.log("fetching catalog page items...", $(dialogHolder).data() );
+    
+            var fetchOptions = $(dialogHolder).data("fetch-options");
+            debugMode && console.log("fetchOptions:", fetchOptions);
+    
+            var skip = fetchOptions.options.skip;
+            var limit = fetchOptions.options.limit;
+            var pageIndex = $(dialogHolder).data("page-index");
+            debugMode && console.log("skip:%i, limit:%i, page-index:%i", skip, limit, pageIndex);
+    
+            var endpoint = fetchOptions.endpoint;
+            debugMode && console.log("endpoint%s", endpoint);
+    
+            var data = {
+                options:   JSON.stringify( fetchOptions.options ),
+                selectors: JSON.stringify( fetchOptions.selectors ),
+            };
+    
+        //  debugMode && console.log("data", data);
+    
+            var jqxhr = $.post( endpoint, data, function(data, status, xhr){
+                debugMode && console.log("post%s: %s", endpoint, status);
+            }).then( function( data ){
+                debugMode && console.log("data:", data);
+                w3.displayObject(catalogItemsSelector, data);
+                $("img.lazy").Lazy({
+                    chainable: true,
+                    effect:"fadeIn",
+                    effectTime:250,
+                });
+                return data.success;
+            });
+    
+    
+            jqxhr.done( function(results){
+                $(dialogHolder).data("skip", skip);
+                $(dialogHolder).data("limit", limit);
+            //
+                $avatarCatalog.find("span#page").text(pageIndex + 1);
+                $avatarCatalog.find("span#from").text(skip + 1);
+                $avatarCatalog.find("span#to").text(skip + results.length);
+                $avatarCatalog.find("span#length").text(results.length);
+            });
+    
+            jqxhr.fail( function( err ){
+                throw err;
+            });
+    
+            jqxhr.always( function(){
+                countCatalogItems( dialogHolder );
+            });
+    
+        }
+
+    });
+
+</script>
