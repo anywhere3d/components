@@ -48,6 +48,88 @@
 <h4>Snapshots:</h4>
 <div id="snapshot-open-button" class="form-control btn btn-primary btn-white-outline">Open snapshot panel</div>
 
+
+<script>
+
+    var snapshotMenuItemSelector     = "#nav-item-snapshot";
+    var snapshotDialogFooterSelector = "#snapshot-dialog-footer";
+    var snapshotShootButtonSelector  = "#snapshot-shoot-button";
+    var snapshotCancelButtonSelector = "#snapshot-cancel-button";
+
+//  Dialog options.
+    $(snapshotMenuItemSelector).on("click", function (){
+
+        var option = {
+            width    : 428,
+            minWidth : 428,
+            maxWidth : 428,
+            height   : 670,
+            minHeight: 670,
+            maxHeight: 670,
+            title    : "Snapshot Panel"
+        };
+
+        if ( !$SnapshotPanel.active ){
+            $SnapshotPanel.dialog( "option", option );
+        }
+
+    });
+/*
+//  Add snapshot shoot button event listener.
+    $SnapshotPanel.on( "dialogopen", function( event, ui ) {
+        $(snapshotShootButtonSelector).on( "click", snapshotShootButtonOnClickEventHandler );
+        debugMode && console.log("Snapshot shoot button handler is on!");
+    });
+
+//  Remove snapshot shoot button event listener.
+    $SnapshotPanel.on( "dialogclose", function( event, ui ) {
+        $(snapshotShootButtonSelector).off( "click" );
+        debugMode && console.log("Snapshot shoot button handler is off!");
+    });
+*/
+//  Append/Remove dialog footer.
+    $(snapshotMenuItemSelector).on("click", function (){
+
+        if ( !$SnapshotPanel.active ) {
+
+            var snapshotFooterHtml = [
+                '<div id="snapshot-dialog-footer">',
+                    '<a id="snapshot-shoot-button" class="btn btn-primary pull-right">Take snapshot</a>',
+                    '<a id="snapshot-cancel-button" class="btn btn-default">Close</a>',
+                '</div>'
+            ].join("");
+
+        //  Add snapshot dialog footer.
+            $SnapshotPanel.parent().append( snapshotFooterHtml );
+
+        //  Add snapshot shoot button event listener.
+            $(snapshotShootButtonSelector).on( "click", snapshotShootButtonOnClickEventHandler );
+            debugMode && console.log("Snapshot shoot button handler is on!");
+        
+        //  Add snapshot cancel button event listener.
+            $(snapshotCancelButtonSelector).on( "click", function(){
+                $SnapshotPanel.dialog("close");
+            });
+
+        //  Remove snapshot dialog footer.
+            $SnapshotPanel.one( "dialogclose", function( event, ui ) {
+                $(snapshotDialogFooterSelector).remove();
+            });
+        }
+
+    });
+
+//  Open/Close dialog.
+    $(snapshotMenuItemSelector).on("click", function (){
+        if ( !$SnapshotPanel.active ) {
+            $SnapshotPanel.dialog("open");
+        } else {
+            $SnapshotPanel.dialog("close");
+        }
+    });
+
+</script>
+
 <script>
 
     var snapshotOpenButtonSelector   = "#snapshot-open-button";
