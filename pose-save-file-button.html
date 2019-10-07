@@ -9,8 +9,29 @@
 //  pose-save-file-button.html
 
     var poseSaveFileButtonSelector = "#pose-save-file-button";
+    var poseSaveFileMenuItemSelector = "#nav-item-savefile";
 
     $(poseSaveFileButtonSelector).on("click", function(){
+
+        new Promise( function(resolve, reject ){
+
+            var skinned = localPlayer.outfit["body"];
+            var json = poseToJSON( skinned );
+            resolve( json );
+
+        }).then(function( json ){
+
+            var gender = localPlayer.outfit.getGender();
+            var name = gender + "-pose-" + Date.now().toString(36);
+            saveJSONtoFile( json, name );
+        
+        }).catch( function( err ){
+            console.error( err );
+        });
+
+    });
+
+    $(poseSaveFileMenuItemSelector).on("click", function(){
 
         new Promise( function(resolve, reject ){
 
