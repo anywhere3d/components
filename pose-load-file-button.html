@@ -7,9 +7,15 @@
 <script>
 
     var loadPoseButtonSelector = "#load-pose-button";
+    var loadPoseMenuItemSelector = "#nav-item-loader";
     var loadPoseInputSelector = "#load-pose-input";
 
     $(loadPoseButtonSelector).on("click", function(){
+        $(loadPoseInputSelector).val("");
+        $(loadPoseInputSelector).click();
+    });
+
+    $(loadPoseMenuItemSelector).on("click", function(){
         $(loadPoseInputSelector).val("");
         $(loadPoseInputSelector).click();
     });
