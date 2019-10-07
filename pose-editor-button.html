@@ -9,6 +9,48 @@
 
     var componentsFolder = "/components/";
     var poserButtonSelector = "#poser-button";
+    var poserMenuItemSelector = "#nav-item-editor";
+
+</script>
+
+<script>
+
+//  Import dialog components.
+    $(poserMenuItemSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+
+            var option = {
+                width: 400,
+                minWidth: 400,
+                maxWidth: 400,
+                height: 600,
+                minHeight: 600,
+                maxHeight: 600,
+                title: "Poser Editor",
+            }
+
+            $EditorPanel.dialog( "option", option );
+        }
+    });
+
+//  Import dialog components.
+    $(poserMenuItemSelector).on("click", function (){
+        if ( !$EditorPanel.active ){
+            var PoserEditorControlsComponent = componentsFolder + "poser-editor-controls.html";
+            $EditorPanel.load(PoserEditorControlsComponent, function(response, status, xhr){
+                debugMode && console.log("poser-editor-controls:", status);
+            });
+        }
+    });
+
+//  Open/Close dialog.
+    $(poserMenuItemSelector).on("click", function (){
+        if ( !$EditorPanel.active ) {
+            $EditorPanel.dialog("open");
+        } else {
+            $EditorPanel.dialog("close");
+        }
+    });
 
 </script>
 
